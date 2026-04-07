@@ -1,0 +1,112 @@
+<script>
+function getAvatarConfigById_(avatarId) {
+    for (var i = 0; i < avatarCatalog.length; i++) {
+        if (avatarCatalog[i].id === avatarId) return avatarCatalog[i];
+    }
+    return null;
+}
+function getAvatarConfigByNameOrEmoji_(avatarName, avatarEmoji) {
+    for (var i = 0; i < avatarCatalog.length; i++) {
+        if ((avatarName && avatarCatalog[i].name === avatarName) || (avatarEmoji && avatarCatalog[i].emoji === avatarEmoji)) return avatarCatalog[i];
+    }
+    return null;
+}
+function getAvatarConfigByPlayer_(player) {
+    if (!player) return getAvatarConfigById_('cat');
+    return getAvatarConfigById_(player.avatarId) || getAvatarConfigByNameOrEmoji_(player.avatarName, player.avatar) || getAvatarConfigById_('cat');
+}
+function inferPlayerAvatarId_() {
+    if (shopData && shopData.equippedAvatar && getAvatarConfigById_(shopData.equippedAvatar)) return shopData.equippedAvatar;
+    if (playerInfo.avatarId && getAvatarConfigById_(playerInfo.avatarId)) return playerInfo.avatarId;
+    var resolved = getAvatarConfigByNameOrEmoji_(playerInfo.avatarName, playerInfo.avatar);
+    return resolved ? resolved.id : 'cat';
+}
+function getCurrentAvatarConfig_() {
+    return getAvatarConfigById_(inferPlayerAvatarId_()) || getAvatarConfigById_('cat');
+}
+function syncPlayerAvatarFromConfig_(avatarConfig) {
+    if (!avatarConfig) return;
+    playerInfo.avatar = avatarConfig.emoji || '';
+    playerInfo.avatarName = avatarConfig.name || '';
+    playerInfo.avatarId = avatarConfig.id || '';
+}
+function handleAvatarImageError(img) {
+    if (!img || !img.parentNode) return;
+    img.style.display = 'none';
+    var fallback = img.parentNode.querySelector('.avatar-fallback');
+    if (fallback) fallback.classList.remove('hidden');
+    img.parentNode.classList.add('avatar-visual--emoji');
+}
+function buildAvatarMarkup_(avatarConfig, sizeClass, extraClass) {
+    var resolved = avatarConfig || getAvatarConfigById_('cat');
+    var classes = 'avatar-visual ' + (sizeClass || 'avatar-visual--md') + (extraClass ? ' ' + extraClass : '');
+    var name = escapeHtml(resolved.name || '角色');
+    var emoji = escapeHtml(resolved.emoji || '👤');
+    var imageUrl = escapeHtml(resolved.imageUrl || '');
+    if (imageUrl) return '<span class="' + classes + '" title="' + name + '"><img src="' + imageUrl + '" alt="' + name + '" class="avatar-image" loading="lazy" referrerpolicy="no-referrer" onerror="handleAvatarImageError(this)"><span class="avatar-fallback hidden">' + emoji + '</span></span>';
+    return '<span class="' + classes + ' avatar-visual--emoji" title="' + name + '"><span class="avatar-fallback">' + emoji + '</span></span>';
+}
+function applyAvatarVisualToElement_(element, avatarConfig, sizeClass, extraClass) {
+    if (!element) return;
+    element.innerHTML = buildAvatarMarkup_(avatarConfig, sizeClass, extraClass);
+}
+function refreshPlayerAvatarVisuals_() {
+    var currentAvatar = getCurrentAvatarConfig_();
+    applyAvatarVisualToElement_(document.getElementById('top-avatar'), currentAvatar, 'avatar-visual--md', 'avatar-idle');
+    applyAvatarVisualToElement_(document.getElementById('home-avatar'), currentAvatar, 'avatar-visual--xl', 'avatar-idle');
+}
+function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, function(ch) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+}
+function showToast(message, type, title, duration) {
+    var stack = document.getElementById('app-toast-stack');
+    if (!stack || !message) return;
+    var tone = type || 'info';
+    var config = {
+        info: { icon: 'ℹ️', title: title || '提示' },
+        success: { icon: '✅', title: title || '完成' },
+        warning: { icon: '⚠️', title: title || '留意' },
+        error: { icon: '❌', title: title || '發生問題' }
+    };
+    var meta = config[tone] || config.info;
+    var toast = document.createElement('div');
+    toast.className = 'app-toast app-toast--' + tone;
+    toast.innerHTML = '<div class="app-toast__icon">' + meta.icon + '</div>' +
+        '<div class="min-w-0 flex-1"><div class="app-toast__title">' + escapeHtml(meta.title) + '</div><div class="app-toast__message">' + escapeHtml(message) + '</div></div>' +
+        '<button type="button" class="app-toast__close" aria-label="關閉">×</button>';
+    stack.appendChild(toast);
+    function removeToast() {
+        if (!toast.parentNode) return;
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-6px) scale(0.98)';
+        setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 180);
+    }
+    toast.querySelector('.app-toast__close').onclick = removeToast;
+    setTimeout(removeToast, typeof duration === 'number' ? duration : 2600);
+}
+function showConfirmDialog(options) {
+    var modal = document.getElementById('confirm-modal');
+    if (!modal) return Promise.resolve(false);
+    options = options || {};
+    document.getElementById('confirm-title').innerText = options.title || '確認操作';
+    document.getElementById('confirm-message').innerText = options.message || '你要繼續嗎？';
+    document.getElementById('confirm-icon').innerText = options.icon || '✨';
+    document.getElementById('confirm-ok-btn').innerText = options.confirmText || '確認';
+    document.getElementById('confirm-cancel-btn').innerText = options.cancelText || '取消';
+    modal.classList.remove('hidden');
+    return new Promise(function(resolve) {
+        confirmDialogAction = resolve;
+    });
+}
+function closeConfirmDialog(confirmed) {
+    var modal = document.getElementById('confirm-modal');
+    if (modal) modal.classList.add('hidden');
+    if (confirmDialogAction) {
+        var resolver = confirmDialogAction;
+        confirmDialogAction = null;
+        resolver(!!confirmed);
+    }
+}
+</script>

@@ -1,0 +1,373 @@
+<script>
+var audioCtx = null;
+function initSfx(){try{var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!audioCtx)audioCtx=new AC();if(audioCtx.state==='suspended')audioCtx.resume().catch(function(){});}catch(e){}}
+function readAmbientMusicPref_() {
+    try {
+        var stored = localStorage.getItem(AMBIENT_MUSIC_STORAGE_KEY);
+        return stored === null ? true : stored === '1';
+    } catch (e) {
+        return true;
+    }
+}
+function persistAmbientMusicPref_() {
+    try { localStorage.setItem(AMBIENT_MUSIC_STORAGE_KEY, ambientMusicEnabled ? '1' : '0'); } catch (e) {}
+}
+function updateAmbientMusicToggleLabel_() {
+    var ids = ['ambient-music-toggle', 'home-ambient-music-toggle'];
+    var icon = ambientMusicEnabled ? '🔊' : '🔇';
+    var label = ambientMusicEnabled ? '背景音樂：開' : '背景音樂：關';
+    ids.forEach(function(id) {
+        var btn = document.getElementById(id);
+        if (!btn) return;
+        btn.setAttribute('aria-pressed', ambientMusicEnabled ? 'true' : 'false');
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
+        btn.innerHTML = '<span class="text-lg leading-none" aria-hidden="true">' + icon + '</span>';
+    });
+}
+function midiToFreq_(midi) {
+    return 440 * Math.pow(2, (midi - 69) / 12);
+}
+function createAmbientImpulseResponse_() {
+    if (!audioCtx) return null;
+    var length = Math.max(1, Math.floor(audioCtx.sampleRate * 2.4));
+    var buffer = audioCtx.createBuffer(2, length, audioCtx.sampleRate);
+    for (var channel = 0; channel < 2; channel++) {
+        var data = buffer.getChannelData(channel);
+        for (var i = 0; i < length; i++) {
+            var decay = Math.pow(1 - i / length, 2.8);
+            data[i] = (Math.random() * 2 - 1) * decay * 0.12;
+        }
+    }
+    return buffer;
+}
+function ensureAmbientMusicNodes_() {
+    if (!audioCtx || ambientMusicMasterGain) return;
+    ambientMusicMasterGain = audioCtx.createGain();
+    ambientMusicMasterGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+
+    var toneFilter = audioCtx.createBiquadFilter();
+    toneFilter.type = 'lowpass';
+    toneFilter.frequency.value = 2400;
+    toneFilter.Q.value = 0.3;
+
+    var compressor = audioCtx.createDynamicsCompressor();
+    compressor.threshold.value = -24;
+    compressor.knee.value = 18;
+    compressor.ratio.value = 3;
+    compressor.attack.value = 0.02;
+    compressor.release.value = 0.45;
+
+    ambientForestGain = audioCtx.createGain();
+    ambientForestGain.gain.value = 0.34;
+    ambientPianoGain = audioCtx.createGain();
+    ambientPianoGain.gain.value = 0.28;
+
+    ambientReverb = audioCtx.createConvolver();
+    ambientReverb.buffer = createAmbientImpulseResponse_();
+    var ambientReverbGain = audioCtx.createGain();
+    ambientReverbGain.gain.value = 0.18;
+    ambientPianoReverbSend = audioCtx.createGain();
+    ambientPianoReverbSend.gain.value = 0.35;
+
+    ambientForestGain.connect(ambientMusicMasterGain);
+    ambientPianoGain.connect(ambientMusicMasterGain);
+    ambientPianoReverbSend.connect(ambientReverb);
+    ambientReverb.connect(ambientReverbGain);
+    ambientReverbGain.connect(ambientMusicMasterGain);
+    ambientMusicMasterGain.connect(toneFilter);
+    toneFilter.connect(compressor);
+    compressor.connect(audioCtx.destination);
+}
+function startAmbientNoiseLayer_() {
+    if (!audioCtx || ambientNoiseSource) return;
+    var buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for (var i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.55;
+
+    ambientNoiseSource = audioCtx.createBufferSource();
+    ambientNoiseSource.buffer = buffer;
+    ambientNoiseSource.loop = true;
+
+    var highpass = audioCtx.createBiquadFilter();
+    highpass.type = 'highpass';
+    highpass.frequency.value = 420;
+    var lowpass = audioCtx.createBiquadFilter();
+    lowpass.type = 'lowpass';
+    lowpass.frequency.value = 2200;
+    var noiseGain = audioCtx.createGain();
+    noiseGain.gain.setValueAtTime(0.014, audioCtx.currentTime);
+
+    ambientNoiseLfo = audioCtx.createOscillator();
+    var lfoDepth = audioCtx.createGain();
+    ambientNoiseLfo.type = 'sine';
+    ambientNoiseLfo.frequency.value = 0.09;
+    lfoDepth.gain.value = 0.007;
+
+    ambientNoiseLfo.connect(lfoDepth);
+    lfoDepth.connect(noiseGain.gain);
+    ambientNoiseSource.connect(highpass);
+    highpass.connect(lowpass);
+    lowpass.connect(noiseGain);
+    noiseGain.connect(ambientForestGain);
+
+    ambientNoiseSource.start();
+    ambientNoiseLfo.start();
+}
+function stopAmbientNoiseLayer_(stopAt) {
+    if (ambientNoiseSource) {
+        try { ambientNoiseSource.stop(stopAt); } catch (e) {}
+        ambientNoiseSource = null;
+    }
+    if (ambientNoiseLfo) {
+        try { ambientNoiseLfo.stop(stopAt); } catch (e) {}
+        ambientNoiseLfo = null;
+    }
+}
+function playAmbientPianoNote_(freq, when, duration, peak) {
+    if (!audioCtx || !ambientPianoGain || !freq) return;
+    var noteGain = audioCtx.createGain();
+    var noteFilter = audioCtx.createBiquadFilter();
+    noteFilter.type = 'lowpass';
+    noteFilter.frequency.setValueAtTime(1900, when);
+    noteFilter.frequency.exponentialRampToValueAtTime(1200, when + Math.max(0.4, duration));
+    noteGain.gain.setValueAtTime(0.0001, when);
+    noteGain.gain.linearRampToValueAtTime(peak, when + 0.025);
+    noteGain.gain.exponentialRampToValueAtTime(0.0001, when + duration);
+    noteGain.connect(noteFilter);
+    noteFilter.connect(ambientPianoGain);
+
+    var reverbSend = audioCtx.createGain();
+    reverbSend.gain.value = 0.52;
+    noteFilter.connect(reverbSend);
+    reverbSend.connect(ambientPianoReverbSend);
+
+    [
+        { type: 'triangle', detune: 0, gain: 1 },
+        { type: 'sine', detune: 4, gain: 0.42 },
+        { type: 'sine', detune: -7, gain: 0.28 }
+    ].forEach(function(layer) {
+        var osc = audioCtx.createOscillator();
+        var oscGain = audioCtx.createGain();
+        osc.type = layer.type;
+        osc.frequency.setValueAtTime(freq, when);
+        osc.detune.value = layer.detune;
+        oscGain.gain.value = layer.gain;
+        osc.connect(oscGain);
+        oscGain.connect(noteGain);
+        osc.start(when);
+        osc.stop(when + duration + 0.08);
+    });
+}
+function scheduleAmbientPianoBar_() {
+    if (!audioCtx || !ambientMusicStarted || !ambientMusicEnabled || document.hidden) return;
+    var progressions = [
+        [50, 57, 62, 66],
+        [45, 52, 57, 60],
+        [47, 54, 59, 62],
+        [43, 50, 55, 59]
+    ];
+    var chord = progressions[ambientBarIndex % progressions.length];
+    var startAt = audioCtx.currentTime + 0.12;
+    var pattern = [0, 2, 1, 3];
+    var offsets = [0, 1.08, 2.12, 3.18];
+    for (var i = 0; i < pattern.length; i++) {
+        var note = chord[pattern[i]];
+        playAmbientPianoNote_(midiToFreq_(note), startAt + offsets[i], 2.6, i === 0 ? 0.032 : 0.026);
+    }
+    playAmbientPianoNote_(midiToFreq_(chord[0] - 12), startAt + 0.02, 3.5, 0.018);
+    ambientBarIndex++;
+    ambientPianoTimer = setTimeout(scheduleAmbientPianoBar_, 4100);
+}
+function playAmbientBirdCall_(when) {
+    if (!audioCtx || !ambientForestGain) return;
+    var chirps = 2 + Math.floor(Math.random() * 2);
+    for (var i = 0; i < chirps; i++) {
+        var startAt = when + i * (0.16 + Math.random() * 0.08);
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        var filter = audioCtx.createBiquadFilter();
+        var startFreq = 1300 + Math.random() * 700;
+        var peakFreq = startFreq + 520 + Math.random() * 240;
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(startFreq, startAt);
+        osc.frequency.exponentialRampToValueAtTime(peakFreq, startAt + 0.055);
+        osc.frequency.exponentialRampToValueAtTime(startFreq * 0.94, startAt + 0.18);
+        gain.gain.setValueAtTime(0.0001, startAt);
+        gain.gain.linearRampToValueAtTime(0.011, startAt + 0.018);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.2);
+        filter.type = 'bandpass';
+        filter.frequency.value = 1900;
+        filter.Q.value = 1.8;
+        osc.connect(gain);
+        gain.connect(filter);
+        filter.connect(ambientForestGain);
+        osc.start(startAt);
+        osc.stop(startAt + 0.24);
+    }
+}
+function scheduleAmbientBirds_() {
+    if (!audioCtx || !ambientMusicStarted || !ambientMusicEnabled || document.hidden) return;
+    playAmbientBirdCall_(audioCtx.currentTime + 0.3 + Math.random() * 0.8);
+    ambientBirdTimer = setTimeout(scheduleAmbientBirds_, 18000 + Math.random() * 16000);
+}
+function startAmbientMusic() {
+    initSfx();
+    if (!audioCtx || ambientMusicStarted || !ambientMusicEnabled || document.hidden) return;
+    ensureAmbientMusicNodes_();
+    startAmbientNoiseLayer_();
+    ambientMusicStarted = true;
+    var now = audioCtx.currentTime;
+    ambientMusicMasterGain.gain.cancelScheduledValues(now);
+    ambientMusicMasterGain.gain.setValueAtTime(Math.max(0.0001, ambientMusicMasterGain.gain.value), now);
+    ambientMusicMasterGain.gain.exponentialRampToValueAtTime(0.18, now + 1.8);
+    scheduleAmbientPianoBar_();
+    ambientBirdTimer = setTimeout(scheduleAmbientBirds_, 5000 + Math.random() * 5000);
+}
+function stopAmbientMusic(isTemporary) {
+    if (!audioCtx) return;
+    ambientMusicStarted = false;
+    if (ambientPianoTimer) {
+        clearTimeout(ambientPianoTimer);
+        ambientPianoTimer = null;
+    }
+    if (ambientBirdTimer) {
+        clearTimeout(ambientBirdTimer);
+        ambientBirdTimer = null;
+    }
+    if (ambientMusicMasterGain) {
+        var now = audioCtx.currentTime;
+        ambientMusicMasterGain.gain.cancelScheduledValues(now);
+        ambientMusicMasterGain.gain.setValueAtTime(Math.max(0.0001, ambientMusicMasterGain.gain.value), now);
+        ambientMusicMasterGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+        stopAmbientNoiseLayer_(now + 1.25);
+    }
+    if (!isTemporary) ambientResumeOnVisible = false;
+}
+function toggleAmbientMusic() {
+    ambientMusicEnabled = !ambientMusicEnabled;
+    persistAmbientMusicPref_();
+    updateAmbientMusicToggleLabel_();
+    if (ambientMusicEnabled) {
+        initSfx();
+        if (!audioCtx) {
+            showToast('這個瀏覽器不支援背景音樂。', 'warning', '無法播放');
+            return;
+        }
+        startAmbientMusic();
+        showToast('已開啟寧靜森林與柔和鋼琴背景音。', 'info', '背景音樂', 2200);
+    } else {
+        stopAmbientMusic(false);
+        showToast('已關閉背景音樂。', 'info', '背景音樂', 1800);
+    }
+}
+function syncAmbientMusicState_() {
+    if (document.hidden) {
+        ambientResumeOnVisible = ambientMusicEnabled;
+        stopAmbientMusic(true);
+        return;
+    }
+    if (ambientMusicEnabled) startAmbientMusic();
+    else stopAmbientMusic(false);
+}
+function maybeAutoStartAmbientMusic_() {
+    if (!ambientMusicEnabled || ambientMusicStarted || document.hidden) return;
+    initSfx();
+    startAmbientMusic();
+}
+function playToneSweep(c){if(!audioCtx)return;var n=audioCtx.currentTime;var o=audioCtx.createOscillator();var g=audioCtx.createGain();o.type=c.type||'triangle';var s=Math.max(1,Number(c.freqStart)||1);var e=Math.max(1,Number(c.freqEnd)||1);o.frequency.setValueAtTime(s,n+c.tOffset);o.frequency.exponentialRampToValueAtTime(e,n+c.tOffset+c.duration);g.gain.setValueAtTime(0.0001,n+c.tOffset);g.gain.exponentialRampToValueAtTime(c.peak||0.08,n+c.tOffset+0.01);g.gain.exponentialRampToValueAtTime(0.0001,n+c.tOffset+c.duration);o.connect(g);g.connect(audioCtx.destination);o.start(n+c.tOffset);o.stop(n+c.tOffset+c.duration+0.02);}
+function playCorrectSound(cl){initSfx();var c=Math.max(1,Number(cl)||1);var p=Math.min(1.75,1+(c-1)*0.08);playToneSweep({tOffset:0,freqStart:440*p,freqEnd:880*p,duration:0.07,type:'triangle',peak:0.09});playToneSweep({tOffset:0.08,freqStart:660*p,freqEnd:990*p,duration:0.06,type:'triangle',peak:0.08});playToneSweep({tOffset:0.15,freqStart:880*p,freqEnd:1320*p,duration:0.06,type:'triangle',peak:0.06});}
+function playWrongSound(){initSfx();playToneSweep({tOffset:0,freqStart:220,freqEnd:120,duration:0.10,type:'sawtooth',peak:0.06});playToneSweep({tOffset:0.10,freqStart:180,freqEnd:90,duration:0.10,type:'square',peak:0.05});}
+function playTimeoutSound(){initSfx();playToneSweep({tOffset:0,freqStart:520,freqEnd:320,duration:0.08,type:'square',peak:0.05});playToneSweep({tOffset:0.10,freqStart:420,freqEnd:260,duration:0.08,type:'square',peak:0.05});playToneSweep({tOffset:0.20,freqStart:320,freqEnd:200,duration:0.09,type:'square',peak:0.045});}
+function playClickSound(){
+    initSfx();
+    if(!audioCtx) return;
+    var n = audioCtx.currentTime;
+    function make(freqStart, freqEnd, tOff, dur, peak, type){
+        var o = audioCtx.createOscillator();
+        var g = audioCtx.createGain();
+        o.type = type || 'square';
+        o.frequency.setValueAtTime(freqStart, n + tOff);
+        o.frequency.exponentialRampToValueAtTime(Math.max(1, freqEnd), n + tOff + dur);
+        g.gain.setValueAtTime(0.0001, n + tOff);
+        g.gain.exponentialRampToValueAtTime(peak, n + tOff + 0.004);
+        g.gain.exponentialRampToValueAtTime(0.0001, n + tOff + dur);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(n + tOff);
+        o.stop(n + tOff + dur + 0.01);
+    }
+    make(1500, 900, 0, 0.03, 0.06, 'square');
+    make(2400, 1600, 0.012, 0.018, 0.035, 'triangle');
+}
+var avatarReactionMessages = {
+    tiger: {
+        correct: ['虎式秒殺！這題被我一掌拍扁啦！🐯', '吼！這題答對得超有氣勢！', '本虎宣布：你剛剛那一下超帥！'],
+        wrong: ['嗷嗚，這題先放牠一馬，下一題我撲回來！🐯', '差一點就咬到答案尾巴了，再來！', '這不是失誤，是虎式暖身中！']
+    },
+    panda: {
+        correct: ['嘿嘿，熊貓滾一圈就把答案滾出來了！🐼', '答對啦，今天是聰明胖達模式！', '這題穩穩的，竹子都要為你鼓掌。'],
+        wrong: ['哎呀我滾歪了，再滾一次就中！🐼', '先別慌，熊貓腦袋還在慢慢發熱。', '這題有點滑，但我們下一題會站穩。']
+    },
+    fox: {
+        correct: ['狐狸眼神一閃，答案自己跳出來了！🦊', '機智命中，這題被你看穿啦！', '漂亮，這波屬於聰明狐狸的節奏。'],
+        wrong: ['咦，剛剛是狐狸在假動作啦！🦊', '這題有埋伏，我們下一題反偷襲。', '先記住它，等等用腦筋急轉彎反殺。']
+    },
+    rabbit: {
+        correct: ['蹦！答案被我一跳就跳中了！🐰', '兔兔衝線成功，這題滿分著陸！', '好耶，這題答得比胡蘿蔔還甜。'],
+        wrong: ['哎呀跳過頭了，我們下一跳會更準！🐰', '兔兔只是彈錯方向，不是放棄喔。', '別怕，下一題繼續蹦回來！']
+    },
+    dog: {
+        correct: ['汪！這題我替你叼回滿分啦！🐶', '答對答對，我尾巴都快搖成電風扇了！', '超棒，這題解得像神犬追球一樣準。'],
+        wrong: ['汪嗚，這球先漏接，下一球我撲到！🐶', '沒事，我們抖抖耳朵再來一題。', '這題先記仇，等等把它追回來。']
+    },
+    cat: {
+        correct: ['喵～這題被我優雅地踩中正解啦！🐱', '答對了，今天是學霸貓步。', '漂亮，這題順得像貓咪落地。'],
+        wrong: ['喵嗚，剛剛只是故意高冷失手一下。🐱', '這題先記在小本本，下一題再優雅反擊。', '別急，本喵舔舔爪子就回狀態。']
+    }
+};
+function hideTopAvatarSpeech_() {
+    var bubble = document.getElementById('top-avatar-speech');
+    if (!bubble) return;
+    bubble.classList.add('hidden');
+    bubble.classList.remove('top-avatar-speech--show');
+    if (topAvatarSpeechTimer) {
+        clearTimeout(topAvatarSpeechTimer);
+        topAvatarSpeechTimer = null;
+    }
+}
+function showTopAvatarSpeech_(message, durationMs) {
+    var bubble = document.getElementById('top-avatar-speech');
+    var text = document.getElementById('top-avatar-speech-text');
+    if (!bubble || !text || !message) return;
+    if (topAvatarSpeechTimer) clearTimeout(topAvatarSpeechTimer);
+    text.innerText = message;
+    bubble.classList.remove('hidden', 'top-avatar-speech--show');
+    void bubble.offsetWidth;
+    bubble.classList.add('top-avatar-speech--show');
+    topAvatarSpeechTimer = setTimeout(function() {
+        bubble.classList.remove('top-avatar-speech--show');
+        bubble.classList.add('hidden');
+    }, Math.max(1400, Number(durationMs) || 2200));
+}
+function getAvatarReactionClass_(avatarId, isCorrect) {
+    var hasCustomAnimation = ['tiger','panda','fox','rabbit','dog','cat'].indexOf(avatarId) !== -1;
+    if (isCorrect) return hasCustomAnimation ? 'avatar-react-correct-' + avatarId : 'avatar-react-correct-common';
+    return hasCustomAnimation ? 'avatar-react-wrong-' + avatarId : 'avatar-react-wrong-common';
+}
+function getAvatarReactionMessage_(avatarId, isCorrect) {
+    var entry = avatarReactionMessages[avatarId] || avatarReactionMessages.cat;
+    var pool = isCorrect ? entry.correct : entry.wrong;
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+function triggerPlayerAvatarReaction_(isCorrect) {
+    var avatarEl = document.getElementById('top-avatar');
+    if (!avatarEl) return;
+    var avatarId = inferPlayerAvatarId_();
+    var reactionClass = getAvatarReactionClass_(avatarId, isCorrect);
+    avatarEl.className = 'text-3xl avatar-host ' + reactionClass;
+    showTopAvatarSpeech_(getAvatarReactionMessage_(avatarId, isCorrect), isCorrect ? 2200 : 2600);
+    setTimeout(function() {
+        if (avatarEl) avatarEl.className = 'text-3xl avatar-idle avatar-host';
+    }, isCorrect ? 900 : 950);
+}
+</script>

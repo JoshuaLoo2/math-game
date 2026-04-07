@@ -1,0 +1,76 @@
+<script>
+function launchConfetti(customColors) {
+    var colors = customColors || getEquippedEffectColors();
+    if (!colors) return;
+    for (var i = 0; i < 50; i++) {
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.setProperty('--cfd', (2 + Math.random() * 2) + 's');
+        piece.style.setProperty('--cfr', (360 + Math.random() * 720) + 'deg');
+        piece.style.setProperty('--cfrx', (Math.random() * 360) + 'deg');
+        piece.style.animationDelay = (Math.random() * 0.6) + 's';
+        piece.style.width = (6 + Math.random() * 6) + 'px';
+        piece.style.height = (8 + Math.random() * 10) + 'px';
+        document.body.appendChild(piece);
+        (function(el) { setTimeout(function(){ el.remove(); }, 4500); })(piece);
+    }
+}
+
+function launchMiniConfettiBurst(anchorId, customColors) {
+    var anchor = document.getElementById(anchorId);
+    var colors = customColors || getEquippedEffectColors() || ['#10b981', '#34d399', '#fbbf24', '#60a5fa'];
+    if (!anchor || !colors || !colors.length) return;
+    var rect = anchor.getBoundingClientRect();
+    var centerX = rect.left + rect.width / 2;
+    var centerY = rect.top + rect.height / 2;
+    var pieceCount = 18;
+    for (var i = 0; i < pieceCount; i++) {
+        var piece = document.createElement('div');
+        var angle = (Math.PI * 2 * i / pieceCount) + ((Math.random() - 0.5) * 0.35);
+        var distance = 40 + Math.random() * 46;
+        piece.className = 'confetti-piece confetti-piece--mini';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.setProperty('--ctx', centerX + 'px');
+        piece.style.setProperty('--cty', centerY + 'px');
+        piece.style.setProperty('--cdx', Math.cos(angle) * distance + 'px');
+        piece.style.setProperty('--cdy', Math.sin(angle) * distance + (18 + Math.random() * 28) + 'px');
+        piece.style.setProperty('--cfd', (1.05 + Math.random() * 0.35) + 's');
+        piece.style.setProperty('--cfr', ((Math.random() > 0.5 ? 1 : -1) * (240 + Math.random() * 420)) + 'deg');
+        piece.style.setProperty('--cw', (5 + Math.random() * 5) + 'px');
+        piece.style.setProperty('--ch', (8 + Math.random() * 6) + 'px');
+        piece.style.animationDelay = (Math.random() * 0.12) + 's';
+        document.body.appendChild(piece);
+        (function(el) { setTimeout(function(){ el.remove(); }, 1800); })(piece);
+    }
+}
+
+function launchSparkles(x, y) {
+    var container = document.createElement('div');
+    container.className = 'sparkle-burst';
+    container.style.left = x + 'px';
+    container.style.top = y + 'px';
+    var sparkColors = ['#fbbf24','#f59e0b','#34d399','#60a5fa','#f472b6'];
+    for (var i = 0; i < 8; i++) {
+        var dot = document.createElement('div');
+        dot.className = 'sparkle-dot';
+        var angle = (Math.PI * 2 / 8) * i;
+        var dist = 25 + Math.random() * 25;
+        dot.style.setProperty('--sdx', Math.cos(angle) * dist + 'px');
+        dot.style.setProperty('--sdy', Math.sin(angle) * dist + 'px');
+        dot.style.background = sparkColors[Math.floor(Math.random() * sparkColors.length)];
+        container.appendChild(dot);
+    }
+    document.body.appendChild(container);
+    setTimeout(function(){ container.remove(); }, 800);
+}
+
+function popScoreElement(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('score-pop');
+    void el.offsetWidth;
+    el.classList.add('score-pop');
+}
+</script>

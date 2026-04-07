@@ -1,0 +1,110 @@
+<script>
+var mascotTimer = null;
+var notesSections = ['notes-grade-select','notes-topic-list','notes-section-list','notes-reader','notes-quiz','notes-quiz-result','notes-topic-complete'];
+
+var mascotMessages = {
+    idle: [
+        '加油！繼續學習！💪', '你做得很好！😊', '專心看筆記哦～📖', '有問題就再看一遍 🧐', '數學其實很有趣！✨',
+        '哈囉？有人在嗎？還是你被數學魔法石化了？🗿',
+        '我的 CPU 已經準備好等你發號施令啦！🤖',
+        '發呆也是一種大腦重組的過程... 但別重組太久喔！⏳',
+        '喝口水，伸個懶腰，我們繼續挑戰！🥤💪',
+        '如果你在等靈感掉下來，我可以幫你搖搖樹！🌳🍎'
+    ],
+    correct: [
+        '答對了！太棒了！🎉', '好厲害！繼續保持！🌟', '你是數學天才！🧠', '太強了！👏', '完美！Perfect！💯',
+        '哇！牛頓看到都要為你鼓掌了！🍎👏',
+        '這題這麼難你都會？請收下我的膝蓋！🙇‍♂️',
+        '你的大腦運算速度堪比超級電腦！💻✨',
+        '太神啦！這簡直是教科書等級的解答！📖😎',
+        'Bingo！連計算機都自愧不如！🧮💥'
+    ],
+    wrong: [
+        '別灰心，再試一次！💪', '沒關係，學習就是這樣～😊', '錯誤是學習的一部分！📚', '加油，你可以的！🔥', '下一題一定行！✊',
+        '哎呀，差一點點就摸到正確答案的邊了！🤏',
+        '這題絕對是故意刁難人，我們再對付它一次！🥊',
+        '沒事沒事，就當作是在幫錯誤答案排雷！💣😎',
+        '愛迪生也失敗了上千次，你這才哪到哪！💡',
+        '剛剛是不是手滑點錯了？我懂我懂！🤪'
+    ],
+    thinking: [
+        '仔細想想看...🤔', '慢慢來，不急～😌', '相信自己的判斷！💡',
+        '我彷彿聽到你大腦齒輪高速運轉的聲音了！⚙️🔥',
+        '福爾摩斯思考時需要拉小提琴，你需要聽點音樂嗎？🎻',
+        '讓子彈飛一會兒，讓思緒飄一會兒～☁️',
+        '真相只有一個！而你正在接近它！🕵️‍♂️',
+        '這題確實有挑戰性，用你的洪荒之力解開它吧！🐉'
+    ],
+    reading: [
+        '認真看筆記哦～📖', '重點要記住！✏️', '這個概念很重要！⭐',
+        '看到重點記得在腦海裡畫螢光筆喔！🖍️✨',
+        '這些都是考試會考的...（小聲說）🤫',
+        '把這些招式學起來，等一下去遊戲裡大殺四方！🥷⚔️',
+        '眼睛累了記得眨一眨，保護靈魂之窗👀',
+        '吸收知識的速度堪比海綿寶寶！🧽'
+    ],
+    enterNotes: [
+        '歡迎來到數學寶庫！這裡藏著滿分秘笈喔～🤫',
+        '大師的武功秘笈都在這了，請隨意翻閱！📜',
+        '準備好吸收宇宙的真理了嗎？🌌',
+        '臨時抱佛腳？沒問題，這佛腳特別好抱！🦵✨',
+        '來看看有什麼破關小撇步吧！👀',
+        '深呼吸，讓我們開始修練大腦！🧘‍♂️'
+    ]
+};
+
+function getRandomMsg(type) {
+    var msgs = mascotMessages[type] || mascotMessages.idle;
+    return msgs[Math.floor(Math.random() * msgs.length)];
+}
+
+function updateMascotVisibility(sectionId) {
+    var wrap = document.getElementById('teacher-mascot');
+    if (!wrap) return;
+    if (notesSections.indexOf(sectionId) !== -1) {
+        wrap.classList.remove('mascot-hidden');
+        if (sectionId === 'notes-grade-select' || sectionId === 'notes-topic-list') {
+            setMascotState('enterNotes');
+        } else if (sectionId === 'notes-reader') {
+            setMascotState('reading');
+        } else if (sectionId === 'notes-quiz') {
+            setMascotState('thinking');
+        } else {
+            setMascotState('idle');
+        }
+    } else {
+        wrap.classList.add('mascot-hidden');
+    }
+}
+
+function setMascotState(state, customMsg) {
+    var charEl = document.getElementById('mascot-char');
+    var bubbleEl = document.getElementById('mascot-bubble');
+    if (!charEl || !bubbleEl) return;
+
+    charEl.className = 'mascot-char';
+    void charEl.offsetWidth;
+
+    switch(state) {
+        case 'idle': charEl.classList.add('mascot-idle'); break;
+        case 'celebrate': charEl.classList.add('mascot-celebrate'); break;
+        case 'wrong': charEl.classList.add('mascot-wrong'); break;
+        case 'thinking': charEl.classList.add('mascot-thinking'); break;
+        case 'reading': charEl.classList.add('mascot-idle'); break;
+        case 'enterNotes': charEl.classList.add('mascot-celebrate'); break;
+    }
+    applyAvatarVisualToElement_(charEl, getCurrentAvatarConfig_(), 'avatar-visual--mascot', '');
+
+    var msg = customMsg || getRandomMsg(state);
+    bubbleEl.innerText = msg;
+    bubbleEl.classList.add('show');
+
+    if (mascotTimer) clearTimeout(mascotTimer);
+    mascotTimer = setTimeout(function() {
+        bubbleEl.classList.remove('show');
+        if (state === 'celebrate' || state === 'wrong') {
+            setTimeout(function() { setMascotState('idle'); }, 400);
+        }
+    }, state === 'idle' ? 4000 : 3000);
+}
+</script>
