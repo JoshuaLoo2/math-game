@@ -60,9 +60,14 @@ function escapeHtml(str) {
         return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
     });
 }
+var MAX_VISIBLE_TOASTS = 3;
 function showToast(message, type, title, duration) {
     var stack = document.getElementById('app-toast-stack');
     if (!stack || !message) return;
+    // Limit visible toasts to MAX_VISIBLE_TOASTS
+    while (stack.children.length >= MAX_VISIBLE_TOASTS) {
+        stack.removeChild(stack.children[0]);
+    }
     var tone = type || 'info';
     var config = {
         info: { icon: 'ℹ️', title: title || '提示' },

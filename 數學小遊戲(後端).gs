@@ -1,9 +1,14 @@
 // --- 設定區 ---
-const QUESTIONS_SHEET_ID = "1RpKFnPmPDvDvW__nwzZWBnB5jlO6T_aHR9LellTNNiM";
-const NOTES_SHEET_ID = "1i-4_v1u9Q7yhTXESEP4oDdeHCuDEsEpicb3RrUd0oks";
-const NOTES_QUIZ_SHEET_ID = "1hDpql-EG8zne7NDaabjfuy6Ip1nAxmP-H5I2woEX-tw";
-const FIREBASE_DB_URL = "https://math-game-3747d-default-rtdb.firebaseio.com";
-const RESULTS_SPREADSHEET_ID = "1Ws1Q3uMnpr4erM3vBNbzL7j1a035rNb3pEAUCAqEmO0";
+// Sheet IDs — 可在 Script Properties 中覆寫，避免硬編碼
+function getConfigId_(propKey, defaultValue) {
+  var val = PropertiesService.getScriptProperties().getProperty(propKey);
+  return val || defaultValue;
+}
+function getQuestionsSheetId_() { return getConfigId_('QUESTIONS_SHEET_ID', '1RpKFnPmPDvDvW__nwzZWBnB5jlO6T_aHR9LellTNNiM'); }
+function getNotesSheetId_() { return getConfigId_('NOTES_SHEET_ID', '1i-4_v1u9Q7yhTXESEP4oDdeHCuDEsEpicb3RrUd0oks'); }
+function getNotesQuizSheetId_() { return getConfigId_('NOTES_QUIZ_SHEET_ID', '1hDpql-EG8zne7NDaabjfuy6Ip1nAxmP-H5I2woEX-tw'); }
+function getFirebaseDbUrl_() { return getConfigId_('FIREBASE_DB_URL', 'https://math-game-3747d-default-rtdb.firebaseio.com'); }
+function getResultsSpreadsheetId_() { return getConfigId_('RESULTS_SPREADSHEET_ID', '1Ws1Q3uMnpr4erM3vBNbzL7j1a035rNb3pEAUCAqEmO0'); }
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const OPENROUTER_MODEL = "google/gemini-2.5-flash";
 const OPENROUTER_FALLBACK_MODEL = "meta-llama/llama-3.3-70b-instruct";
@@ -25,7 +30,7 @@ function include(filename) {
 function pushToFirebase_(path, payload) {
   try {
     var cleanPath = String(path || '').replace(/^\/+|\/+$/g, '');
-    var url = FIREBASE_DB_URL + '/' + cleanPath + '.json';
+    var url = getFirebaseDbUrl_() + '/' + cleanPath + '.json';
     var res = UrlFetchApp.fetch(url, {
       method: 'post',
       contentType: 'application/json',
@@ -70,7 +75,7 @@ function saveToSheet(data, type) {
   try {
     var t = String(type || '').toLowerCase();
     var sheetName = t === 'multi' ? 'results(multiplayers)' : 'results(single player)';
-    var ss = SpreadsheetApp.openById(RESULTS_SPREADSHEET_ID);
+    var ss = SpreadsheetApp.openById(getResultsSpreadsheetId_());
     var sheet = ss.getSheetByName(sheetName);
     if (!sheet) return { error: '找不到工作表：' + sheetName };
 
@@ -116,7 +121,7 @@ function saveToSheet(data, type) {
 // ==========================================
 function getAvailableThemes(grade) {
   try {
-    const ss = SpreadsheetApp.openById(QUESTIONS_SHEET_ID);
+    const ss = SpreadsheetApp.openById(getQuestionsSheetId_());
     const sheet = ss.getSheets()[0];
     const data = sheet.getDataRange().getValues();
 
@@ -148,7 +153,7 @@ function getAvailableThemes(grade) {
 // ==========================================
 function getQuestions(difficulty, theme, grade) {
   try {
-    const ss = SpreadsheetApp.openById(QUESTIONS_SHEET_ID);
+    const ss = SpreadsheetApp.openById(getQuestionsSheetId_());
     const sheet = ss.getSheets()[0];
     const data = sheet.getDataRange().getValues();
 
@@ -256,10 +261,28 @@ function getQuestions(difficulty, theme, grade) {
 }
 
 // ==========================================
+// 分數合理性驗證
+// ==========================================
+function validateScore_(score, meta) {
+  var maxQuestions = 10;
+  var basePoints = 10;
+  var maxTimeBonus = 60; // timeLeft/2 where max timeLeft = 120
+  var maxComboBonus = 5 * maxQuestions; // 5 * combo at max
+  var maxPerQuestion = (basePoints + maxTimeBonus + maxComboBonus) * 1.5; // with COMBO_SCORE_MULTIPLIER
+  var maxPossible = maxPerQuestion * maxQuestions;
+  var s = Number(score || 0);
+  if (s < 0 || s > maxPossible || !isFinite(s)) return false;
+  return true;
+}
+
+// ==========================================
 // 3. 儲存單人模式成績 (Firebase)
 // ==========================================
 function saveSingleResult(playerInfo, score, meta) {
   try {
+    if (!validateScore_(score, meta)) {
+      return { error: '分數超出合理範圍，無法儲存。' };
+    }
     meta = meta || {};
     var payload = {
       mode: 'single',
@@ -291,6 +314,9 @@ function saveSingleResult(playerInfo, score, meta) {
 // ==========================================
 function finishGame(roomId, playerInfo, score, meta) {
   try {
+    if (!validateScore_(score, meta)) {
+      return { error: '分數超出合理範圍，無法儲存。' };
+    }
     meta = meta || {};
     var payload = {
       mode: 'multi',
@@ -324,7 +350,7 @@ function finishGame(roomId, playerInfo, score, meta) {
 // ==========================================
 function getNotesTopics(grade) {
   try {
-    var ss = SpreadsheetApp.openById(NOTES_SHEET_ID);
+    var ss = SpreadsheetApp.openById(getNotesSheetId_());
     var sheet = ss.getSheets()[0];
     var data = sheet.getDataRange().getValues();
 
@@ -358,7 +384,7 @@ function getNotesTopics(grade) {
 // ==========================================
 function getNoteSections(topic, grade) {
   try {
-    var ss = SpreadsheetApp.openById(NOTES_SHEET_ID);
+    var ss = SpreadsheetApp.openById(getNotesSheetId_());
     var sheet = ss.getSheets()[0];
     var data = sheet.getDataRange().getValues();
 
@@ -404,7 +430,7 @@ function getNoteSections(topic, grade) {
 // ==========================================
 function getNoteContent(topic, grade, section) {
   try {
-    var ss = SpreadsheetApp.openById(NOTES_SHEET_ID);
+    var ss = SpreadsheetApp.openById(getNotesSheetId_());
     var sheet = ss.getSheets()[0];
     var data = sheet.getDataRange().getValues();
 
@@ -462,7 +488,7 @@ function getNoteContent(topic, grade, section) {
 // ==========================================
 function getNotesQuiz(topic, grade, section) {
   try {
-    var ss = SpreadsheetApp.openById(NOTES_QUIZ_SHEET_ID);
+    var ss = SpreadsheetApp.openById(getNotesQuizSheetId_());
     var sheet = ss.getSheets()[0];
     var data = sheet.getDataRange().getValues();
 
@@ -583,7 +609,7 @@ function resolveWrongBookImageUrls(items) {
     });
 
     if (Object.keys(pendingGame).length) {
-      var gameData = SpreadsheetApp.openById(QUESTIONS_SHEET_ID).getSheets()[0].getDataRange().getValues();
+      var gameData = SpreadsheetApp.openById(getQuestionsSheetId_()).getSheets()[0].getDataRange().getValues();
       var gameHeaders = normalizeHeaders_(gameData.shift());
       var gameQuestionIdx = findColumnIndex_(gameHeaders, ['question', '題目', '問題', 'q']);
       var gameAnswerIdx = findColumnIndex_(gameHeaders, ['answer', '答案', '解答', 'correctanswer', 'ans']);
@@ -608,7 +634,7 @@ function resolveWrongBookImageUrls(items) {
     }
 
     if (Object.keys(pendingNotes).length) {
-      var notesData = SpreadsheetApp.openById(NOTES_QUIZ_SHEET_ID).getSheets()[0].getDataRange().getValues();
+      var notesData = SpreadsheetApp.openById(getNotesQuizSheetId_()).getSheets()[0].getDataRange().getValues();
       var notesHeaders = normalizeHeaders_(notesData.shift());
       var notesQuestionIdx = findColumnIndex_(notesHeaders, ['question', '題目', '問題', 'q']);
       var notesAnswerIdx = findColumnIndex_(notesHeaders, ['answer', '答案', '解答', 'correctanswer', 'ans']);
@@ -642,6 +668,33 @@ function resolveWrongBookImageUrls(items) {
   } catch (e) {
     return { error: '補查錯題圖片失敗: ' + e.message };
   }
+}
+
+// ==========================================
+// API 請求速率限制
+// ==========================================
+var AI_RATE_LIMIT_PER_MINUTE = 10;
+var AI_RATE_LIMIT_PER_DAY = 100;
+
+function checkAiRateLimit_() {
+  var cache = CacheService.getScriptCache();
+  var now = new Date();
+  var minuteKey = 'ai_rpm_' + Utilities.formatDate(now, 'Asia/Hong_Kong', 'yyyyMMddHHmm');
+  var dayKey = 'ai_rpd_' + Utilities.formatDate(now, 'Asia/Hong_Kong', 'yyyyMMdd');
+
+  var minuteCount = Number(cache.get(minuteKey) || 0);
+  var dayCount = Number(cache.get(dayKey) || 0);
+
+  if (minuteCount >= AI_RATE_LIMIT_PER_MINUTE) {
+    return { limited: true, message: '請求太頻繁，請稍後再試。（每分鐘上限 ' + AI_RATE_LIMIT_PER_MINUTE + ' 次）' };
+  }
+  if (dayCount >= AI_RATE_LIMIT_PER_DAY) {
+    return { limited: true, message: '今天的 AI 助手使用次數已達上限（' + AI_RATE_LIMIT_PER_DAY + ' 次），明天再來吧。' };
+  }
+
+  cache.put(minuteKey, String(minuteCount + 1), 120);
+  cache.put(dayKey, String(dayCount + 1), 86400);
+  return { limited: false };
 }
 
 // ==========================================
@@ -899,6 +952,11 @@ function tryOpenRouterMathHelper_(apiKey, payloadMessages) {
 
 function solveMathWithAI(request) {
   try {
+    var rateCheck = checkAiRateLimit_();
+    if (rateCheck.limited) {
+      return { error: rateCheck.message };
+    }
+
     var apiKey = getOpenRouterApiKey_();
     if (!apiKey) {
       return { error: '數學解難助手尚未完成啟用。請先在 Apps Script Script Properties 設定 OPENROUTER_API_KEY。' };
@@ -939,5 +997,41 @@ function solveMathWithAI(request) {
     };
   } catch (e) {
     return { error: 'AI 助手發生系統錯誤：' + e.message };
+  }
+}
+
+// ==========================================
+// 9. 房間自動清理（可設 time-based trigger 定期執行）
+// ==========================================
+function cleanupStaleRooms() {
+  try {
+    var maxAgeMs = 3600000; // 1 hour
+    var now = Date.now();
+    var url = getFirebaseDbUrl_() + '/rooms.json?shallow=true';
+    var res = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) return;
+    var roomIds = JSON.parse(res.getContentText() || '{}');
+    if (!roomIds) return;
+
+    var cleaned = 0;
+    Object.keys(roomIds).forEach(function(roomId) {
+      var roomUrl = getFirebaseDbUrl_() + '/rooms/' + roomId + '.json';
+      var roomRes = UrlFetchApp.fetch(roomUrl, { muteHttpExceptions: true });
+      if (roomRes.getResponseCode() !== 200) return;
+      var room = JSON.parse(roomRes.getContentText() || '{}');
+      if (!room || !room.createdAt) return;
+
+      var age = now - Number(room.createdAt);
+      if (age > maxAgeMs || room.status === 'host_left' || room.status === 'closed') {
+        UrlFetchApp.fetch(roomUrl, { method: 'delete', muteHttpExceptions: true });
+        cleaned++;
+      }
+    });
+
+    Logger.log('cleanupStaleRooms: removed ' + cleaned + ' rooms');
+    return { cleaned: cleaned };
+  } catch (e) {
+    Logger.log('cleanupStaleRooms error: ' + e.message);
+    return { error: e.message };
   }
 }
