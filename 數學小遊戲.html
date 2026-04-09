@@ -2912,6 +2912,7 @@
             error: '',
             loadedAt: 0
         };
+        var STUDENT_PROFILE_CLIENT_CACHE_TTL_MS = 90000;
         var studentProfileModalCloseTimer = null;
         var studentProfileRadarTooltipCleanup = null;
 
@@ -2947,6 +2948,17 @@
             questionImageDataUrl: '',
             selectedImageDataUrl: '',
             answerImageDataUrl: ''
+        };
+        var WRONG_BOOK_CACHE_TTL_MS = 120000;
+        var wrongBookDataCache = {
+            game: { ownerKey: '', items: null, loadedAt: 0 },
+            notes: { ownerKey: '', items: null, loadedAt: 0 },
+            manual: { ownerKey: '', items: null, loadedAt: 0 }
+        };
+        var wrongBookLoadPromises = {
+            game: null,
+            notes: null,
+            manual: null
         };
         var MANUAL_WB_IMAGE_FIELD_CONFIG = {
             question: {
@@ -3427,7 +3439,7 @@
             }
         }
         function shouldRefreshStudentProfile_() {
-            return !studentProfileState.loadedAt || (Date.now() - studentProfileState.loadedAt) > 60000;
+            return !studentProfileState.loadedAt || (Date.now() - studentProfileState.loadedAt) > STUDENT_PROFILE_CLIENT_CACHE_TTL_MS;
         }
         function getOwnedAvatarIds_() {
             return Object.keys(shopData.purchased || {}).filter(function(id) {
@@ -4017,7 +4029,7 @@
             }
             if (document.body) document.body.classList.add('overflow-hidden');
             renderHomeStudentProfileCard_();
-            if (shouldRefreshStudentProfile_()) loadStudentProfile_(true);
+            if (shouldRefreshStudentProfile_()) loadStudentProfile_(false);
         }
         function renderHomeDashboard() {
             var missionWrap = document.getElementById('home-missions');
@@ -4878,9 +4890,9 @@
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             };
 
-            db.ref('students/' + playerKey() + '/wrongBook/manual/' + key)
-                .set(payload)
+            persistWrongBookEntry_('manual', key, payload)
                 .then(function() {
+                    invalidateWrongBookCache_('manual');
                     invalidateWeeklyLearningSummary_(true);
                     closeManualWrongBookModal();
                     showToast('已加入錯題簿。', 'success', '保存成功', 1800);
@@ -5501,6 +5513,77 @@
         var currentWrongBookTab = 'game';
         var currentWrongBookTopicFilter = 'all';
 
+        function cloneWrongBookItems_(items) {
+            return JSON.parse(JSON.stringify(Array.isArray(items) ? items : []));
+        }
+
+        function getWrongBookCacheEntry_(source) {
+            return wrongBookDataCache[source] || { ownerKey: '', items: null, loadedAt: 0 };
+        }
+
+        function shouldUseWrongBookCache_(source) {
+            var entry = getWrongBookCacheEntry_(source);
+            return !!(entry.items && entry.ownerKey === playerKey() && (Date.now() - entry.loadedAt) <= WRONG_BOOK_CACHE_TTL_MS);
+        }
+
+        function setWrongBookCache_(source, items) {
+            wrongBookDataCache[source] = {
+                ownerKey: playerKey(),
+                items: cloneWrongBookItems_(items),
+                loadedAt: Date.now()
+            };
+        }
+
+        function getWrongBookSourcePath_(source) {
+            return 'students/' + playerKey() + '/wrongBook/' + source;
+        }
+
+        function getWrongBookIndexSourcePath_(source) {
+            return 'students/' + playerKey() + '/wrongBookIndex/' + source;
+        }
+
+        function persistWrongBookEntry_(source, key, data) {
+            var updates = {};
+            updates[getWrongBookSourcePath_(source) + '/' + key] = data;
+            updates[getWrongBookIndexSourcePath_(source) + '/' + key] = data;
+            return db.ref().update(updates);
+        }
+
+        function removeWrongBookEntry_(source, key) {
+            var updates = {};
+            updates[getWrongBookSourcePath_(source) + '/' + key] = null;
+            updates[getWrongBookIndexSourcePath_(source) + '/' + key] = null;
+            return db.ref().update(updates);
+        }
+
+        function persistWrongBookImageUrl_(source, key, imageUrl) {
+            var updates = {};
+            updates[getWrongBookSourcePath_(source) + '/' + key + '/imageUrl'] = imageUrl;
+            updates[getWrongBookIndexSourcePath_(source) + '/' + key + '/imageUrl'] = imageUrl;
+            return db.ref().update(updates);
+        }
+
+        function backfillWrongBookIndex_(source, items) {
+            var list = Array.isArray(items) ? items : [];
+            if (!list.length) return Promise.resolve();
+
+            var updates = {};
+            list.forEach(function(item) {
+                if (!item || !item.key) return;
+                updates[getWrongBookIndexSourcePath_(source) + '/' + item.key] = item.data || {};
+            });
+            if (!Object.keys(updates).length) return Promise.resolve();
+            return db.ref().update(updates);
+        }
+
+        function invalidateWrongBookCache_(source) {
+            var sources = source ? [source] : ['game', 'notes', 'manual'];
+            sources.forEach(function(sourceKey) {
+                wrongBookDataCache[sourceKey] = { ownerKey: '', items: null, loadedAt: 0 };
+                wrongBookLoadPromises[sourceKey] = null;
+            });
+        }
+
         function simpleHash(str) {
             var hash = 0;
             for (var i = 0; i < str.length; i++) {
@@ -5604,8 +5687,8 @@
             } else if (source === 'game') {
                 data.topic = q.topic || q.theme || getCurrentGameTopicLabel_();
             }
-            db.ref('students/' + playerKey() + '/wrongBook/' + source + '/' + key)
-                            .set(data).then(function() {
+            persistWrongBookEntry_(source, key, data).then(function() {
+                                invalidateWrongBookCache_(source);
                                 invalidateWeeklyLearningSummary_(true);
                             }).catch(function(e) { console.error('saveWrongQuestion error:', e); });
         }
@@ -5632,8 +5715,7 @@
                             var foundUrl = imageMap[item.key] || '';
                             if (!foundUrl) return;
                             item.data.imageUrl = foundUrl;
-                            db.ref('students/' + playerKey() + '/wrongBook/' + source + '/' + item.key)
-                                .update({ imageUrl: foundUrl })
+                            persistWrongBookImageUrl_(source, item.key, foundUrl)
                                 .catch(function(err) { console.error('hydrateWrongBookItemImages_ update error:', err); });
                         });
 
@@ -5683,6 +5765,118 @@
             loadWrongBookData(tab);
         }
 
+        function renderWrongBookItems_(source, resolvedItems) {
+            var list = document.getElementById('wrong-book-list');
+            var topicFilter = document.getElementById('wrong-book-topic-filter');
+            if (!list) return;
+
+            list.innerHTML = '';
+            syncWrongBookTopicFilterOptions_(source, resolvedItems);
+
+            var grouped = {};
+            var groupOrder = [];
+
+            resolvedItems.forEach(function(item) {
+                var groupKey = getWrongBookTopicLabel_(source, item.data);
+                if (currentWrongBookTopicFilter !== 'all' && groupKey !== currentWrongBookTopicFilter) return;
+                if (!grouped[groupKey]) {
+                    grouped[groupKey] = [];
+                    groupOrder.push(groupKey);
+                }
+                grouped[groupKey].push(item);
+            });
+
+            if (!groupOrder.length) {
+                if (topicFilter) topicFilter.disabled = !resolvedItems.length;
+                list.innerHTML = '<div class="text-center py-12"><div class="text-5xl mb-4">🔎</div><div class="text-xl font-bold text-slate-600">這個課題暫時沒有錯題</div><div class="text-gray-400 mt-2">請改選其他課題，或切換到「全部課題」。</div></div>';
+                return;
+            }
+
+            var overallIndex = 0;
+            groupOrder.forEach(function(groupKey) {
+                var sectionWrap = document.createElement('section');
+                sectionWrap.className = 'rounded-[1.75rem] border border-slate-200/80 bg-white/50 p-4 sm:p-5';
+                sectionWrap.innerHTML =
+                    '<div class="flex items-center justify-between gap-3 mb-4">' +
+                        '<div>' +
+                            '<div class="text-xs font-black tracking-[0.18em] text-slate-400 uppercase">課題分類</div>' +
+                            '<h3 class="text-xl font-black text-slate-800 mt-1">' + groupKey + '</h3>' +
+                        '</div>' +
+                        '<div class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500">' + grouped[groupKey].length + ' 題</div>' +
+                    '</div>';
+
+                var groupList = document.createElement('div');
+                groupList.className = 'space-y-4';
+
+                grouped[groupKey].forEach(function(item) {
+                    overallIndex++;
+                    var d = item.data;
+                    var div = document.createElement('div');
+                    div.className = 'bg-white/90 p-5 rounded-2xl shadow-md border border-gray-100 relative';
+
+                    var sectionBadge = d.section
+                        ? '<div class="mb-2"><span class="inline-block bg-emerald-50 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded-full border border-emerald-200">' + d.section + '</span></div>'
+                        : '';
+
+                    var timeStr = '';
+                    if (d.timestamp) {
+                        var date = new Date(d.timestamp);
+                        timeStr = '<span class="text-xs text-gray-400">' + date.toLocaleDateString('zh-Hant') + ' ' + date.toLocaleTimeString('zh-Hant', {hour:'2-digit', minute:'2-digit'}) + '</span>';
+                    }
+
+                    var explanationHtml = '';
+                    if (d.explanation && d.explanation !== '無詳解' && d.explanation.trim()) {
+                        explanationHtml = '<div class="mt-3 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100"><div class="text-xs font-bold text-blue-600 mb-1">💡 詳解</div><div class="text-gray-700 leading-relaxed break-words">' + d.explanation + '</div></div>';
+                    }
+
+                    var questionImageHtml = buildQuestionImageHtml(d.imageUrl || '');
+                    var selectedImageHtml = buildWrongBookInlineImageHtml(d.selectedImageUrl || '', '你的答案相片');
+                    var answerImageHtml = buildWrongBookInlineImageHtml(d.answerImageUrl || '', '正確答案相片');
+                    var displayQuestion = d.question || ((d.imageUrl || d.selectedImageUrl || d.answerImageUrl) ? '這是一條以相片保存的課業錯題。' : '未填寫題目內容');
+                    var srcKey = source;
+                    var itemKey = item.key;
+
+                    div.innerHTML =
+                        '<div class="flex justify-between items-start mb-3">' +
+                            '<div class="flex items-center gap-2">' +
+                                '<span class="inline-flex items-center justify-center w-8 h-8 bg-gradient-to-br from-red-400 to-rose-500 text-white font-black text-sm rounded-full shadow">' + overallIndex + '</span>' +
+                                timeStr +
+                            '</div>' +
+                            '<button onclick="deleteWrongQuestion(\'' + srcKey + '\',\'' + itemKey + '\')" class="text-gray-300 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-50" title="刪除此錯題">' +
+                                '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>' +
+                            '</button>' +
+                        '</div>' +
+                        sectionBadge +
+                        '<div class="text-lg font-bold text-gray-800 mb-3 break-words">' + displayQuestion + '</div>' +
+                        questionImageHtml +
+                        '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
+                            '<div class="bg-red-50/80 p-3 rounded-xl border border-red-100"><div class="text-xs font-bold text-red-500 mb-1">❌ 你的答案</div><div class="text-gray-800 font-bold break-words">' + (d.selected || '') + '</div>' + selectedImageHtml + '</div>' +
+                            '<div class="bg-green-50/80 p-3 rounded-xl border border-green-100"><div class="text-xs font-bold text-green-600 mb-1">✅ 正確答案</div><div class="text-gray-800 font-bold break-words">' + (d.answer || '') + '</div>' + answerImageHtml + '</div>' +
+                        '</div>' +
+                        explanationHtml;
+
+                    var actions = document.createElement('div');
+                    actions.className = 'mt-4 flex flex-wrap gap-2';
+                    var askBtn = document.createElement('button');
+                    askBtn.type = 'button';
+                    askBtn.className = 'ghost-btn ghost-indigo px-4 py-2 text-sm';
+                    askBtn.innerText = '💬 交給解難助手';
+                    askBtn.onclick = function() {
+                        openMathHelperFromWrongBook(source, d);
+                    };
+                    actions.appendChild(askBtn);
+                    div.appendChild(actions);
+
+                    groupList.appendChild(div);
+                });
+
+                sectionWrap.appendChild(groupList);
+                list.appendChild(sectionWrap);
+            });
+
+            renderMathInElement(list, { delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
+        }
+
         function loadWrongBookData(source) {
             var list = document.getElementById('wrong-book-list');
             var topicFilter = document.getElementById('wrong-book-topic-filter');
@@ -5693,10 +5887,54 @@
                 topicFilter.disabled = true;
             }
 
-            db.ref('students/' + playerKey() + '/wrongBook/' + source)
+            if (shouldUseWrongBookCache_(source)) {
+                renderWrongBookItems_(source, cloneWrongBookItems_(getWrongBookCacheEntry_(source).items));
+                return Promise.resolve(getWrongBookCacheEntry_(source).items);
+            }
+
+            if (wrongBookLoadPromises[source]) {
+                return wrongBookLoadPromises[source].then(function(items) {
+                    renderWrongBookItems_(source, cloneWrongBookItems_(items));
+                    return items;
+                });
+            }
+
+            wrongBookLoadPromises[source] = db.ref(getWrongBookIndexSourcePath_(source))
               .orderByChild('timestamp').once('value').then(function(snap) {
-                list.innerHTML = '';
                 if (!snap.exists()) {
+                    return db.ref(getWrongBookSourcePath_(source))
+                        .orderByChild('timestamp').once('value').then(function(legacySnap) {
+                            if (!legacySnap.exists()) {
+                                setWrongBookCache_(source, []);
+                                return [];
+                            }
+
+                            var legacyItems = [];
+                            legacySnap.forEach(function(child) { legacyItems.push({ key: child.key, data: child.val() }); });
+                            legacyItems.reverse();
+
+                            return hydrateWrongBookItemImages_(source, legacyItems).then(function(resolvedLegacyItems) {
+                                return backfillWrongBookIndex_(source, resolvedLegacyItems)
+                                    .catch(function(err) { console.error('backfillWrongBookIndex_ error:', err); })
+                                    .then(function() {
+                                        setWrongBookCache_(source, resolvedLegacyItems);
+                                        return cloneWrongBookItems_(resolvedLegacyItems);
+                                    });
+                            });
+                        });
+                }
+
+                var items = [];
+                snap.forEach(function(child) { items.push({ key: child.key, data: child.val() }); });
+                items.reverse();
+
+                return hydrateWrongBookItemImages_(source, items).then(function(resolvedItems) {
+                    setWrongBookCache_(source, resolvedItems);
+                    return cloneWrongBookItems_(resolvedItems);
+                });
+            }).then(function(resolvedItems) {
+                wrongBookLoadPromises[source] = null;
+                if (!resolvedItems.length) {
                     var emptyLabel = source === 'game' ? '數學大挑戰' : (source === 'notes' ? '溫習測驗' : '手動加入錯題');
                     if (topicFilter) {
                         topicFilter.innerHTML = '<option value="all">全部課題</option>';
@@ -5704,121 +5942,18 @@
                         topicFilter.disabled = true;
                     }
                     list.innerHTML = '<div class="text-center py-12"><div class="text-5xl mb-4">🎉</div><div class="text-xl font-bold text-green-500">太棒了！</div><div class="text-gray-400 mt-2">' + emptyLabel + '沒有任何錯題紀錄</div></div>';
-                    return;
+                    return resolvedItems;
                 }
 
-                var items = [];
-                snap.forEach(function(child) { items.push({ key: child.key, data: child.val() }); });
-                items.reverse();
-
-                hydrateWrongBookItemImages_(source, items).then(function(resolvedItems) {
-                    syncWrongBookTopicFilterOptions_(source, resolvedItems);
-
-                    var grouped = {};
-                    var groupOrder = [];
-
-                    resolvedItems.forEach(function(item) {
-                        var groupKey = getWrongBookTopicLabel_(source, item.data);
-                        if (currentWrongBookTopicFilter !== 'all' && groupKey !== currentWrongBookTopicFilter) return;
-                        if (!grouped[groupKey]) {
-                            grouped[groupKey] = [];
-                            groupOrder.push(groupKey);
-                        }
-                        grouped[groupKey].push(item);
-                    });
-
-                    if (!groupOrder.length) {
-                        list.innerHTML = '<div class="text-center py-12"><div class="text-5xl mb-4">🔎</div><div class="text-xl font-bold text-slate-600">這個課題暫時沒有錯題</div><div class="text-gray-400 mt-2">請改選其他課題，或切換到「全部課題」。</div></div>';
-                        return;
-                    }
-
-                    var overallIndex = 0;
-                    groupOrder.forEach(function(groupKey) {
-                        var sectionWrap = document.createElement('section');
-                        sectionWrap.className = 'rounded-[1.75rem] border border-slate-200/80 bg-white/50 p-4 sm:p-5';
-                        sectionWrap.innerHTML =
-                            '<div class="flex items-center justify-between gap-3 mb-4">' +
-                                '<div>' +
-                                    '<div class="text-xs font-black tracking-[0.18em] text-slate-400 uppercase">課題分類</div>' +
-                                    '<h3 class="text-xl font-black text-slate-800 mt-1">' + groupKey + '</h3>' +
-                                '</div>' +
-                                '<div class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500">' + grouped[groupKey].length + ' 題</div>' +
-                            '</div>';
-
-                        var groupList = document.createElement('div');
-                        groupList.className = 'space-y-4';
-
-                        grouped[groupKey].forEach(function(item) {
-                            overallIndex++;
-                            var d = item.data;
-                            var div = document.createElement('div');
-                            div.className = 'bg-white/90 p-5 rounded-2xl shadow-md border border-gray-100 relative';
-
-                            var sectionBadge = d.section
-                                ? '<div class="mb-2"><span class="inline-block bg-emerald-50 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded-full border border-emerald-200">' + d.section + '</span></div>'
-                                : '';
-
-                            var timeStr = '';
-                            if (d.timestamp) {
-                                var date = new Date(d.timestamp);
-                                timeStr = '<span class="text-xs text-gray-400">' + date.toLocaleDateString('zh-Hant') + ' ' + date.toLocaleTimeString('zh-Hant', {hour:'2-digit', minute:'2-digit'}) + '</span>';
-                            }
-
-                            var explanationHtml = '';
-                            if (d.explanation && d.explanation !== '無詳解' && d.explanation.trim()) {
-                                explanationHtml = '<div class="mt-3 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100"><div class="text-xs font-bold text-blue-600 mb-1">💡 詳解</div><div class="text-gray-700 leading-relaxed break-words">' + d.explanation + '</div></div>';
-                            }
-
-                            var questionImageHtml = buildQuestionImageHtml(d.imageUrl || '');
-                            var selectedImageHtml = buildWrongBookInlineImageHtml(d.selectedImageUrl || '', '你的答案相片');
-                            var answerImageHtml = buildWrongBookInlineImageHtml(d.answerImageUrl || '', '正確答案相片');
-                            var displayQuestion = d.question || ((d.imageUrl || d.selectedImageUrl || d.answerImageUrl) ? '這是一條以相片保存的課業錯題。' : '未填寫題目內容');
-                            var srcKey = source;
-                            var itemKey = item.key;
-
-                            div.innerHTML =
-                                '<div class="flex justify-between items-start mb-3">' +
-                                    '<div class="flex items-center gap-2">' +
-                                        '<span class="inline-flex items-center justify-center w-8 h-8 bg-gradient-to-br from-red-400 to-rose-500 text-white font-black text-sm rounded-full shadow">' + overallIndex + '</span>' +
-                                        timeStr +
-                                    '</div>' +
-                                    '<button onclick="deleteWrongQuestion(\'' + srcKey + '\',\'' + itemKey + '\')" class="text-gray-300 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-50" title="刪除此錯題">' +
-                                        '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>' +
-                                    '</button>' +
-                                '</div>' +
-                                sectionBadge +
-                                '<div class="text-lg font-bold text-gray-800 mb-3 break-words">' + displayQuestion + '</div>' +
-                                questionImageHtml +
-                                '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
-                                    '<div class="bg-red-50/80 p-3 rounded-xl border border-red-100"><div class="text-xs font-bold text-red-500 mb-1">❌ 你的答案</div><div class="text-gray-800 font-bold break-words">' + (d.selected || '') + '</div>' + selectedImageHtml + '</div>' +
-                                    '<div class="bg-green-50/80 p-3 rounded-xl border border-green-100"><div class="text-xs font-bold text-green-600 mb-1">✅ 正確答案</div><div class="text-gray-800 font-bold break-words">' + (d.answer || '') + '</div>' + answerImageHtml + '</div>' +
-                                '</div>' +
-                                explanationHtml;
-
-                            var actions = document.createElement('div');
-                            actions.className = 'mt-4 flex flex-wrap gap-2';
-                            var askBtn = document.createElement('button');
-                            askBtn.type = 'button';
-                            askBtn.className = 'ghost-btn ghost-indigo px-4 py-2 text-sm';
-                            askBtn.innerText = '💬 交給解難助手';
-                            askBtn.onclick = function() {
-                                openMathHelperFromWrongBook(source, d);
-                            };
-                            actions.appendChild(askBtn);
-                            div.appendChild(actions);
-
-                            groupList.appendChild(div);
-                        });
-
-                        sectionWrap.appendChild(groupList);
-                        list.appendChild(sectionWrap);
-                    });
-
-                    renderMathInElement(list, { delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
-                });
+                renderWrongBookItems_(source, cloneWrongBookItems_(resolvedItems));
+                return resolvedItems;
             }).catch(function(e) {
+                wrongBookLoadPromises[source] = null;
                 list.innerHTML = '<div class="text-center text-red-400 py-12">載入失敗: ' + (e.message || '') + '</div>';
+                throw e;
             });
+
+            return wrongBookLoadPromises[source];
         }
 
         function deleteWrongQuestion(source, key) {
@@ -5830,8 +5965,8 @@
                 icon: '🗑️'
             }).then(function(confirmed) {
                 if (!confirmed) return;
-                db.ref('students/' + playerKey() + '/wrongBook/' + source + '/' + key)
-                  .remove().then(function() {
+                                removeWrongBookEntry_(source, key).then(function() {
+                                        invalidateWrongBookCache_(source);
                                         invalidateWeeklyLearningSummary_(true);
                     loadWrongBookData(currentWrongBookTab || 'game');
                     showToast('已從錯題本移除。', 'success', '刪除完成');

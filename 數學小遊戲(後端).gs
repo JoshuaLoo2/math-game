@@ -113,6 +113,89 @@ function formatResultTime_() {
   return Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd HH:mm:ss');
 }
 
+function buildStudentResultPlayerKey_(playerInfo) {
+  playerInfo = playerInfo || {};
+  var className = String(playerInfo.class || '').trim();
+  var number = String(playerInfo.number || '').trim();
+  return className && number ? (className + '-' + number) : '';
+}
+
+function buildStudentResultIndexKey_(mode, resultId) {
+  return String(mode || 'result').trim() + '__' + String(resultId || '').trim();
+}
+
+function getStudentChallengeResultsPath_(playerKey) {
+  return 'students/' + String(playerKey || '').trim() + '/challengeResults';
+}
+
+function extractStudentResultIndexEntries_(resultRoot, playerInfo, mode) {
+  var entries = {};
+  var data = resultRoot && typeof resultRoot === 'object' ? resultRoot : {};
+  var targetKey = buildStudentResultPlayerKey_(playerInfo);
+
+  Object.keys(data).forEach(function(resultId) {
+    var item = data[resultId] || {};
+    if (buildStudentResultPlayerKey_(item.player) !== targetKey) return;
+    entries[buildStudentResultIndexKey_(mode, resultId)] = item;
+  });
+
+  return entries;
+}
+
+function writeStudentResultIndex_(playerInfo, mode, resultId, payload) {
+  var playerKey = buildStudentResultPlayerKey_(playerInfo || (payload && payload.player) || {});
+  if (!playerKey || !resultId) return { error: '缺少學生資料或 resultId，未能建立結果索引。' };
+
+  var indexPayload = {};
+  indexPayload[buildStudentResultIndexKey_(mode, resultId)] = payload || {};
+
+  var indexRes = patchFirebase_(getStudentChallengeResultsPath_(playerKey), indexPayload);
+  if (indexRes.error) return indexRes;
+
+  var metaRes = patchFirebase_('students/' + playerKey + '/resultIndexMeta', {
+    updatedAt: Date.now()
+  });
+  if (metaRes.error) Logger.log('[writeStudentResultIndex_] ' + metaRes.error);
+
+  var profileInvalidateRes = patchFirebase_('students/' + playerKey + '/profile', {
+    generatedAt: 0
+  });
+  if (profileInvalidateRes.error) Logger.log('[writeStudentResultIndex_] ' + profileInvalidateRes.error);
+
+  return { success: true };
+}
+
+function migrateStudentResultsIndexFromLegacy_(playerInfo) {
+  var playerKey = buildStudentResultPlayerKey_(playerInfo);
+  if (!playerKey) return { error: '缺少學生資料，未能回填結果索引。' };
+
+  var singleRes = fetchFromFirebase_('results/single');
+  if (singleRes.error) return { error: singleRes.error };
+  var multiRes = fetchFromFirebase_('results/multi');
+  if (multiRes.error) return { error: multiRes.error };
+
+  var indexedEntries = {};
+  var singleEntries = extractStudentResultIndexEntries_(singleRes.data, playerInfo, 'single');
+  var multiEntries = extractStudentResultIndexEntries_(multiRes.data, playerInfo, 'multi');
+
+  Object.keys(singleEntries).forEach(function(key) { indexedEntries[key] = singleEntries[key]; });
+  Object.keys(multiEntries).forEach(function(key) { indexedEntries[key] = multiEntries[key]; });
+
+  if (Object.keys(indexedEntries).length) {
+    var indexRes = patchFirebase_(getStudentChallengeResultsPath_(playerKey), indexedEntries);
+    if (indexRes.error) return { error: indexRes.error };
+  }
+
+  var metaRes = patchFirebase_('students/' + playerKey + '/resultIndexMeta', {
+    version: 1,
+    migratedAt: Date.now(),
+    updatedAt: Date.now()
+  });
+  if (metaRes.error) Logger.log('[migrateStudentResultsIndexFromLegacy_] ' + metaRes.error);
+
+  return { success: true, data: indexedEntries };
+}
+
 function saveToSheet(data, type) {
   try {
     var t = String(type || '').toLowerCase();
@@ -341,6 +424,10 @@ function saveSingleResult(playerInfo, score, meta) {
       score: Number(score || 0)
     };
     var fbRes = pushToFirebase_('results/single', payload);
+    if (fbRes && fbRes.success && fbRes.name) {
+      var indexRes = writeStudentResultIndex_(playerInfo, 'single', fbRes.name, payload);
+      if (indexRes.error) Logger.log('[saveSingleResult] 學生結果索引寫入失敗（已忽略，不影響主紀錄）: ' + indexRes.error);
+    }
     var sheetRes = saveToSheet(payload, 'single');
     if (sheetRes && sheetRes.error) {
       Logger.log('[saveSingleResult] Sheet 寫入失敗（已忽略，不影響 Firebase）: ' + sheetRes.error);
@@ -377,6 +464,10 @@ function finishGame(roomId, playerInfo, score, meta) {
       score: Number(score || 0)
     };
     var fbRes = pushToFirebase_('results/multi', payload);
+    if (fbRes && fbRes.success && fbRes.name) {
+      var indexRes = writeStudentResultIndex_(playerInfo, 'multi', fbRes.name, payload);
+      if (indexRes.error) Logger.log('[finishGame] 學生結果索引寫入失敗（已忽略，不影響主紀錄）: ' + indexRes.error);
+    }
     var sheetRes = saveToSheet(payload, 'multi');
     if (sheetRes && sheetRes.error) {
       Logger.log('[finishGame] Sheet 寫入失敗（已忽略，不影響 Firebase）: ' + sheetRes.error);
@@ -510,12 +601,12 @@ function buildChallengeEntries_(resultRoot, playerInfo) {
 
 function buildAchievementCatalog_(totalTopicCount) {
   return [
-    { id: 'first_steps', title: 'First Steps', description: '完成第一場數學挑戰', icon: '🎮', target: 1, type: 'challenges' },
-    { id: 'math_enthusiast', title: 'Math Enthusiast', description: '完成 10 場數學挑戰', icon: '🔥', target: 10, type: 'challenges' },
-    { id: 'perfect_score', title: 'Perfect Score', description: '最佳成績達到 100 分', icon: '💯', target: 100, type: 'bestScore' },
-    { id: 'book_worm', title: 'Book Worm', description: '完成 3 個數學課題', icon: '📚', target: 3, type: 'topics' },
-    { id: 'collector', title: 'Collector', description: '兌換 5 個角色或特效', icon: '🎁', target: 5, type: 'redeemed' },
-    { id: 'math_master', title: 'Math Master', description: '完成全部數學課題', icon: '👑', target: Math.max(1, Number(totalTopicCount || 0)), type: 'allTopics' }
+    { id: 'first_steps', title: '踏出首步', description: '完成第一場數學挑戰', icon: '🎮', target: 1, type: 'challenges' },
+    { id: 'math_enthusiast', title: '熱血解題王', description: '完成 10 場數學挑戰', icon: '🔥', target: 10, type: 'challenges' },
+    { id: 'perfect_score', title: '百發百中', description: '最佳成績達到 100 分', icon: '💯', target: 100, type: 'bestScore' },
+    { id: 'book_worm', title: '知識探索者', description: '完成 3 個數學課題', icon: '📚', target: 3, type: 'topics' },
+    { id: 'collector', title: '尋寶獵人', description: '兌換 5 個角色或特效', icon: '🎁', target: 5, type: 'redeemed' },
+    { id: 'math_master', title: '登峰造極', description: '完成全部數學課題', icon: '👑', target: Math.max(1, Number(totalTopicCount || 0)), type: 'allTopics' }
   ];
 }
 
@@ -611,12 +702,15 @@ function getStudentProfileData(playerInfo, forceRefresh) {
     var topicMeta = buildNotesTopicMeta_(grade);
     var notesProgress = student.notesProgress || {};
     var purchased = (student.shop && student.shop.purchased) || {};
-    var singleRes = fetchFromFirebase_('results/single');
-    if (singleRes.error) return { error: singleRes.error };
-    var multiRes = fetchFromFirebase_('results/multi');
-    if (multiRes.error) return { error: multiRes.error };
+    var indexedResultRoot = student.challengeResults || {};
+    var resultIndexMeta = student.resultIndexMeta || {};
+    if (Number(resultIndexMeta.version || 0) < 1) {
+      var migrationRes = migrateStudentResultsIndexFromLegacy_(playerInfo);
+      if (migrationRes.error) return { error: migrationRes.error };
+      indexedResultRoot = migrationRes.data || indexedResultRoot;
+    }
 
-    var entries = buildChallengeEntries_(singleRes.data, playerInfo).concat(buildChallengeEntries_(multiRes.data, playerInfo));
+    var entries = buildChallengeEntries_(indexedResultRoot, playerInfo);
     entries.sort(function(a, b) { return b.createdAt - a.createdAt; });
 
     var topicStats = {};
@@ -792,7 +886,12 @@ function getStudentProfileData(playerInfo, forceRefresh) {
 
     var patchRes = patchFirebase_('students/' + playerKey, {
       achievements: normalizedAchievements,
-      profile: profile
+      profile: profile,
+      resultIndexMeta: {
+        version: 1,
+        updatedAt: Date.now(),
+        profileGeneratedAt: profile.generatedAt
+      }
     });
     if (patchRes.error) Logger.log('[getStudentProfileData] ' + patchRes.error);
     return profile;
@@ -1036,6 +1135,89 @@ function normalizeWrongBookLookupText_(value) {
   return String(value || '').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
+function buildWrongBookImageLookupCacheKey_(source, lookup) {
+  lookup = lookup || {};
+  return [
+    'wbimg',
+    String(source || '').trim(),
+    String(lookup.question || '').trim(),
+    String(lookup.answer || '').trim(),
+    String(lookup.topic || '').trim(),
+    String(lookup.section || '').trim()
+  ].join('::');
+}
+
+function getCachedWrongBookImageLookups_(source, lookups) {
+  var cache = CacheService.getScriptCache();
+  var keys = [];
+  var keyToLookup = {};
+  (lookups || []).forEach(function(lookup) {
+    var cacheKey = buildWrongBookImageLookupCacheKey_(source, lookup);
+    keys.push(cacheKey);
+    keyToLookup[cacheKey] = lookup;
+  });
+  if (!keys.length) return { resolved: {}, missing: [] };
+
+  var cachedMap = cache.getAll(keys) || {};
+  var resolved = {};
+  var missing = [];
+  keys.forEach(function(cacheKey) {
+    if (Object.prototype.hasOwnProperty.call(cachedMap, cacheKey)) {
+      var lookup = keyToLookup[cacheKey];
+      if (lookup && cachedMap[cacheKey]) resolved[lookup.key] = cachedMap[cacheKey];
+      return;
+    }
+    missing.push(keyToLookup[cacheKey]);
+  });
+  return { resolved: resolved, missing: missing };
+}
+
+function cacheWrongBookImageLookups_(source, resolvedByKey, lookups) {
+  var cache = CacheService.getScriptCache();
+  var payload = {};
+  (lookups || []).forEach(function(lookup) {
+    if (!lookup || !resolvedByKey[lookup.key]) return;
+    payload[buildWrongBookImageLookupCacheKey_(source, lookup)] = String(resolvedByKey[lookup.key] || '');
+  });
+  if (Object.keys(payload).length) cache.putAll(payload, 21600);
+}
+
+function buildWrongBookQuestionRowIndex_(rows, config) {
+  var index = {};
+  var questionIdx = Number(config.questionIdx);
+  var answerIdx = Number(config.answerIdx);
+  var topicIdx = Number(config.topicIdx);
+  var sectionIdx = Number(config.sectionIdx);
+  var imageIdx = Number(config.imageIdx);
+
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i];
+    var questionKey = normalizeWrongBookLookupText_(row[questionIdx]);
+    var imageUrl = String(row[imageIdx] || '').trim();
+    if (!questionKey || !imageUrl) continue;
+    if (!index[questionKey]) index[questionKey] = [];
+    index[questionKey].push({
+      answer: answerIdx !== -1 ? normalizeWrongBookLookupText_(row[answerIdx]) : '',
+      topic: topicIdx !== -1 ? normalizeWrongBookLookupText_(row[topicIdx]) : '',
+      section: sectionIdx !== -1 ? normalizeWrongBookLookupText_(row[sectionIdx]) : '',
+      imageUrl: imageUrl
+    });
+  }
+  return index;
+}
+
+function findWrongBookImageFromCandidates_(lookup, candidates) {
+  var rows = Array.isArray(candidates) ? candidates : [];
+  for (var i = 0; i < rows.length; i++) {
+    var candidate = rows[i] || {};
+    if (lookup.answer && candidate.answer && lookup.answer !== candidate.answer) continue;
+    if (lookup.topic && candidate.topic && lookup.topic !== candidate.topic) continue;
+    if (lookup.section && candidate.section && lookup.section !== candidate.section) continue;
+    if (candidate.imageUrl) return candidate.imageUrl;
+  }
+  return '';
+}
+
 function resolveWrongBookImageUrls(items) {
   try {
     var requests = Array.isArray(items) ? items : [];
@@ -1064,32 +1246,37 @@ function resolveWrongBookImageUrls(items) {
       else pendingGame[key] = lookup;
     });
 
-    if (Object.keys(pendingGame).length) {
+    var gameLookups = Object.keys(pendingGame).map(function(key) { return pendingGame[key]; });
+    var noteLookups = Object.keys(pendingNotes).map(function(key) { return pendingNotes[key]; });
+    var cachedGame = getCachedWrongBookImageLookups_('game', gameLookups);
+    var cachedNotes = getCachedWrongBookImageLookups_('notes', noteLookups);
+    Object.keys(cachedGame.resolved).forEach(function(key) { result[key] = cachedGame.resolved[key]; });
+    Object.keys(cachedNotes.resolved).forEach(function(key) { result[key] = cachedNotes.resolved[key]; });
+
+    if (cachedGame.missing.length) {
       var gameData = SpreadsheetApp.openById(getQuestionsSheetId_()).getSheets()[0].getDataRange().getValues();
       var gameHeaders = normalizeHeaders_(gameData.shift());
       var gameQuestionIdx = findColumnIndex_(gameHeaders, ['question', '題目', '問題', 'q']);
       var gameAnswerIdx = findColumnIndex_(gameHeaders, ['answer', '答案', '解答', 'correctanswer', 'ans']);
       var gameImageIdx = findColumnIndex_(gameHeaders, ['image', 'imageurl', '圖片', '圖片url', '插圖']);
       if (gameQuestionIdx !== -1 && gameImageIdx !== -1) {
-        for (var i = 0; i < gameData.length; i++) {
-          var row = gameData[i];
-          var questionKey = normalizeWrongBookLookupText_(row[gameQuestionIdx]);
-          var answerKey = gameAnswerIdx !== -1 ? normalizeWrongBookLookupText_(row[gameAnswerIdx]) : '';
-          var imageUrl = String(row[gameImageIdx] || '').trim();
-          if (!questionKey || !imageUrl) continue;
-
-          Object.keys(pendingGame).forEach(function(requestKey) {
-            var request = pendingGame[requestKey];
-            if (result[request.key]) return;
-            if (request.question !== questionKey) return;
-            if (request.answer && answerKey && request.answer !== answerKey) return;
-            result[request.key] = imageUrl;
-          });
-        }
+        var gameIndex = buildWrongBookQuestionRowIndex_(gameData, {
+          questionIdx: gameQuestionIdx,
+          answerIdx: gameAnswerIdx,
+          topicIdx: -1,
+          sectionIdx: -1,
+          imageIdx: gameImageIdx
+        });
+        cachedGame.missing.forEach(function(request) {
+          if (result[request.key]) return;
+          var found = findWrongBookImageFromCandidates_(request, gameIndex[request.question]);
+          if (found) result[request.key] = found;
+        });
+        cacheWrongBookImageLookups_('game', result, cachedGame.missing);
       }
     }
 
-    if (Object.keys(pendingNotes).length) {
+    if (cachedNotes.missing.length) {
       var notesData = SpreadsheetApp.openById(getNotesQuizSheetId_()).getSheets()[0].getDataRange().getValues();
       var notesHeaders = normalizeHeaders_(notesData.shift());
       var notesQuestionIdx = findColumnIndex_(notesHeaders, ['question', '題目', '問題', 'q']);
@@ -1098,25 +1285,19 @@ function resolveWrongBookImageUrls(items) {
       var notesSectionIdx = findColumnIndex_(notesHeaders, ['section', '章節', '單元']);
       var notesImageIdx = findColumnIndex_(notesHeaders, ['image', 'imageurl', '圖片', '圖片url', '插圖']);
       if (notesQuestionIdx !== -1 && notesImageIdx !== -1) {
-        for (var j = 0; j < notesData.length; j++) {
-          var noteRow = notesData[j];
-          var noteQuestionKey = normalizeWrongBookLookupText_(noteRow[notesQuestionIdx]);
-          var noteAnswerKey = notesAnswerIdx !== -1 ? normalizeWrongBookLookupText_(noteRow[notesAnswerIdx]) : '';
-          var noteTopicKey = notesTopicIdx !== -1 ? normalizeWrongBookLookupText_(noteRow[notesTopicIdx]) : '';
-          var noteSectionKey = notesSectionIdx !== -1 ? normalizeWrongBookLookupText_(noteRow[notesSectionIdx]) : '';
-          var noteImageUrl = String(noteRow[notesImageIdx] || '').trim();
-          if (!noteQuestionKey || !noteImageUrl) continue;
-
-          Object.keys(pendingNotes).forEach(function(requestKey) {
-            var request = pendingNotes[requestKey];
-            if (result[request.key]) return;
-            if (request.question !== noteQuestionKey) return;
-            if (request.answer && noteAnswerKey && request.answer !== noteAnswerKey) return;
-            if (request.topic && noteTopicKey && request.topic !== noteTopicKey) return;
-            if (request.section && noteSectionKey && request.section !== noteSectionKey) return;
-            result[request.key] = noteImageUrl;
-          });
-        }
+        var notesIndex = buildWrongBookQuestionRowIndex_(notesData, {
+          questionIdx: notesQuestionIdx,
+          answerIdx: notesAnswerIdx,
+          topicIdx: notesTopicIdx,
+          sectionIdx: notesSectionIdx,
+          imageIdx: notesImageIdx
+        });
+        cachedNotes.missing.forEach(function(request) {
+          if (result[request.key]) return;
+          var found = findWrongBookImageFromCandidates_(request, notesIndex[request.question]);
+          if (found) result[request.key] = found;
+        });
+        cacheWrongBookImageLookups_('notes', result, cachedNotes.missing);
       }
     }
 
