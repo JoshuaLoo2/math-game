@@ -49,6 +49,48 @@ function pushToFirebase_(path, payload) {
   }
 }
 
+function fetchFromFirebase_(path) {
+  try {
+    var cleanPath = String(path || '').replace(/^\/+|\/+$/g, '');
+    var url = getFirebaseDbUrl_() + '/' + cleanPath + '.json';
+    var res = UrlFetchApp.fetch(url, {
+      method: 'get',
+      muteHttpExceptions: true
+    });
+    var code = res.getResponseCode();
+    if (code < 200 || code >= 300) {
+      return { error: 'Firebase 讀取失敗，HTTP ' + code + '：' + res.getContentText() };
+    }
+    try {
+      return { success: true, data: JSON.parse(res.getContentText() || 'null') };
+    } catch (e) {
+      return { error: 'Firebase 回傳格式錯誤：' + e.message };
+    }
+  } catch (e) {
+    return { error: 'Firebase 讀取例外: ' + e.message };
+  }
+}
+
+function patchFirebase_(path, payload) {
+  try {
+    var cleanPath = String(path || '').replace(/^\/+|\/+$/g, '');
+    var url = getFirebaseDbUrl_() + '/' + cleanPath + '.json';
+    var res = UrlFetchApp.fetch(url, {
+      method: 'patch',
+      contentType: 'application/json',
+      payload: JSON.stringify(payload || {}),
+      muteHttpExceptions: true
+    });
+    var code = res.getResponseCode();
+    if (code < 200 || code >= 300) {
+      return { error: 'Firebase 更新失敗，HTTP ' + code + '：' + res.getContentText() };
+    }
+    return { success: true };
+  } catch (e) {
+    return { error: 'Firebase 更新例外: ' + e.message };
+  }
+}
+
 // ==========================================
 // 通用欄位搜尋輔助
 // ==========================================
@@ -342,6 +384,420 @@ function finishGame(roomId, playerInfo, score, meta) {
     return fbRes;
   } catch (e) {
     return { error: e.message };
+  }
+}
+
+function inferGradeFromClass_(className) {
+  var raw = String(className || '').trim();
+  if (!raw) return '';
+  if (/^中[一二三四五六]/.test(raw)) return raw.slice(0, 2);
+  var match = raw.match(/^(\d+)/);
+  if (!match) return '';
+  var map = {
+    '1': '中一',
+    '2': '中二',
+    '3': '中三',
+    '4': '中四',
+    '5': '中五',
+    '6': '中六'
+  };
+  return map[match[1]] || '';
+}
+
+function sanitizeFirebaseKey_(value) {
+  return String(value || '').replace(/[.#$\[\]\/]/g, '_');
+}
+
+function restoreTopicDisplayLabel_(value) {
+  return String(value || '').replace(/_/g, ' ').trim();
+}
+
+function toTimestamp_(value) {
+  if (typeof value === 'number') return isFinite(value) ? value : 0;
+  if (!value) return 0;
+  var stamp = Date.parse(value);
+  return isFinite(stamp) ? stamp : 0;
+}
+
+function clampNumber_(value, min, max) {
+  var num = Number(value || 0);
+  if (!isFinite(num)) num = 0;
+  if (typeof min === 'number' && num < min) num = min;
+  if (typeof max === 'number' && num > max) num = max;
+  return num;
+}
+
+function buildNotesTopicMeta_(grade) {
+  var result = {
+    topics: [],
+    sectionCountByTopic: {},
+    topicLabelBySanitized: {}
+  };
+
+  try {
+    var ss = SpreadsheetApp.openById(getNotesSheetId_());
+    var sheet = ss.getSheets()[0];
+    var data = sheet.getDataRange().getValues();
+    var headers = normalizeHeaders_(data.shift());
+    var topicIdx = findColumnIndex_(headers, ['課題', 'topic', '主題', 'theme', 'chapter']);
+    var gradeIdx = findColumnIndex_(headers, ['級別', 'grade', '年級', 'level', '班級']);
+    var sectionIdx = findColumnIndex_(headers, ['section', '章節', '單元']);
+    if (topicIdx === -1) return result;
+
+    var topicSeen = {};
+    var sectionSeenByTopic = {};
+    for (var i = 0; i < data.length; i++) {
+      var row = data[i];
+      if (grade && gradeIdx !== -1 && String(row[gradeIdx] || '').trim() !== grade) continue;
+      var topic = String(row[topicIdx] || '').trim();
+      if (!topic) continue;
+      var sanitized = sanitizeFirebaseKey_(topic);
+      result.topicLabelBySanitized[sanitized] = topic;
+      if (!topicSeen[topic]) {
+        topicSeen[topic] = true;
+        result.topics.push(topic);
+      }
+      if (!sectionSeenByTopic[topic]) sectionSeenByTopic[topic] = {};
+      var section = sectionIdx !== -1 ? String(row[sectionIdx] || '').trim() : '';
+      if (section) sectionSeenByTopic[topic][section] = true;
+    }
+
+    result.topics.forEach(function(topic) {
+      var count = Object.keys(sectionSeenByTopic[topic] || {}).length;
+      result.sectionCountByTopic[topic] = count;
+    });
+  } catch (e) {
+    Logger.log('[buildNotesTopicMeta_] ' + e.message);
+  }
+
+  return result;
+}
+
+function normalizeTopicLabel_(rawTopic, topicMeta) {
+  var label = String(rawTopic || '').trim();
+  if (!label) return '';
+  var restored = restoreTopicDisplayLabel_(label);
+  if (topicMeta && topicMeta.topicLabelBySanitized && topicMeta.topicLabelBySanitized[label]) {
+    return topicMeta.topicLabelBySanitized[label];
+  }
+  if (topicMeta && topicMeta.topicLabelBySanitized && topicMeta.topicLabelBySanitized[sanitizeFirebaseKey_(restored)]) {
+    return topicMeta.topicLabelBySanitized[sanitizeFirebaseKey_(restored)];
+  }
+  return restored;
+}
+
+function buildChallengeEntries_(resultRoot, playerInfo) {
+  var entries = [];
+  var data = resultRoot && typeof resultRoot === 'object' ? resultRoot : {};
+  var targetClass = String(playerInfo && playerInfo.class || '').trim();
+  var targetNumber = String(playerInfo && playerInfo.number || '').trim();
+
+  Object.keys(data).forEach(function(key) {
+    var item = data[key] || {};
+    var player = item.player || {};
+    if (String(player.class || '').trim() !== targetClass || String(player.number || '').trim() !== targetNumber) return;
+    entries.push({
+      topic: String(item.topic || item.theme || ''),
+      difficulty: String(item.difficulty || ''),
+      accuracyPct: clampNumber_(item.accuracyPct || item.accuracy || 0, 0, 100),
+      score: clampNumber_(item.score || 0, 0),
+      createdAt: toTimestamp_(item.createdAt || item.timestamp || 0)
+    });
+  });
+
+  return entries;
+}
+
+function buildAchievementCatalog_(totalTopicCount) {
+  return [
+    { id: 'first_steps', title: 'First Steps', description: '完成第一場數學挑戰', icon: '🎮', target: 1, type: 'challenges' },
+    { id: 'math_enthusiast', title: 'Math Enthusiast', description: '完成 10 場數學挑戰', icon: '🔥', target: 10, type: 'challenges' },
+    { id: 'perfect_score', title: 'Perfect Score', description: '最佳成績達到 100 分', icon: '💯', target: 100, type: 'bestScore' },
+    { id: 'book_worm', title: 'Book Worm', description: '完成 3 個數學課題', icon: '📚', target: 3, type: 'topics' },
+    { id: 'collector', title: 'Collector', description: '兌換 5 個角色或特效', icon: '🎁', target: 5, type: 'redeemed' },
+    { id: 'math_master', title: 'Math Master', description: '完成全部數學課題', icon: '👑', target: Math.max(1, Number(totalTopicCount || 0)), type: 'allTopics' }
+  ];
+}
+
+function computeAchievementProgress_(achievement, metrics) {
+  if (!achievement) return { current: 0, target: 1, unlocked: false };
+  var current = 0;
+  if (achievement.type === 'challenges') current = Number(metrics.completedChallenges || 0);
+  else if (achievement.type === 'bestScore') current = Number(metrics.bestScore || 0);
+  else if (achievement.type === 'topics') current = Number(metrics.completedTopics || 0);
+  else if (achievement.type === 'redeemed') current = Number(metrics.redeemedRoles || 0);
+  else if (achievement.type === 'allTopics') current = Number(metrics.completedTopics || 0);
+  var target = Math.max(1, Number(achievement.target || 1));
+  var unlocked = current >= target;
+  return {
+    current: current,
+    target: target,
+    unlocked: unlocked,
+    progressPct: Math.round((Math.min(current, target) / target) * 100)
+  };
+}
+
+function buildProfileRecommendation_(metrics, masteryTopics, topicMeta) {
+  var topics = Array.isArray(masteryTopics) ? masteryTopics.slice() : [];
+  var weakest = topics.filter(function(item) { return item.dataPoints > 0; }).sort(function(a, b) {
+    return a.score - b.score || a.label.localeCompare(b.label);
+  })[0] || null;
+
+  var unfinished = (topicMeta && Array.isArray(topicMeta.topics) ? topicMeta.topics : []).find(function(topic) {
+    return metrics.completedTopicLabels.indexOf(topic) === -1;
+  }) || '';
+
+  if (weakest && weakest.notesCompletionPct < 100) {
+    return {
+      title: '先補完整個弱項課題',
+      description: '「' + weakest.label + '」仍有未完成的溫習章節，先把課題讀完並完成測驗，掌握度會提升得最快。',
+      cta: '📖 去完成課題',
+      action: 'notes',
+      topic: weakest.label
+    };
+  }
+  if (weakest && weakest.gameAttempts > 0 && weakest.gameAccuracy < 70) {
+    return {
+      title: '先把挑戰失分課題補強',
+      description: '「' + weakest.label + '」在遊戲挑戰中的準確度較低，建議先回顧後再打一場同課題挑戰。',
+      cta: '🎮 再挑戰弱項',
+      action: 'challenge',
+      topic: weakest.label
+    };
+  }
+  if (unfinished) {
+    return {
+      title: '繼續解鎖下一個課題',
+      description: '你還未完成「' + unfinished + '」，先完成這個課題可以同時推進成就與整體掌握度。',
+      cta: '📘 前往未完成課題',
+      action: 'notes',
+      topic: unfinished
+    };
+  }
+  if (Number(metrics.completedChallenges || 0) < 10) {
+    return {
+      title: '再累積幾場實戰挑戰',
+      description: '目前挑戰場數仍有空間，先用幾場短挑戰把不同課題的實戰表現拉齊。',
+      cta: '⚔️ 再玩一場',
+      action: 'challenge',
+      topic: ''
+    };
+  }
+  return {
+    title: '狀態穩定，適合衝更高分',
+    description: '整體掌握度已開始穩定，下一步適合用更高難度或多人對戰檢驗真正熟練度。',
+    cta: '🚀 挑戰更高難度',
+    action: 'challenge',
+    topic: ''
+  };
+}
+
+function getStudentProfileData(playerInfo, forceRefresh) {
+  try {
+    playerInfo = playerInfo || {};
+    var className = String(playerInfo.class || '').trim();
+    var number = String(playerInfo.number || '').trim();
+    if (!className || !number) return { error: '缺少學生資料，未能整理 profile。' };
+
+    var playerKey = className + '-' + number;
+    var studentRes = fetchFromFirebase_('students/' + playerKey);
+    if (studentRes.error) return { error: studentRes.error };
+    var student = studentRes.data || {};
+    if (!forceRefresh && student.profile && student.profile.generatedAt && (Date.now() - Number(student.profile.generatedAt || 0) < 90000)) {
+      return student.profile;
+    }
+
+    var grade = inferGradeFromClass_(className);
+    var topicMeta = buildNotesTopicMeta_(grade);
+    var notesProgress = student.notesProgress || {};
+    var purchased = (student.shop && student.shop.purchased) || {};
+    var singleRes = fetchFromFirebase_('results/single');
+    if (singleRes.error) return { error: singleRes.error };
+    var multiRes = fetchFromFirebase_('results/multi');
+    if (multiRes.error) return { error: multiRes.error };
+
+    var entries = buildChallengeEntries_(singleRes.data, playerInfo).concat(buildChallengeEntries_(multiRes.data, playerInfo));
+    entries.sort(function(a, b) { return b.createdAt - a.createdAt; });
+
+    var topicStats = {};
+    entries.forEach(function(entry) {
+      var label = normalizeTopicLabel_(entry.topic, topicMeta);
+      if (!label) return;
+      if (!topicStats[label]) {
+        topicStats[label] = {
+          label: label,
+          gameAttempts: 0,
+          gameAccuracyTotal: 0,
+          gameBestScore: 0,
+          notesAccuracy: 0,
+          notesCompletionPct: 0,
+          notesCompleted: false,
+          passedSections: 0,
+          totalSections: Number(topicMeta.sectionCountByTopic[label] || 0)
+        };
+      }
+      topicStats[label].gameAttempts += 1;
+      topicStats[label].gameAccuracyTotal += clampNumber_(entry.accuracyPct, 0, 100);
+      topicStats[label].gameBestScore = Math.max(topicStats[label].gameBestScore, clampNumber_(entry.score, 0));
+    });
+
+    Object.keys(notesProgress).forEach(function(rawKey) {
+      var item = notesProgress[rawKey] || {};
+      var label = normalizeTopicLabel_(rawKey, topicMeta);
+      if (!label) return;
+      if (!topicStats[label]) {
+        topicStats[label] = {
+          label: label,
+          gameAttempts: 0,
+          gameAccuracyTotal: 0,
+          gameBestScore: 0,
+          notesAccuracy: 0,
+          notesCompletionPct: 0,
+          notesCompleted: false,
+          passedSections: 0,
+          totalSections: Number(topicMeta.sectionCountByTopic[label] || 0)
+        };
+      }
+      var stat = topicStats[label];
+      var sections = item.sections || {};
+      var passedSections = 0;
+      Object.keys(sections).forEach(function(sectionKey) {
+        if (sections[sectionKey] && sections[sectionKey].passed) passedSections++;
+      });
+      stat.passedSections = Math.max(stat.passedSections, passedSections);
+      stat.totalSections = Math.max(stat.totalSections, Number(topicMeta.sectionCountByTopic[label] || 0), passedSections);
+      var quizTotal = clampNumber_(item.quizTotal || 0, 0);
+      var quizScore = clampNumber_(item.quizScore || 0, 0);
+      stat.notesAccuracy = quizTotal > 0 ? Math.round((quizScore / quizTotal) * 100) : stat.notesAccuracy;
+      var completionPct = item.topicComplete
+        ? 100
+        : (stat.totalSections > 0 ? Math.round((passedSections / stat.totalSections) * 100) : (passedSections > 0 ? 50 : 0));
+      stat.notesCompletionPct = Math.max(stat.notesCompletionPct, completionPct);
+      stat.notesCompleted = !!item.topicComplete;
+    });
+
+    var masteryTopics = Object.keys(topicStats).map(function(label) {
+      var stat = topicStats[label];
+      var hasNotes = stat.notesAccuracy > 0 || stat.notesCompletionPct > 0 || stat.notesCompleted;
+      var hasGame = stat.gameAttempts > 0;
+      var gameAccuracy = stat.gameAttempts > 0 ? Math.round(stat.gameAccuracyTotal / stat.gameAttempts) : 0;
+      var gameParticipation = Math.min(100, stat.gameAttempts * 20);
+      var gameScore = hasGame ? Math.round((gameAccuracy * 0.75) + (gameParticipation * 0.25)) : 0;
+      var notesScore = hasNotes ? Math.round((stat.notesAccuracy * 0.7) + (stat.notesCompletionPct * 0.3)) : 0;
+      var weightNotes = hasNotes ? 0.6 : 0;
+      var weightGame = hasGame ? 0.4 : 0;
+      var score = (weightNotes + weightGame) > 0
+        ? Math.round(((notesScore * weightNotes) + (gameScore * weightGame)) / (weightNotes + weightGame))
+        : 0;
+      return {
+        topic: label,
+        label: label,
+        score: score,
+        notesScore: notesScore,
+        gameScore: gameScore,
+        notesAccuracy: stat.notesAccuracy,
+        notesCompletionPct: stat.notesCompletionPct,
+        gameAccuracy: gameAccuracy,
+        gameAttempts: stat.gameAttempts,
+        bestScore: stat.gameBestScore,
+        completed: !!stat.notesCompleted,
+        passedSections: stat.passedSections,
+        totalSections: stat.totalSections,
+        dataPoints: (hasNotes ? 1 : 0) + (hasGame ? 1 : 0)
+      };
+    }).sort(function(a, b) {
+      return b.score - a.score || b.gameAttempts - a.gameAttempts || a.label.localeCompare(b.label);
+    });
+
+    var completedTopicLabels = masteryTopics.filter(function(item) { return item.completed; }).map(function(item) { return item.label; });
+    var bestScore = entries.reduce(function(maxValue, entry) {
+      return Math.max(maxValue, clampNumber_(entry.score, 0));
+    }, 0);
+    var purchasedIds = Object.keys(purchased || {}).filter(function(key) { return !!purchased[key]; });
+    var metrics = {
+      totalScore: clampNumber_(student.totalPoints || 0, 0),
+      completedChallenges: entries.length,
+      completedTopics: completedTopicLabels.length,
+      bestScore: bestScore,
+      redeemedRoles: purchasedIds.length,
+      totalTopics: Number(topicMeta.topics.length || 0),
+      completedTopicLabels: completedTopicLabels
+    };
+
+    var achievementCatalog = buildAchievementCatalog_(metrics.totalTopics);
+    var existingAchievements = student.achievements || {};
+    var normalizedAchievements = {};
+    var achievements = achievementCatalog.map(function(item) {
+      var progress = computeAchievementProgress_(item, metrics);
+      var existing = existingAchievements[item.id] || {};
+      var unlockedAt = existing.unlockedAt || (progress.unlocked ? Date.now() : 0);
+      normalizedAchievements[item.id] = {
+        title: item.title,
+        description: item.description,
+        icon: item.icon,
+        unlocked: progress.unlocked,
+        unlockedAt: unlockedAt || 0,
+        current: progress.current,
+        target: progress.target,
+        progressPct: progress.progressPct
+      };
+      return {
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        icon: item.icon,
+        unlocked: progress.unlocked,
+        unlockedAt: unlockedAt || 0,
+        current: progress.current,
+        target: progress.target,
+        progressPct: progress.progressPct
+      };
+    });
+
+    var unlockedAchievements = achievements.filter(function(item) { return item.unlocked; }).length;
+    var strongestTopics = masteryTopics.slice().sort(function(a, b) {
+      return b.score - a.score || a.label.localeCompare(b.label);
+    }).slice(0, 3);
+    var weakestTopics = masteryTopics.filter(function(item) { return item.dataPoints > 0; }).slice().sort(function(a, b) {
+      return a.score - b.score || a.label.localeCompare(b.label);
+    }).slice(0, 3);
+    var radarTopics = masteryTopics.slice().sort(function(a, b) {
+      var activityA = (a.dataPoints * 100) + a.gameAttempts + a.notesCompletionPct;
+      var activityB = (b.dataPoints * 100) + b.gameAttempts + b.notesCompletionPct;
+      return activityB - activityA || b.score - a.score;
+    }).slice(0, 6);
+    var recommendation = buildProfileRecommendation_(metrics, masteryTopics, topicMeta);
+
+    var profile = {
+      generatedAt: Date.now(),
+      metrics: {
+        totalScore: metrics.totalScore,
+        completedChallenges: metrics.completedChallenges,
+        completedTopics: metrics.completedTopics,
+        bestScore: metrics.bestScore,
+        redeemedRoles: metrics.redeemedRoles,
+        unlockedAchievements: unlockedAchievements,
+        totalAchievements: achievements.length,
+        totalTopics: metrics.totalTopics
+      },
+      achievements: achievements,
+      mastery: {
+        topics: masteryTopics,
+        radarTopics: radarTopics,
+        strongestTopics: strongestTopics,
+        weakestTopics: weakestTopics
+      },
+      recommendation: recommendation
+    };
+
+    var patchRes = patchFirebase_('students/' + playerKey, {
+      achievements: normalizedAchievements,
+      profile: profile
+    });
+    if (patchRes.error) Logger.log('[getStudentProfileData] ' + patchRes.error);
+    return profile;
+  } catch (e) {
+    return { error: '整理學生 profile 時發生錯誤：' + e.message };
   }
 }
 

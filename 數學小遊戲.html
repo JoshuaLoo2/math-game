@@ -532,6 +532,23 @@
 
         /* 解析 Modal 進場動畫 */
         @keyframes modalIn { 0%{opacity:0;transform:scale(0.9) translateY(20px);} 100%{opacity:1;transform:scale(1) translateY(0);} }
+            @keyframes profileModalDropIn {
+                0% { opacity: 0; transform: translateY(-54px) scale(0.92); }
+                65% { opacity: 1; transform: translateY(6px) scale(1.01); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            @keyframes profileModalLiftOut {
+                0% { opacity: 1; transform: translateY(0) scale(1); }
+                100% { opacity: 0; transform: translateY(-42px) scale(0.94); }
+            }
+            @keyframes profileOverlayFadeIn {
+                0% { opacity: 0; }
+                100% { opacity: 1; }
+            }
+            @keyframes profileOverlayFadeOut {
+                0% { opacity: 1; }
+                100% { opacity: 0; }
+            }
 
         .app-toast-stack {
             position: fixed;
@@ -631,6 +648,322 @@
             border: 1px solid rgba(226,232,240,0.86);
             background: rgba(255,255,255,0.72);
             padding: 0.9rem 1rem;
+        }
+        .student-profile-modal__panel {
+            background:
+                radial-gradient(circle at top right, rgba(79, 70, 229, 0.22), transparent 22%),
+                radial-gradient(circle at top left, rgba(8, 145, 178, 0.18), transparent 26%),
+                linear-gradient(180deg, rgba(2, 6, 23, 0.995) 0%, rgba(15, 23, 42, 0.99) 58%, rgba(17, 24, 39, 0.995) 100%);
+            border-color: rgba(165, 180, 252, 0.18);
+            box-shadow: 0 40px 110px rgba(2, 6, 23, 0.6);
+        }
+        .student-profile-modal__panel--opening {
+            animation: profileModalDropIn 0.42s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        .student-profile-modal__panel--closing {
+            animation: profileModalLiftOut 0.28s cubic-bezier(0.4,0,1,1) forwards;
+        }
+        .student-profile-modal__overlay--opening {
+            animation: profileOverlayFadeIn 0.28s ease-out forwards;
+        }
+        .student-profile-modal__overlay--closing {
+            animation: profileOverlayFadeOut 0.22s ease-in forwards;
+        }
+        .student-profile-modal__header {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.14) 0%, rgba(15, 23, 42, 0.18) 44%, rgba(79, 70, 229, 0.2) 100%);
+            border-bottom-color: rgba(226, 232, 240, 0.08);
+        }
+        .student-profile-modal__body {
+            background:
+                radial-gradient(circle at top, rgba(125, 211, 252, 0.09), transparent 32%),
+                linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(2, 6, 23, 0.995) 100%);
+        }
+        #student-profile-modal-content .weekly-summary-stat,
+        #student-profile-modal-content .rounded-3xl,
+        #student-profile-modal-content .rounded-2xl {
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        #student-profile-modal-content .weekly-summary-stat {
+            border-color: rgba(255,255,255,0.5);
+            background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.92) 100%);
+        }
+        #student-profile-modal-content .profile-kpi-card {
+            --kpi-border: rgba(148, 163, 184, 0.42);
+            --kpi-glow: rgba(148, 163, 184, 0.16);
+            --kpi-strip-start: rgba(148, 163, 184, 0.88);
+            --kpi-strip-end: rgba(226, 232, 240, 0.88);
+            --kpi-medal-start: #cbd5f5;
+            --kpi-medal-end: #94a3b8;
+            --kpi-medal-border: rgba(255,255,255,0.88);
+            --kpi-ribbon-start: #94a3b8;
+            --kpi-ribbon-end: #64748b;
+            position: relative;
+            overflow: hidden;
+            border-width: 2px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18), inset 0 0 0 1px rgba(255,255,255,0.75), 0 0 0 4px var(--kpi-glow);
+        }
+        #student-profile-modal-content .profile-kpi-card::before {
+            content: '';
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 0.45rem;
+            background: linear-gradient(180deg, var(--kpi-strip-start) 0%, var(--kpi-strip-end) 100%);
+            box-shadow: 0 0 22px var(--kpi-glow);
+        }
+        #student-profile-modal-content .profile-kpi-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 42%);
+            pointer-events: none;
+        }
+        #student-profile-modal-content .profile-kpi-card--blue {
+            --kpi-border: rgba(96, 165, 250, 0.92);
+            --kpi-glow: rgba(125, 211, 252, 0.2);
+            --kpi-strip-start: #38bdf8;
+            --kpi-strip-end: #2563eb;
+            --kpi-medal-start: #7dd3fc;
+            --kpi-medal-end: #2563eb;
+            --kpi-ribbon-start: #60a5fa;
+            --kpi-ribbon-end: #1d4ed8;
+        }
+        #student-profile-modal-content .profile-kpi-card--emerald {
+            --kpi-border: rgba(52, 211, 153, 0.92);
+            --kpi-glow: rgba(110, 231, 183, 0.2);
+            --kpi-strip-start: #34d399;
+            --kpi-strip-end: #059669;
+            --kpi-medal-start: #86efac;
+            --kpi-medal-end: #059669;
+            --kpi-ribbon-start: #4ade80;
+            --kpi-ribbon-end: #047857;
+        }
+        #student-profile-modal-content .profile-kpi-card--fuchsia {
+            --kpi-border: rgba(232, 121, 249, 0.92);
+            --kpi-glow: rgba(240, 171, 252, 0.22);
+            --kpi-strip-start: #e879f9;
+            --kpi-strip-end: #c026d3;
+            --kpi-medal-start: #f5b4fc;
+            --kpi-medal-end: #c026d3;
+            --kpi-ribbon-start: #f0abfc;
+            --kpi-ribbon-end: #a21caf;
+        }
+        #student-profile-modal-content .profile-kpi-card--amber {
+            --kpi-border: rgba(251, 191, 36, 0.96);
+            --kpi-glow: rgba(253, 224, 71, 0.22);
+            --kpi-strip-start: #fbbf24;
+            --kpi-strip-end: #f97316;
+            --kpi-medal-start: #fde68a;
+            --kpi-medal-end: #f59e0b;
+            --kpi-ribbon-start: #fbbf24;
+            --kpi-ribbon-end: #ea580c;
+        }
+        #student-profile-modal-content .profile-kpi-card__eyebrow {
+            position: relative;
+            z-index: 1;
+        }
+        #student-profile-modal-content .profile-kpi-card__label {
+            position: relative;
+            z-index: 1;
+            max-width: 15rem;
+        }
+        #student-profile-modal-content .profile-kpi-card__medal {
+            position: relative;
+            z-index: 1;
+            width: 4rem;
+            height: 4.8rem;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 0.3rem;
+            filter: drop-shadow(0 12px 18px rgba(15, 23, 42, 0.18));
+        }
+        #student-profile-modal-content .profile-kpi-card__medal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3.25rem;
+            height: 3.25rem;
+            border-radius: 999px;
+            border: 2px solid var(--kpi-medal-border);
+            background:
+                radial-gradient(circle at 32% 28%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 34%),
+                linear-gradient(180deg, var(--kpi-medal-start) 0%, var(--kpi-medal-end) 100%);
+            box-shadow: inset 0 -10px 16px rgba(15, 23, 42, 0.16), 0 10px 22px var(--kpi-glow);
+        }
+        #student-profile-modal-content .profile-kpi-card__medal::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 2.4rem;
+            height: 1.8rem;
+            background: linear-gradient(180deg, var(--kpi-ribbon-start) 0%, var(--kpi-ribbon-end) 100%);
+            clip-path: polygon(0 0, 38% 0, 50% 28%, 62% 0, 100% 0, 82% 100%, 50% 74%, 18% 100%);
+        }
+        #student-profile-modal-content .profile-kpi-card__medal-core {
+            position: relative;
+            z-index: 1;
+            margin-top: 0.55rem;
+            font-size: 1.45rem;
+            line-height: 1;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.42), 0 8px 12px rgba(15,23,42,0.16);
+        }
+        #student-profile-modal-content .profile-radar-shell {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(129, 140, 248, 0.24);
+            background:
+                radial-gradient(circle at 50% 48%, rgba(56, 189, 248, 0.12) 0%, rgba(56, 189, 248, 0) 26%),
+                radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.18) 0%, rgba(99, 102, 241, 0) 38%),
+                linear-gradient(180deg, rgba(248,250,255,0.98) 0%, rgba(240,249,255,0.96) 48%, rgba(238,242,255,0.94) 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 20px 44px rgba(37, 99, 235, 0.12), 0 0 0 1px rgba(255,255,255,0.55);
+        }
+        #student-profile-modal-content .profile-radar-shell::before {
+            content: '';
+            position: absolute;
+            inset: 1rem;
+            border-radius: 1.5rem;
+            background:
+                linear-gradient(90deg, rgba(148,163,184,0.08) 1px, transparent 1px),
+                linear-gradient(180deg, rgba(148,163,184,0.08) 1px, transparent 1px);
+            background-size: 1rem 1rem;
+            mask-image: radial-gradient(circle at center, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.28) 68%, transparent 100%);
+            pointer-events: none;
+        }
+        #student-profile-modal-content .profile-radar-shell::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.44) 0%, rgba(255,255,255,0) 34%, rgba(99,102,241,0.06) 100%);
+            pointer-events: none;
+        }
+        #student-profile-modal-content .profile-radar-svg {
+            position: relative;
+            z-index: 1;
+        }
+        #student-profile-modal-content .profile-radar-label-card {
+            filter: drop-shadow(0 10px 16px rgba(37, 99, 235, 0.14));
+        }
+        #student-profile-modal-content .profile-radar-label-card rect {
+            fill: rgba(255,255,255,0.94);
+            stroke-width: 1.6;
+        }
+        #student-profile-modal-content .profile-radar-node {
+            cursor: pointer;
+            outline: none;
+        }
+        #student-profile-modal-content .profile-radar-node-core {
+            transition: transform 0.18s ease, filter 0.18s ease;
+            transform-origin: center;
+        }
+        #student-profile-modal-content .profile-radar-node:hover .profile-radar-node-core,
+        #student-profile-modal-content .profile-radar-node:focus .profile-radar-node-core,
+        #student-profile-modal-content .profile-radar-node:focus-visible .profile-radar-node-core {
+            transform: scale(1.12);
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.5));
+        }
+        #student-profile-modal-content .profile-radar-node.is-locked .profile-radar-node-core {
+            transform: scale(1.12);
+            filter: drop-shadow(0 0 12px rgba(99, 102, 241, 0.58));
+        }
+        #student-profile-modal-content .profile-radar-tooltip {
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 5;
+            width: 13.5rem;
+            padding: 0.85rem 0.95rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(125, 211, 252, 0.4);
+            background: linear-gradient(180deg, rgba(15,23,42,0.96) 0%, rgba(30,41,59,0.96) 100%);
+            box-shadow: 0 18px 30px rgba(15, 23, 42, 0.28), 0 0 24px rgba(56, 189, 248, 0.14);
+            opacity: 0;
+            transform: translate3d(0, 0, 0) scale(0.96);
+            transform-origin: top left;
+            transition: opacity 0.16s ease, transform 0.16s ease;
+            pointer-events: none;
+        }
+        #student-profile-modal-content .profile-radar-tooltip--visible {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+        #student-profile-modal-content .profile-radar-tooltip__title {
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: #f8fafc;
+            line-height: 1.35;
+        }
+        #student-profile-modal-content .profile-radar-tooltip__score {
+            margin-top: 0.35rem;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #7dd3fc;
+            letter-spacing: 0.03em;
+        }
+        #student-profile-modal-content .profile-radar-tooltip__meta {
+            margin-top: 0.5rem;
+            display: grid;
+            gap: 0.22rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+        #student-profile-modal-content .rounded-3xl {
+            border-color: rgba(255,255,255,0.18);
+            background: linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(241,245,249,0.9) 100%);
+        }
+        #student-profile-modal-content .rounded-2xl {
+            border-color: rgba(255,255,255,0.22);
+            background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.9) 100%);
+        }
+        #student-profile-modal-content {
+            font-size: 1.05rem;
+            line-height: 1.75;
+        }
+        #student-profile-modal-content .font-black {
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+        #student-profile-modal-content .text-xs {
+            font-size: 0.86rem;
+            line-height: 1.5;
+        }
+        #student-profile-modal-content .text-sm {
+            font-size: 1rem;
+            line-height: 1.75;
+        }
+        #student-profile-modal-content .text-base {
+            font-size: 1.12rem;
+            line-height: 1.75;
+        }
+        #student-profile-modal-content .text-xl {
+            font-size: 1.55rem;
+            line-height: 1.4;
+        }
+        #student-profile-modal-content .text-2xl {
+            font-size: 2rem;
+            line-height: 1.25;
+        }
+        #student-profile-modal-content .text-3xl {
+            font-size: 2.35rem;
+            line-height: 1.15;
+        }
+        #student-profile-modal-content .text-2xl,
+        #student-profile-modal-content .text-3xl {
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.34);
+        }
+        #student-profile-modal-content .weekly-summary-stat .text-3xl,
+        #student-profile-modal-content .rounded-2xl .text-2xl {
+            color: #0f172a;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.42), 0 10px 20px rgba(148,163,184,0.12);
         }
         .math-helper-voice-hint {
             min-height: 1.35rem;
@@ -1708,9 +2041,10 @@
                     <span class="absolute -left-1 bottom-2 w-2 h-2 bg-white border-l border-b border-indigo-100 rotate-45"></span>
                 </div>
             </div>
-            <div id="points-badge" class="text-sm font-bold bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full border border-yellow-200 shadow-inner">
-                ⭐ <span id="top-total-points">0</span>
-            </div>
+            <button id="top-profile-btn" type="button" onclick="openStudentProfile()" class="inline-flex items-center gap-2 rounded-full border-2 border-sky-200 bg-white/95 px-4 py-2.5 text-sm font-black text-sky-700 shadow-[0_10px_24px_rgba(96,165,250,0.18)] transition-all hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50/95 hover:shadow-[0_14px_28px_rgba(96,165,250,0.24)] btn-sweep">
+                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-sky-100 to-indigo-100 text-base shadow-inner" aria-hidden="true">👤</span>
+                <span>個人檔案</span>
+            </button>
             <div id="room-info" class="hidden text-sm font-bold bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full border border-indigo-200 shadow-inner">
                 房間: <span id="display-room-id"></span>
             </div>
@@ -1886,6 +2220,22 @@
                 </div>
             </div>
             <div id="shop-grid" class="p-6 pt-4 overflow-y-auto flex-1 no-scrollbar"></div>
+        </div>
+    </div>
+
+    <div id="student-profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+        <div id="student-profile-modal-overlay" class="absolute inset-0 bg-slate-950/78 backdrop-blur-md student-profile-modal__overlay--opening" onclick="closeStudentProfile()"></div>
+        <div id="student-profile-modal-panel" class="student-profile-modal__panel student-profile-modal__panel--opening relative w-full max-w-6xl max-h-[92vh] overflow-hidden rounded-[2rem] border">
+            <div class="student-profile-modal__header flex items-center justify-between gap-4 border-b px-6 py-5 sm:px-8">
+                <div>
+                    <div class="text-xs font-black tracking-[0.2em] text-sky-500 uppercase">個人檔案</div>
+                    <div class="text-2xl font-black text-white mt-1">學生學習檔案</div>
+                </div>
+                <button type="button" onclick="closeStudentProfile()" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/12 bg-white/6 text-xl font-black text-slate-300 transition-colors hover:border-white/18 hover:bg-white/10 hover:text-white">×</button>
+            </div>
+            <div id="student-profile-modal-content" class="student-profile-modal__body overflow-y-auto max-h-[calc(92vh-88px)] px-6 py-6 sm:px-8 sm:py-7">
+                <div class="text-center text-slate-400 py-8">正在整理個人學習檔案...</div>
+            </div>
         </div>
     </div>
 
@@ -2556,6 +2906,14 @@
             error: '',
             loadedAt: 0
         };
+        var studentProfileState = {
+            status: 'idle',
+            data: null,
+            error: '',
+            loadedAt: 0
+        };
+        var studentProfileModalCloseTimer = null;
+        var studentProfileRadarTooltipCleanup = null;
 
         // 筆記模組狀態
         var currentNotesGrade = '';
@@ -3058,6 +3416,609 @@
                 return null;
             });
         }
+        function invalidateStudentProfile_(rerenderIfVisible) {
+            studentProfileState.status = 'idle';
+            studentProfileState.data = null;
+            studentProfileState.error = '';
+            studentProfileState.loadedAt = 0;
+            if (rerenderIfVisible) {
+                var homeSection = document.getElementById('home-screen');
+                if (homeSection && !homeSection.classList.contains('hidden')) renderHomeDashboard();
+            }
+        }
+        function shouldRefreshStudentProfile_() {
+            return !studentProfileState.loadedAt || (Date.now() - studentProfileState.loadedAt) > 60000;
+        }
+        function getOwnedAvatarIds_() {
+            return Object.keys(shopData.purchased || {}).filter(function(id) {
+                return !!shopData.purchased[id] && !!getAvatarConfigById_(id);
+            });
+        }
+        function getOwnedEffectIds_() {
+            return Object.keys(shopData.purchased || {}).filter(function(id) {
+                return !!shopData.purchased[id] && shopCatalog.effects.some(function(effect) { return effect.id === id; });
+            });
+        }
+        function getEffectConfigById_(effectId) {
+            for (var i = 0; i < shopCatalog.effects.length; i++) {
+                if (shopCatalog.effects[i].id === effectId) return shopCatalog.effects[i];
+            }
+            return null;
+        }
+        function localizeStudentProfileText_(text) {
+            var localized = String(text || '');
+            var replacements = [
+                [/\bProfile\b/g, '檔案'],
+                [/\bprofile\b/g, '檔案'],
+                [/\bTopics\b/g, '課題'],
+                [/\bTopic\b/g, '課題'],
+                [/\btopics\b/g, '課題'],
+                [/\btopic\b/g, '課題'],
+                [/\bMilestones\b/g, '里程碑'],
+                [/\bMilestone\b/g, '里程碑'],
+                [/\bmilestones\b/g, '里程碑'],
+                [/\bmilestone\b/g, '里程碑'],
+                [/\bUnlocked\b/g, '已解鎖'],
+                [/\bunlocked\b/g, '已解鎖'],
+                [/\bProgress\b/g, '進度'],
+                [/\bprogress\b/g, '進度']
+            ];
+            replacements.forEach(function(pair) {
+                localized = localized.replace(pair[0], pair[1]);
+            });
+            return localized;
+        }
+        function getProfileMetricToneClass_(toneKey) {
+            var toneMap = {
+                blue: { card: 'profile-kpi-card--blue', eyebrow: 'text-blue-600' },
+                emerald: { card: 'profile-kpi-card--emerald', eyebrow: 'text-emerald-600' },
+                fuchsia: { card: 'profile-kpi-card--fuchsia', eyebrow: 'text-fuchsia-600' },
+                amber: { card: 'profile-kpi-card--amber', eyebrow: 'text-amber-600' }
+            };
+            return toneMap[toneKey] || toneMap.blue;
+        }
+        function buildProfileMetricCard_(toneKey, eyebrow, value, label, icon) {
+            var tone = getProfileMetricToneClass_(toneKey);
+            return '<div class="weekly-summary-stat profile-kpi-card ' + tone.card + ' bg-white/85">' +
+                '<div class="flex items-center justify-between gap-3">' +
+                    '<div><div class="profile-kpi-card__eyebrow text-xs font-black tracking-[0.16em] uppercase ' + tone.eyebrow + '">' + escapeHtml(eyebrow) + '</div>' +
+                    '<div class="text-3xl font-black text-slate-800 mt-2">' + escapeHtml(String(value)) + '</div>' +
+                    '<div class="profile-kpi-card__label text-xs text-slate-500 mt-1">' + escapeHtml(label) + '</div></div>' +
+                    '<div class="profile-kpi-card__medal"><span class="profile-kpi-card__medal-core">' + escapeHtml(icon) + '</span></div>' +
+                '</div>' +
+            '</div>';
+        }
+        function buildProfileAchievementCards_(achievements) {
+            if (!Array.isArray(achievements) || !achievements.length) {
+                return '<div class="text-sm text-slate-400">成就資料仍在整理中。</div>';
+            }
+            return achievements.map(function(item) {
+                var unlocked = !!item.unlocked;
+                var progressText = unlocked
+                    ? '已解鎖'
+                    : ('進度 ' + String(item.current || 0) + '/' + String(item.target || 0));
+                return '<div class="rounded-2xl border px-4 py-4 ' + (unlocked ? 'border-amber-200 bg-amber-50/80' : 'border-slate-200 bg-slate-50/80 opacity-75') + '">' +
+                    '<div class="flex items-start gap-3">' +
+                        '<div class="text-3xl">' + escapeHtml(item.icon || '🏅') + '</div>' +
+                        '<div class="min-w-0 flex-1">' +
+                            '<div class="text-base font-black text-slate-800">' + escapeHtml(localizeStudentProfileText_(item.title || '')) + '</div>' +
+                            '<div class="text-sm text-slate-500 mt-1 leading-relaxed">' + escapeHtml(localizeStudentProfileText_(item.description || '')) + '</div>' +
+                            '<div class="mt-3 flex items-center justify-between gap-3">' +
+                                '<span class="text-xs font-black ' + (unlocked ? 'text-amber-600' : 'text-slate-400') + '">' + escapeHtml(progressText) + '</span>' +
+                                '<span class="text-xs font-black text-slate-400">完成度 ' + escapeHtml(String(item.progressPct || 0)) + '%</span>' +
+                            '</div>' +
+                            '<div class="mt-2 h-2 rounded-full bg-white/80 overflow-hidden border border-white/70"><div class="h-full rounded-full ' + (unlocked ? 'bg-gradient-to-r from-amber-400 to-orange-400' : 'bg-gradient-to-r from-slate-300 to-slate-400') + '" style="width:' + Math.max(0, Math.min(100, Number(item.progressPct || 0))) + '%"></div></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+        function buildTopicPillList_(items, tone) {
+            if (!Array.isArray(items) || !items.length) {
+                return '<div class="text-sm text-slate-400">資料累積中</div>';
+            }
+            var toneClass = tone === 'weak'
+                ? 'bg-rose-50 text-rose-700 border-rose-100'
+                : 'bg-emerald-50 text-emerald-700 border-emerald-100';
+            return items.map(function(item) {
+                return '<div class="rounded-xl border px-3 py-2 ' + toneClass + '">' +
+                    '<div class="text-sm font-black">' + escapeHtml(item.label || item.topic || '') + '</div>' +
+                    '<div class="text-xs mt-1">掌握度 ' + escapeHtml(String(item.score || 0)) + '%</div>' +
+                '</div>';
+            }).join('');
+        }
+        function buildProfileRadarSvg_(topics) {
+            var items = Array.isArray(topics) ? topics.filter(function(item) { return !!item && item.label; }).slice(0, 6) : [];
+            if (!items.length) {
+                return '<div class="rounded-2xl border border-dashed border-slate-200 bg-white/60 px-6 py-10 text-center text-sm text-slate-400">掌握度資料仍在累積中，完成挑戰和課題後會顯示雷達圖。</div>';
+            }
+            var size = 360;
+            var center = 180;
+            var radius = 104;
+            var cardRadius = 156;
+            var levels = [20, 40, 60, 80, 100];
+            var axisPalette = ['#38bdf8', '#14b8a6', '#d946ef', '#fb923c', '#8b5cf6', '#22c55e'];
+            function clamp(value, min, max) {
+                return Math.max(min, Math.min(max, value));
+            }
+            function normalizePct(value) {
+                return clamp(Number(value || 0), 0, 100);
+            }
+            function pointFor(index, total, valuePct, distance) {
+                var angle = (-Math.PI / 2) + (Math.PI * 2 * index / total);
+                var dist = typeof distance === 'number' ? distance : (radius * (normalizePct(valuePct) / 100));
+                return {
+                    x: center + Math.cos(angle) * dist,
+                    y: center + Math.sin(angle) * dist,
+                    angle: angle
+                };
+            }
+            function splitLabel(text) {
+                var label = String(text || '').trim();
+                if (label.length <= 4) return [label];
+                if (label.length <= 8) return [label.slice(0, 4), label.slice(4)];
+                return [label.slice(0, 4), label.slice(4, 8) + '…'];
+            }
+            function getLabelCardMetrics(point, lines, score) {
+                var emphasis = 0.88 + (normalizePct(score || 0) / 100) * 0.18;
+                var width = Math.round((lines.length > 1 ? 82 : 76) * emphasis);
+                var height = Math.round((lines.length > 1 ? 42 : 30) * emphasis);
+                var x = point.x - (width / 2);
+                var y = point.y - (height / 2);
+                x = clamp(x, 10, size - width - 10);
+                y = clamp(y, 10, size - height - 10);
+                return { x: x, y: y, width: width, height: height, emphasis: emphasis };
+            }
+            var haloRings = levels.map(function(level, index) {
+                var opacity = (levels.length - index) * 0.035;
+                return '<circle cx="' + center + '" cy="' + center + '" r="' + ((radius * level) / 100).toFixed(1) + '" fill="none" stroke="rgba(56,189,248,' + opacity.toFixed(3) + ')" stroke-width="8"></circle>';
+            }).join('');
+            var grid = levels.map(function(level) {
+                var stroke = level === 100 ? 'rgba(71,85,105,0.42)' : 'rgba(96,165,250,0.22)';
+                var dash = level === 100 ? '' : ' stroke-dasharray="4 5"';
+                return '<polygon points="' + items.map(function(_, index) {
+                    var point = pointFor(index, items.length, level);
+                    return point.x.toFixed(1) + ',' + point.y.toFixed(1);
+                }).join(' ') + '" fill="none" stroke="' + stroke + '" stroke-width="1.3"' + dash + '></polygon>';
+            }).join('');
+            var axes = items.map(function(_, index) {
+                var axisPoint = pointFor(index, items.length, 100);
+                return '<line x1="' + center + '" y1="' + center + '" x2="' + axisPoint.x.toFixed(1) + '" y2="' + axisPoint.y.toFixed(1) + '" stroke="rgba(125,211,252,0.42)" stroke-width="1.2"></line>';
+            }).join('');
+            var levelLabels = levels.map(function(level) {
+                var marker = pointFor(0, items.length, level);
+                return '<text x="' + (center + 12) + '" y="' + (marker.y + 4).toFixed(1) + '" font-size="10" font-weight="800" fill="#60a5fa">' + level + '%</text>';
+            }).join('');
+            var polygonPoints = items.map(function(item, index) {
+                var point = pointFor(index, items.length, normalizePct(item.score || 0));
+                return point.x.toFixed(1) + ',' + point.y.toFixed(1);
+            }).join(' ');
+            var polygon = '<polygon points="' + polygonPoints + '" fill="url(#profile-radar-fill)" stroke="#4f46e5" stroke-width="3.2" stroke-linejoin="round"></polygon>';
+            var radialConnectors = items.map(function(item, index) {
+                var edgePoint = pointFor(index, items.length, 100);
+                var cardPoint = pointFor(index, items.length, 100, cardRadius - 16);
+                return '<line x1="' + edgePoint.x.toFixed(1) + '" y1="' + edgePoint.y.toFixed(1) + '" x2="' + cardPoint.x.toFixed(1) + '" y2="' + cardPoint.y.toFixed(1) + '" stroke="rgba(99,102,241,0.24)" stroke-width="1.1"></line>';
+            }).join('');
+            var labels = items.map(function(item, index) {
+                var point = pointFor(index, items.length, 100, cardRadius);
+                var lines = splitLabel(item.label || '');
+                var color = axisPalette[index % axisPalette.length];
+                var box = getLabelCardMetrics(point, lines, item.score || 0);
+                var score = normalizePct(item.score || 0);
+                var fillOpacity = (0.76 + (score / 100) * 0.22).toFixed(2);
+                var glowOpacity = (0.18 + (score / 100) * 0.24).toFixed(2);
+                var textY = box.y + (lines.length > 1 ? (15 * box.emphasis) : (18 * box.emphasis));
+                return '<g class="profile-radar-label-card">' +
+                    '<rect x="' + box.x.toFixed(1) + '" y="' + box.y.toFixed(1) + '" width="' + box.width + '" height="' + box.height + '" rx="14" ry="14" stroke="' + color + '" fill="rgba(255,255,255,' + fillOpacity + ')" style="filter:drop-shadow(0 0 16px rgba(56,189,248,' + glowOpacity + '))"></rect>' +
+                    '<circle cx="' + (box.x + (13 * box.emphasis)).toFixed(1) + '" cy="' + (box.y + (15 * box.emphasis)).toFixed(1) + '" r="' + (4.1 * box.emphasis).toFixed(1) + '" fill="' + color + '"></circle>' +
+                    '<text x="' + (box.x + (22 * box.emphasis)).toFixed(1) + '" y="' + textY.toFixed(1) + '" font-size="' + Math.max(10.5, 11 * box.emphasis).toFixed(1) + '" font-weight="800" fill="#334155">' +
+                        lines.map(function(line, lineIndex) {
+                            return '<tspan x="' + (box.x + (22 * box.emphasis)).toFixed(1) + '" dy="' + (lineIndex === 0 ? 0 : Math.round(12.5 * box.emphasis)) + '">' + escapeHtml(line) + '</tspan>';
+                        }).join('') +
+                    '</text>' +
+                '</g>';
+            }).join('');
+            var dots = items.map(function(item, index) {
+                var point = pointFor(index, items.length, normalizePct(item.score || 0));
+                var dotColor = axisPalette[index % axisPalette.length];
+                var encodedLabel = encodeURIComponent(String(item.label || ''));
+                return '<g class="profile-radar-node" tabindex="0">' +
+                    '<circle cx="' + point.x.toFixed(1) + '" cy="' + point.y.toFixed(1) + '" r="12" fill="transparent" data-radar-node="true" role="button" aria-pressed="false" aria-label="查看' + escapeHtml(item.label || '') + '詳細表現" data-label="' + encodedLabel + '" data-score="' + normalizePct(item.score || 0) + '" data-notes-completion="' + normalizePct(item.notesCompletionPct || 0) + '" data-notes-accuracy="' + normalizePct(item.notesAccuracy || 0) + '" data-game-accuracy="' + normalizePct(item.gameAccuracy || 0) + '" data-game-attempts="' + Number(item.gameAttempts || 0) + '"></circle>' +
+                    '<g class="profile-radar-node-core">' +
+                        '<circle cx="' + point.x.toFixed(1) + '" cy="' + point.y.toFixed(1) + '" r="8" fill="rgba(255,255,255,0.98)" stroke="rgba(255,255,255,0.92)" stroke-width="2"></circle>' +
+                        '<circle cx="' + point.x.toFixed(1) + '" cy="' + point.y.toFixed(1) + '" r="5.5" fill="' + dotColor + '"></circle>' +
+                        '<circle cx="' + point.x.toFixed(1) + '" cy="' + point.y.toFixed(1) + '" r="13" fill="none" stroke="' + dotColor + '" stroke-width="1.4" stroke-opacity="0.35"></circle>' +
+                    '</g>' +
+                '</g>';
+            }).join('');
+            var legend = items.map(function(item, index) {
+                var color = axisPalette[index % axisPalette.length];
+                return '<div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-white/72 px-3 py-2 shadow-[0_10px_24px_rgba(59,130,246,0.08)]">' +
+                    '<div class="flex min-w-0 items-center gap-2">' +
+                        '<span class="inline-flex h-3 w-3 rounded-full shadow-[0_0_12px_rgba(56,189,248,0.45)]" style="background:' + color + '"></span>' +
+                        '<span class="text-sm font-black text-slate-700 truncate">' + escapeHtml(item.label || '') + '</span>' +
+                    '</div>' +
+                    '<span class="text-sm font-black" style="color:' + color + '">' + escapeHtml(String(normalizePct(item.score || 0))) + '%</span>' +
+                '</div>';
+            }).join('');
+            return '<div class="profile-radar-shell rounded-3xl p-4 sm:p-5">' +
+                '<svg viewBox="0 0 ' + size + ' ' + size + '" class="profile-radar-svg w-full max-w-[380px] mx-auto overflow-visible">' +
+                    '<defs>' +
+                        '<radialGradient id="profile-radar-core-glow" cx="50%" cy="50%" r="60%">' +
+                            '<stop offset="0%" stop-color="rgba(56,189,248,0.65)"></stop>' +
+                            '<stop offset="55%" stop-color="rgba(59,130,246,0.2)"></stop>' +
+                            '<stop offset="100%" stop-color="rgba(59,130,246,0)"></stop>' +
+                        '</radialGradient>' +
+                        '<linearGradient id="profile-radar-fill" x1="0" y1="0" x2="1" y2="1">' +
+                            '<stop offset="0%" stop-color="rgba(56,189,248,0.42)"></stop>' +
+                            '<stop offset="58%" stop-color="rgba(79,70,229,0.24)"></stop>' +
+                            '<stop offset="100%" stop-color="rgba(217,70,239,0.14)"></stop>' +
+                        '</linearGradient>' +
+                        '<filter id="profile-radar-shadow" x="-25%" y="-25%" width="150%" height="150%">' +
+                            '<feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgba(56,189,248,0.34)"></feDropShadow>' +
+                            '<feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="rgba(79,70,229,0.18)"></feDropShadow>' +
+                        '</filter>' +
+                    '</defs>' +
+                    '<circle cx="' + center + '" cy="' + center + '" r="' + (radius + 22) + '" fill="url(#profile-radar-core-glow)"></circle>' +
+                        haloRings + radialConnectors + grid + axes + levelLabels + labels +
+                    '<g filter="url(#profile-radar-shadow)">' + polygon + '</g>' +
+                        dots +
+                    '<circle cx="' + center + '" cy="' + center + '" r="8" fill="#ffffff" stroke="#38bdf8" stroke-width="3"></circle>' +
+                    '<circle cx="' + center + '" cy="' + center + '" r="20" fill="none" stroke="rgba(56,189,248,0.22)" stroke-width="2"></circle>' +
+                '</svg>' +
+                '<div class="profile-radar-tooltip" id="profile-radar-tooltip" aria-hidden="true"></div>' +
+                '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">' + legend + '</div>' +
+            '</div>';
+        }
+        function initProfileRadarInteractions_() {
+            if (typeof studentProfileRadarTooltipCleanup === 'function') {
+                studentProfileRadarTooltipCleanup();
+                studentProfileRadarTooltipCleanup = null;
+            }
+            var shell = document.querySelector('#student-profile-modal-content .profile-radar-shell');
+            if (!shell) return;
+            var tooltip = shell.querySelector('#profile-radar-tooltip');
+            var nodes = Array.prototype.slice.call(shell.querySelectorAll('[data-radar-node="true"]'));
+            if (!tooltip || !nodes.length) return;
+
+            var lockedNode = null;
+            function readNodePayload(node) {
+                return {
+                    label: decodeURIComponent(node.getAttribute('data-label') || ''),
+                    score: Number(node.getAttribute('data-score') || 0),
+                    notesCompletion: Number(node.getAttribute('data-notes-completion') || 0),
+                    notesAccuracy: Number(node.getAttribute('data-notes-accuracy') || 0),
+                    gameAccuracy: Number(node.getAttribute('data-game-accuracy') || 0),
+                    gameAttempts: Number(node.getAttribute('data-game-attempts') || 0)
+                };
+            }
+            function renderTooltip(node) {
+                var payload = readNodePayload(node);
+                tooltip.innerHTML =
+                    '<div class="profile-radar-tooltip__title">' + escapeHtml(payload.label) + '</div>' +
+                    '<div class="profile-radar-tooltip__score">綜合掌握度 ' + escapeHtml(String(payload.score)) + '%</div>' +
+                    '<div class="profile-radar-tooltip__meta">' +
+                        '<div>溫習完成度：' + escapeHtml(String(payload.notesCompletion)) + '%</div>' +
+                        '<div>測驗準確率：' + escapeHtml(String(payload.notesAccuracy)) + '%</div>' +
+                        '<div>挑戰準確率：' + escapeHtml(String(payload.gameAccuracy)) + '%</div>' +
+                        '<div>挑戰次數：' + escapeHtml(String(payload.gameAttempts)) + '</div>' +
+                    '</div>';
+            }
+            function positionTooltip(clientX, clientY) {
+                var shellRect = shell.getBoundingClientRect();
+                var tooltipRect = tooltip.getBoundingClientRect();
+                var left = clientX - shellRect.left + 16;
+                var top = clientY - shellRect.top + 16;
+                left = Math.max(10, Math.min(left, shellRect.width - tooltipRect.width - 10));
+                top = Math.max(10, Math.min(top, shellRect.height - tooltipRect.height - 10));
+                tooltip.style.transform = 'translate3d(' + left.toFixed(1) + 'px,' + top.toFixed(1) + 'px,0) scale(1)';
+            }
+            function positionTooltipForNode(node) {
+                var nodeRect = node.getBoundingClientRect();
+                positionTooltip(nodeRect.left + (nodeRect.width / 2), nodeRect.top + (nodeRect.height / 2));
+            }
+            function setVisible(visible) {
+                tooltip.classList.toggle('profile-radar-tooltip--visible', !!visible);
+                tooltip.setAttribute('aria-hidden', visible ? 'false' : 'true');
+            }
+            function updateLockStyles() {
+                nodes.forEach(function(node) {
+                    var isLocked = lockedNode === node;
+                    var group = node.parentNode;
+                    if (group && group.classList) group.classList.toggle('is-locked', isLocked);
+                    node.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
+                });
+            }
+            function showTooltipForNode(node, clientX, clientY) {
+                renderTooltip(node);
+                setVisible(true);
+                if (typeof clientX === 'number' && typeof clientY === 'number') positionTooltip(clientX, clientY);
+                else positionTooltipForNode(node);
+            }
+            function clearUnlockedTooltip() {
+                if (lockedNode) return;
+                setVisible(false);
+            }
+            function handleDocumentPointerDown(event) {
+                if (!lockedNode) return;
+                if (shell.contains(event.target)) return;
+                lockedNode = null;
+                updateLockStyles();
+                setVisible(false);
+            }
+
+            nodes.forEach(function(node) {
+                node.addEventListener('mouseenter', function(event) {
+                    if (lockedNode && lockedNode !== node) return;
+                    showTooltipForNode(node, event.clientX, event.clientY);
+                });
+                node.addEventListener('mousemove', function(event) {
+                    if (lockedNode && lockedNode !== node) return;
+                    showTooltipForNode(node, event.clientX, event.clientY);
+                });
+                node.addEventListener('mouseleave', function() {
+                    if (lockedNode === node) {
+                        showTooltipForNode(node);
+                        return;
+                    }
+                    clearUnlockedTooltip();
+                });
+                node.addEventListener('focus', function() {
+                    showTooltipForNode(node);
+                });
+                node.addEventListener('blur', function() {
+                    if (lockedNode === node) return;
+                    clearUnlockedTooltip();
+                });
+                node.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (lockedNode === node) {
+                        lockedNode = null;
+                        updateLockStyles();
+                        setVisible(false);
+                        return;
+                    }
+                    lockedNode = node;
+                    updateLockStyles();
+                    showTooltipForNode(node, event.clientX, event.clientY);
+                });
+                node.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        node.click();
+                    } else if (event.key === 'Escape' && lockedNode === node) {
+                        lockedNode = null;
+                        updateLockStyles();
+                        setVisible(false);
+                    }
+                });
+            });
+
+            shell.addEventListener('mouseleave', function() {
+                if (!lockedNode) setVisible(false);
+            });
+            document.addEventListener('pointerdown', handleDocumentPointerDown, true);
+            studentProfileRadarTooltipCleanup = function() {
+                document.removeEventListener('pointerdown', handleDocumentPointerDown, true);
+                lockedNode = null;
+                if (tooltip) {
+                    tooltip.classList.remove('profile-radar-tooltip--visible');
+                    tooltip.setAttribute('aria-hidden', 'true');
+                }
+            };
+        }
+        function getProfilePrimaryAction_(profileData) {
+            var recommendation = (profileData && profileData.recommendation) || {};
+            if (recommendation.action === 'notes') {
+                return { label: recommendation.cta || '📖 去溫習', action: enterNotesModule };
+            }
+            return { label: recommendation.cta || '🎮 去挑戰', action: enterGameModule };
+        }
+        function renderHomeStudentProfileCard_() {
+            var content = document.getElementById('student-profile-modal-content');
+            if (!content) return;
+
+            if (studentProfileState.status === 'loading' || studentProfileState.status === 'idle') {
+                content.innerHTML = '<div class="flex items-center justify-between gap-4 flex-wrap"><div><div class="text-xs font-black tracking-[0.2em] text-fuchsia-500 uppercase">學生學習檔案</div><div class="text-xl font-black text-slate-800 mt-2">正在整理你的學習全貌...</div><div class="text-sm text-slate-500 mt-2">系統會把挑戰、課題進度、成就和角色收藏整合成個人檔案。</div></div><div class="text-4xl">🧭</div></div>';
+                return;
+            }
+
+            if (studentProfileState.status === 'error') {
+                content.innerHTML = '<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"><div><div class="text-xs font-black tracking-[0.2em] text-rose-500 uppercase">學生學習檔案</div><div class="text-xl font-black text-slate-800 mt-2">暫時未能整理個人檔案</div><div class="text-sm text-slate-500 mt-2">' + escapeHtml(studentProfileState.error || '請稍後再試。') + '</div></div><button type="button" id="home-student-profile-retry" class="ghost-btn ghost-indigo px-5 py-3 text-sm">重新整理</button></div>';
+                var retryBtn = document.getElementById('home-student-profile-retry');
+                if (retryBtn) retryBtn.onclick = function() { loadStudentProfile_(true); };
+                return;
+            }
+
+            var data = studentProfileState.data || {};
+            var metrics = data.metrics || {};
+            var mastery = data.mastery || {};
+            var achievements = data.achievements || [];
+            var recommendation = data.recommendation || {};
+            var currentAvatar = getCurrentAvatarConfig_();
+            var equippedEffect = getEffectConfigById_(shopData.equippedEffect || 'classic') || getEffectConfigById_('classic') || { emoji: '🎊', name: '經典彩紙' };
+            var ownedAvatarIds = getOwnedAvatarIds_();
+            var ownedEffectIds = getOwnedEffectIds_();
+            var primaryAction = getProfilePrimaryAction_(data);
+
+            content.innerHTML =
+                '<div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">' +
+                    '<div class="min-w-0 flex-1">' +
+                        '<div class="text-xs font-black tracking-[0.2em] text-fuchsia-500 uppercase">學生學習檔案</div>' +
+                        '<div class="flex flex-wrap items-center gap-3 mt-2">' +
+                            '<div class="shrink-0">' + buildAvatarMarkup_(currentAvatar, 'avatar-visual--lg', 'avatar-idle') + '</div>' +
+                            '<div>' +
+                                '<h3 class="text-2xl font-black text-slate-800">' + escapeHtml(playerInfo.avatarName || '數學學員') + '</h3>' +
+                                '<div class="text-sm text-slate-500 mt-1">' + escapeHtml(playerInfo.class + '-' + playerInfo.number) + ' ・ 已解鎖 ' + escapeHtml(String(metrics.unlockedAchievements || 0)) + '/' + escapeHtml(String(metrics.totalAchievements || achievements.length || 0)) + ' 個成就</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<p class="text-sm text-slate-600 leading-relaxed mt-3 max-w-3xl">追蹤你的總分、挑戰數、完成課題、成就與角色收藏，並用課題掌握度找出下一步最值得投入的內容。</p>' +
+                    '</div>' +
+                    '<div class="rounded-2xl border border-indigo-100 bg-white/80 px-4 py-3 shrink-0">' +
+                        '<div class="text-xs font-black tracking-[0.18em] text-indigo-500 uppercase">目前裝備</div>' +
+                        '<div class="mt-3 flex items-center gap-3">' +
+                            '<div>' + buildAvatarMarkup_(currentAvatar, 'avatar-visual--md', '') + '</div>' +
+                            '<div class="min-w-0">' +
+                                '<div class="text-sm font-black text-slate-800">' + escapeHtml(currentAvatar.name || '角色') + '</div>' +
+                                '<div class="text-xs text-slate-500 mt-1">' + escapeHtml(equippedEffect.emoji || '🎊') + ' ' + escapeHtml(equippedEffect.name || '特效') + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mt-5">' +
+                    buildProfileMetricCard_('blue', '總得分', metrics.totalScore || 0, '累積所有挑戰與溫習積分', '🏆') +
+                    buildProfileMetricCard_('emerald', '挑戰完成', metrics.completedChallenges || 0, '已完成的數學挑戰數量', '⚡') +
+                    buildProfileMetricCard_('fuchsia', '完成課題', metrics.completedTopics || 0, '已完成的溫習課題數量', '📘') +
+                    buildProfileMetricCard_('amber', '最佳成績', metrics.bestScore || 0, '單場挑戰的最高得分', '🌟') +
+                '</div>' +
+                '<div class="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-4 mt-5">' +
+                    '<div class="rounded-3xl border border-slate-100 bg-white/70 p-5">' +
+                        '<div class="flex items-center justify-between gap-3 mb-4"><div><div class="text-xs font-black tracking-[0.16em] text-amber-500 uppercase">成就</div><div class="text-xl font-black text-slate-800 mt-1">學習里程碑</div></div><div class="text-sm font-black text-amber-600">' + escapeHtml(String(metrics.unlockedAchievements || 0)) + '/' + escapeHtml(String(metrics.totalAchievements || achievements.length || 0)) + '</div></div>' +
+                        '<div class="grid grid-cols-1 xl:grid-cols-2 gap-3">' + buildProfileAchievementCards_(achievements) + '</div>' +
+                    '</div>' +
+                    '<div class="rounded-3xl border border-slate-100 bg-white/70 p-5">' +
+                        '<div class="text-xs font-black tracking-[0.16em] text-indigo-500 uppercase">角色收藏</div>' +
+                        '<div class="text-xl font-black text-slate-800 mt-1">已換領的角色與特效</div>' +
+                        '<div class="grid grid-cols-2 gap-3 mt-4">' +
+                            '<div class="rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-4"><div class="text-xs font-black tracking-[0.16em] text-sky-500 uppercase">角色</div><div class="text-2xl font-black text-slate-800 mt-2">' + escapeHtml(String(ownedAvatarIds.length)) + '</div><div class="text-xs text-slate-500 mt-1">已購買頭像數量</div></div>' +
+                            '<div class="rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-4"><div class="text-xs font-black tracking-[0.16em] text-violet-500 uppercase">特效</div><div class="text-2xl font-black text-slate-800 mt-2">' + escapeHtml(String(ownedEffectIds.length)) + '</div><div class="text-xs text-slate-500 mt-1">已購買特效數量</div></div>' +
+                        '</div>' +
+                        '<div class="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50/60 px-4 py-4">' +
+                            '<div class="text-sm font-black text-indigo-800">目前裝備</div>' +
+                            '<div class="text-sm text-slate-600 mt-2">角色：' + escapeHtml(currentAvatar.name || '未設定') + '</div>' +
+                            '<div class="text-sm text-slate-600 mt-1">特效：' + escapeHtml(equippedEffect.name || '經典彩紙') + '</div>' +
+                            '<button type="button" id="home-student-profile-shop" class="ghost-btn ghost-orange px-5 py-3 text-sm mt-4 w-full">🛍️ 管理收藏</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] gap-4 mt-5">' +
+                    '<div class="rounded-3xl border border-slate-100 bg-white/70 p-5">' +
+                        '<div class="text-xs font-black tracking-[0.16em] text-sky-500 uppercase">掌握度雷達圖</div>' +
+                        '<div class="text-xl font-black text-slate-800 mt-1">按多個課題維度看強弱項</div>' +
+                        '<div class="text-sm text-slate-500 mt-2">綜合溫習完成度、測驗準確度和挑戰表現，標示目前最穩與最需要補強的課題。</div>' +
+                        '<div class="mt-4">' + buildProfileRadarSvg_(mastery.radarTopics || []) + '</div>' +
+                    '</div>' +
+                    '<div class="rounded-3xl border border-slate-100 bg-white/70 p-5">' +
+                        '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">' +
+                            '<div><div class="text-xs font-black tracking-[0.16em] text-emerald-500 uppercase">強項</div><div class="space-y-2 mt-3">' + buildTopicPillList_(mastery.strongestTopics || [], 'strong') + '</div></div>' +
+                            '<div><div class="text-xs font-black tracking-[0.16em] text-rose-500 uppercase">補強中</div><div class="space-y-2 mt-3">' + buildTopicPillList_(mastery.weakestTopics || [], 'weak') + '</div></div>' +
+                        '</div>' +
+                        '<div class="rounded-2xl border border-fuchsia-100 bg-fuchsia-50/60 px-4 py-4 mt-5">' +
+                            '<div class="text-xs font-black tracking-[0.16em] text-fuchsia-500 uppercase">下一步建議</div>' +
+                            '<div class="text-xl font-black text-slate-800 mt-2">' + escapeHtml(recommendation.title || '先完成下一個學習行動') + '</div>' +
+                            '<div class="text-sm text-slate-600 leading-relaxed mt-2">' + escapeHtml(recommendation.description || '先完成一場挑戰或一個課題，profile 就會開始累積更完整的分析。') + '</div>' +
+                            '<button type="button" id="home-student-profile-primary" class="ghost-btn ghost-indigo px-5 py-3 text-sm mt-4">' + escapeHtml(primaryAction.label) + '</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+
+            var shopBtn = document.getElementById('home-student-profile-shop');
+            var primaryBtn = document.getElementById('home-student-profile-primary');
+            if (shopBtn) shopBtn.onclick = function() {
+                closeStudentProfile();
+                openShop();
+            };
+            if (primaryBtn) primaryBtn.onclick = function() {
+                closeStudentProfile();
+                primaryAction.action();
+            };
+            initProfileRadarInteractions_();
+        }
+        function loadStudentProfile_(forceReload) {
+            if (!playerInfo.class || !playerInfo.number) return Promise.resolve(null);
+            if (!forceReload && studentProfileState.status === 'loading') return Promise.resolve(null);
+            studentProfileState.status = 'loading';
+            studentProfileState.error = '';
+            renderHomeStudentProfileCard_();
+
+            return new Promise(function(resolve) {
+                google.script.run
+                    .withSuccessHandler(function(res) {
+                        if (res && res.error) {
+                            studentProfileState.status = 'error';
+                            studentProfileState.error = res.error;
+                            studentProfileState.loadedAt = 0;
+                            renderHomeStudentProfileCard_();
+                            resolve(null);
+                            return;
+                        }
+                        studentProfileState.status = 'ready';
+                        studentProfileState.data = res || {};
+                        studentProfileState.loadedAt = Date.now();
+                        renderHomeStudentProfileCard_();
+                        resolve(studentProfileState.data);
+                    })
+                    .withFailureHandler(function(err) {
+                        console.error('loadStudentProfile_ error:', err);
+                        studentProfileState.status = 'error';
+                        studentProfileState.error = '未能讀取學生 profile，請稍後再試。';
+                        studentProfileState.loadedAt = 0;
+                        renderHomeStudentProfileCard_();
+                        resolve(null);
+                    })
+                    .getStudentProfileData({
+                        class: playerInfo.class,
+                        number: playerInfo.number,
+                        avatar: playerInfo.avatar,
+                        avatarName: playerInfo.avatarName,
+                        avatarId: playerInfo.avatarId || ''
+                    }, !!forceReload);
+            });
+        }
+        function closeStudentProfile() {
+            var modal = document.getElementById('student-profile-modal');
+            var overlay = document.getElementById('student-profile-modal-overlay');
+            var panel = document.getElementById('student-profile-modal-panel');
+            if (!modal || modal.classList.contains('hidden')) return;
+            if (typeof studentProfileRadarTooltipCleanup === 'function') {
+                studentProfileRadarTooltipCleanup();
+                studentProfileRadarTooltipCleanup = null;
+            }
+            if (studentProfileModalCloseTimer) {
+                clearTimeout(studentProfileModalCloseTimer);
+                studentProfileModalCloseTimer = null;
+            }
+            if (overlay) {
+                overlay.classList.remove('student-profile-modal__overlay--opening');
+                overlay.classList.add('student-profile-modal__overlay--closing');
+            }
+            if (panel) {
+                panel.classList.remove('student-profile-modal__panel--opening');
+                panel.classList.add('student-profile-modal__panel--closing');
+            }
+            studentProfileModalCloseTimer = setTimeout(function() {
+                modal.classList.add('hidden');
+                if (overlay) overlay.classList.remove('student-profile-modal__overlay--closing');
+                if (panel) panel.classList.remove('student-profile-modal__panel--closing');
+                studentProfileModalCloseTimer = null;
+            }, 280);
+            if (document.body) document.body.classList.remove('overflow-hidden');
+        }
+        function openStudentProfile() {
+            var modal = document.getElementById('student-profile-modal');
+            var overlay = document.getElementById('student-profile-modal-overlay');
+            var panel = document.getElementById('student-profile-modal-panel');
+            if (!modal) return;
+            if (studentProfileModalCloseTimer) {
+                clearTimeout(studentProfileModalCloseTimer);
+                studentProfileModalCloseTimer = null;
+            }
+            modal.classList.remove('hidden');
+            if (overlay) {
+                overlay.classList.remove('student-profile-modal__overlay--closing', 'student-profile-modal__overlay--opening');
+                void overlay.offsetWidth;
+                overlay.classList.add('student-profile-modal__overlay--opening');
+            }
+            if (panel) {
+                panel.classList.remove('student-profile-modal__panel--closing', 'student-profile-modal__panel--opening');
+                void panel.offsetWidth;
+                panel.classList.add('student-profile-modal__panel--opening');
+            }
+            if (document.body) document.body.classList.add('overflow-hidden');
+            renderHomeStudentProfileCard_();
+            if (shouldRefreshStudentProfile_()) loadStudentProfile_(true);
+        }
         function renderHomeDashboard() {
             var missionWrap = document.getElementById('home-missions');
             var summary = document.getElementById('home-mission-summary');
@@ -3143,6 +4104,7 @@
 
             renderHomeWeeklySummaryCard_();
             if (shouldRefreshWeeklyLearningSummary_()) loadWeeklyLearningSummary_();
+            if (shouldRefreshStudentProfile_()) loadStudentProfile_();
         }
 
         function getMathHelperWelcomeText_() {
@@ -4087,6 +5049,7 @@
             };
             if (ensureDailyProgressState()) profileUpdates.dailyProgress = studentData.dailyProgress;
             await db.ref('students/' + playerKey()).update(profileUpdates);
+            invalidateStudentProfile_(false);
         }
 
         function updatePointsDisplay() {
@@ -4094,7 +5057,6 @@
             var g = studentData.gamePoints || 0;
             var s = studentData.studyPoints || 0;
             var el1 = document.getElementById('home-total-points'); if(el1) el1.innerText = t;
-            var el2 = document.getElementById('top-total-points'); if(el2) el2.innerText = t;
             var el3 = document.getElementById('home-game-points'); if(el3) el3.innerText = g;
             var el4 = document.getElementById('home-study-points'); if(el4) el4.innerText = s;
             renderHomeDashboard();
@@ -4110,6 +5072,7 @@
                 totalPoints: studentData.totalPoints
             }).catch(function(){});
             await recordDailyLearningActivity({ challengeDone: true, pointsEarned: pts });
+            invalidateStudentProfile_(false);
             updatePointsDisplay();
         }
 
@@ -4137,6 +5100,7 @@
             await db.ref('students/' + playerKey()).update(updates).catch(function(){});
             await recordDailyLearningActivity({ noteDone: true, pointsEarned: newPts });
             invalidateWeeklyLearningSummary_(true);
+            invalidateStudentProfile_(true);
             updatePointsDisplay();
             return newPts;
         }
@@ -4454,6 +5418,8 @@
             updateShopPointsDisplay();
             updatePointsDisplay();
             renderShopGrid(currentShopTab);
+            invalidateStudentProfile_(true);
+            loadStudentProfile_(true);
             launchConfetti();
             showToast('已成功購買「' + item.name + '」！', 'success', '購買完成');
         }
@@ -4483,6 +5449,7 @@
                 }).catch(function(){});
             }
             renderShopGrid(currentShopTab);
+            renderHomeStudentProfileCard_();
         }
 
         function getEquippedEffectColors() {
@@ -4981,7 +5948,10 @@
         function sendResultToBackend_(mode, roomId, player, scoreVal, meta){
             try{
                 if(!google||!google.script||!google.script.run) return;
-                var runner=google.script.run.withFailureHandler(function(err){
+                var runner=google.script.run.withSuccessHandler(function(){
+                    invalidateStudentProfile_(true);
+                    loadStudentProfile_(true);
+                }).withFailureHandler(function(err){
                     console.warn('成績回傳失敗（不影響遊戲）:',(err&&err.message)||String(err)||'unknown');
                 });
                 if(mode==='single') runner.saveSingleResult(player,scoreVal,meta||{});
@@ -5281,6 +6251,8 @@
                     studentData.notesProgress[topicKey].topicComplete = true;
                 }
                 await db.ref('students/' + playerKey()).update(updates).catch(function(){});
+                invalidateStudentProfile_(true);
+                loadStudentProfile_(true);
             }
 
             showSection('notes-quiz-result');
