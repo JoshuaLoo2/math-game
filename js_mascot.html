@@ -1,5 +1,6 @@
 <script>
 var mascotTimer = null;
+var mascotExitTimer = null;
 var notesSections = ['notes-grade-select','notes-topic-list','notes-section-list','notes-reader','notes-quiz','notes-quiz-result','notes-topic-complete'];
 
 var mascotMessages = {
@@ -61,7 +62,12 @@ function getRandomMsg(type) {
 function updateMascotVisibility(sectionId) {
     var wrap = document.getElementById('teacher-mascot');
     if (!wrap) return;
+    if (mascotExitTimer) {
+        clearTimeout(mascotExitTimer);
+        mascotExitTimer = null;
+    }
     if (notesSections.indexOf(sectionId) !== -1) {
+        wrap.classList.remove('mascot-exiting');
         wrap.classList.remove('mascot-hidden');
         if (sectionId === 'notes-grade-select' || sectionId === 'notes-topic-list') {
             setMascotState('enterNotes');
@@ -73,7 +79,13 @@ function updateMascotVisibility(sectionId) {
             setMascotState('idle');
         }
     } else {
-        wrap.classList.add('mascot-hidden');
+        if (wrap.classList.contains('mascot-hidden')) return;
+        wrap.classList.add('mascot-exiting');
+        mascotExitTimer = setTimeout(function() {
+            wrap.classList.add('mascot-hidden');
+            wrap.classList.remove('mascot-exiting');
+            mascotExitTimer = null;
+        }, 420);
     }
 }
 

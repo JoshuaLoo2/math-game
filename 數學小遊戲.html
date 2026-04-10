@@ -105,6 +105,7 @@
         .avatar-visual--md { width: 2.75rem; height: 2.75rem; font-size: 1.6rem; }
         .avatar-visual--lg { width: 4rem; height: 4rem; font-size: 2.2rem; }
         .avatar-visual--xl { width: 5.5rem; height: 5.5rem; font-size: 3rem; }
+            .avatar-visual--quiz-hero { width: 7rem; height: 7rem; font-size: 3.8rem; }
         .avatar-visual--shop { width: 4.5rem; height: 4.5rem; font-size: 2.4rem; }
         .avatar-visual--mascot { width: 4.5rem; height: 4.5rem; font-size: 2.4rem; }
         .avatar-image { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -141,6 +142,21 @@
         .top-avatar-speech--show {
             display: block;
             animation: topAvatarBubbleIn 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .top-avatar-speech--success {
+            color: #166534;
+            border-color: rgba(34, 197, 94, 0.35);
+            background: rgba(240, 253, 244, 0.95);
+        }
+        .top-avatar-speech--warning {
+            color: #9a3412;
+            border-color: rgba(251, 146, 60, 0.34);
+            background: rgba(255, 247, 237, 0.96);
+        }
+        .top-avatar-speech--critical {
+            color: #9f1239;
+            border-color: rgba(244, 63, 94, 0.32);
+            background: rgba(255, 241, 242, 0.96);
         }
 
         @keyframes tiger-pounce {
@@ -517,6 +533,66 @@
         @keyframes concertSweepB { 0%,100%{transform:rotate(18deg) scaleY(1.02);} 50%{transform:rotate(-20deg) scaleY(1.08);} }
         @keyframes concertSweepC { 0%,100%{transform:rotate(-12deg) scaleY(1.04);} 50%{transform:rotate(22deg) scaleY(1);} }
         .game-content-layer { position:relative; z-index:2; }
+        .question-card-refresh {
+            animation: questionCardIn 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+            transform-origin: center top;
+        }
+        .question-option-enter {
+            opacity: 0;
+            animation: optionCardIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) var(--option-enter-delay, 0ms) forwards;
+        }
+        .timer-stack {
+            transition: transform 0.28s ease, box-shadow 0.28s ease, background-color 0.28s ease, border-color 0.28s ease;
+            border-radius: 1.1rem;
+            padding: 0.35rem 0.45rem;
+        }
+        .timer-stack--normal {
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.04) 100%);
+            box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.08);
+        }
+        .timer-stack--warning {
+            background: linear-gradient(180deg, rgba(254, 243, 199, 0.76) 0%, rgba(255, 247, 237, 0.92) 100%);
+            box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.18), 0 10px 22px -16px rgba(245, 158, 11, 0.52);
+            transform: translateY(-1px);
+        }
+        .timer-stack--critical {
+            background: linear-gradient(180deg, rgba(255, 228, 230, 0.92) 0%, rgba(255, 241, 242, 0.98) 100%);
+            box-shadow: 0 0 0 1px rgba(244, 63, 94, 0.24), 0 14px 28px -18px rgba(225, 29, 72, 0.6);
+            animation: timerUrgencyPulse 0.74s ease-in-out infinite;
+        }
+        .timer-value {
+            display: inline-block;
+            transition: color 0.22s ease, transform 0.22s ease, text-shadow 0.22s ease;
+            font-variant-numeric: tabular-nums;
+        }
+        .timer-value--normal {
+            color: #2563eb;
+        }
+        .timer-value--warning {
+            color: #d97706;
+            text-shadow: 0 0 14px rgba(245, 158, 11, 0.18);
+        }
+        .timer-value--critical {
+            color: #e11d48;
+            text-shadow: 0 0 18px rgba(244, 63, 94, 0.28);
+            animation: timerNumberPulse 0.74s ease-in-out infinite;
+        }
+        @keyframes questionCardIn {
+            0% { opacity: 0; transform: translateY(16px) scale(0.985); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes optionCardIn {
+            0% { opacity: 0; transform: translateY(14px) scale(0.97); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes timerUrgencyPulse {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-1px) scale(1.03); }
+        }
+        @keyframes timerNumberPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+        }
         .mini-lb-panel { position:absolute; top:1rem; right:1rem; width:180px; padding:0.75rem 0.85rem; background:rgba(30,27,75,0.65); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:1px solid rgba(255,255,255,0.12); border-radius:1rem; box-shadow:0 8px 32px rgba(0,0,0,0.25); z-index:20; transition:opacity 0.3s ease; }
         .mini-lb-row { display:flex; align-items:center; gap:0.35rem; font-size:0.78rem; line-height:1.4; color:rgba(255,255,255,0.85); padding:2px 0; }
         .mini-lb-row.is-self { color:#fbbf24; font-weight:800; }
@@ -524,7 +600,7 @@
         .mini-lb-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:flex; align-items:center; gap:0.35rem; }
         .mini-lb-score { flex-shrink:0; font-weight:700; font-variant-numeric:tabular-nums; }
         @media(max-width:640px){ .mini-lb-panel{width:150px;top:0.5rem;right:0.5rem;padding:0.55rem 0.65rem;} .mini-lb-row{font-size:0.7rem;} }
-        @media(prefers-reduced-motion:reduce){ .concert-beam--a,.concert-beam--b,.concert-beam--c{animation:none!important;transform:rotate(0deg);opacity:0.25;} }
+        @media(prefers-reduced-motion:reduce){ .concert-beam--a,.concert-beam--b,.concert-beam--c{animation:none!important;transform:rotate(0deg);opacity:0.25;} .question-card-refresh,.question-option-enter,.timer-stack--critical,.timer-value--critical{animation:none!important;} }
 
         /* 筆記閱讀器 */
         .note-content-area { font-size: 1.1rem; line-height: 1.9; }
@@ -1612,9 +1688,16 @@
 
         /* ===== Page Transitions ===== */
         .section-enter { animation: sectionFadeUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+        .section-enter > * {
+            animation: sectionChildRise 0.38s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--section-stagger-index, 0) * 70ms) both;
+        }
         @keyframes sectionFadeUp {
             from { opacity: 0; transform: translateY(22px) scale(0.97); }
             to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes sectionChildRise {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ===== Click Ripple ===== */
@@ -1905,6 +1988,7 @@
             transition: opacity 0.4s, transform 0.4s;
         }
         .mascot-wrap.mascot-hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
+        .mascot-wrap.mascot-exiting { animation: mascotExit 0.42s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         .mascot-char {
             font-size: 4.5rem;
             line-height: 1;
@@ -1937,6 +2021,10 @@
             30% { transform: translateY(-5px) rotate(-4deg); }
             70% { transform: translateY(-5px) rotate(4deg); }
         }
+        @keyframes mascotExit {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(16px) scale(0.88); }
+        }
         .mascot-bubble {
             background: rgba(255,255,255,0.92);
             backdrop-filter: blur(10px);
@@ -1967,6 +2055,7 @@
         @media(max-width:640px) {
             .mascot-wrap { bottom: 0.8rem; right: 0.8rem; }
             .mascot-char { font-size: 3.2rem; }
+            .avatar-visual--quiz-hero { width: 5.5rem; height: 5.5rem; font-size: 3rem; }
             .avatar-visual--mascot { width: 3.2rem; height: 3.2rem; font-size: 1.7rem; }
             .mascot-bubble { max-width: 140px; font-size: 0.72rem; padding: 0.4rem 0.7rem; }
         }
@@ -2150,6 +2239,7 @@
             <div class="mission-card">
                 <div class="text-xs font-black tracking-[0.2em] text-emerald-500 uppercase">推薦下一步</div>
                 <div id="home-next-step-icon" class="text-4xl mt-2">🎯</div>
+                <div id="home-next-step-reason" class="mt-3 inline-flex max-w-full items-center rounded-full border border-emerald-200 bg-emerald-50/80 px-3 py-1 text-xs font-black text-emerald-700">因為今天還未開始第一場挑戰</div>
                 <h3 id="home-next-step-title" class="text-xl font-black text-slate-800 mt-2">開始今天的第一場挑戰</h3>
                 <p id="home-next-step-desc" class="text-sm text-slate-500 leading-relaxed mt-2">先用一場短挑戰把狀態打開，再決定要不要去溫習筆記。</p>
                 <button id="home-next-step-btn" onclick="enterGameModule()" class="w-full mt-4 ghost-btn ghost-indigo py-3 text-base">立即開始</button>
@@ -2580,7 +2670,7 @@
         <!-- 全螢幕「連擊火光閃爍」 -->
         <div id="streak-flash" class="streak-flash" aria-hidden="true"></div>
         <div class="flex justify-between items-center mb-6 bg-white/50 p-4 rounded-2xl border border-indigo-50 game-content-layer">
-            <div class="text-indigo-800 font-bold w-28 md:w-32"><div class="flex items-center justify-between gap-2"><span class="inline-flex items-center gap-1">⏱️ <span class="text-base md:text-lg">時間</span>:</span><span id="timer" class="text-2xl font-black text-red-500 w-12 text-center">20</span><span class="text-base md:text-lg">s</span></div><div class="mt-2 h-3 bg-indigo-50 rounded-full overflow-hidden shadow-inner"><div id="time-progress-bar" class="h-3 bg-green-500 transition-all duration-300" style="width:100%;"></div></div></div>
+            <div id="timer-stack" class="text-indigo-800 font-bold w-28 md:w-32 timer-stack timer-stack--normal"><div class="flex items-center justify-between gap-2"><span class="inline-flex items-center gap-1">⏱️ <span class="text-base md:text-lg">時間</span>:</span><span id="timer" class="text-2xl font-black timer-value timer-value--normal w-12 text-center">20</span><span class="text-base md:text-lg">s</span></div><div class="mt-2 h-3 bg-indigo-50 rounded-full overflow-hidden shadow-inner"><div id="time-progress-bar" class="h-3 bg-green-500 transition-all duration-500" style="width:100%;"></div></div></div>
             <div class="flex-1 mx-6 bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner"><div id="progress-bar" class="bg-gradient-to-r from-blue-400 to-indigo-500 h-4 rounded-full transition-all duration-300 w-0"></div></div>
             <div id="combo-display" class="hidden flex-col items-end gap-1 rounded-2xl border border-orange-300/60 bg-gradient-to-r from-orange-400/15 to-red-500/15 px-4 py-2 shadow-md">
                 <span id="combo-flame" class="flame-lv1" aria-hidden="true">🔥</span>
@@ -2588,7 +2678,7 @@
             </div>
         </div>
         <div id="combo-milestone-banner" class="hidden game-content-layer mb-6"></div>
-        <div class="game-content-layer bg-white/80 p-8 rounded-2xl shadow-sm border border-indigo-100 mb-8 min-h-[150px]"><h2 id="question" class="text-3xl md:text-4xl font-bold text-left text-gray-800 leading-tight w-full">讀取題目中...</h2><div id="question-image-area"></div></div>
+        <div id="question-card" class="game-content-layer bg-white/80 p-8 rounded-2xl shadow-sm border border-indigo-100 mb-8 min-h-[150px]"><h2 id="question" class="text-3xl md:text-4xl font-bold text-left text-gray-800 leading-tight w-full">讀取題目中...</h2><div id="question-image-area"></div></div>
         <div id="options" class="game-content-layer grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         <div id="mini-leaderboard" class="hidden game-content-layer mini-lb-panel"><div class="flex items-center gap-1.5 mb-2"><span class="text-sm">🏆</span><span class="text-xs font-black text-indigo-200 uppercase tracking-wider">即時排行</span></div><ol id="mini-lb-list" class="space-y-1"></ol><div id="mini-lb-self" class="hidden mt-2 pt-2 border-t border-white/10"></div></div>
     </section>
@@ -2728,6 +2818,22 @@
         <h2 class="text-2xl font-black text-center mb-1 text-emerald-800">📝 概念測驗</h2>
         <p id="nq-topic-name" class="text-center text-emerald-600 font-bold mb-1"></p>
         <p id="nq-progress" class="text-center text-gray-400 text-sm mb-6"></p>
+        <div id="notes-quiz-avatar-card" class="mb-6 rounded-[2rem] border border-emerald-100 bg-gradient-to-r from-white/95 via-emerald-50/90 to-cyan-50/80 p-5 shadow-sm">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-center gap-4 min-w-0">
+                    <div id="notes-quiz-avatar" class="avatar-host shrink-0"></div>
+                    <div class="min-w-0">
+                        <div class="text-xs font-black tracking-[0.18em] text-emerald-500 uppercase">答題拍檔</div>
+                        <div id="notes-quiz-avatar-name" class="text-2xl font-black text-slate-800 mt-1">數學拍檔</div>
+                        <p id="notes-quiz-avatar-message" class="text-sm text-slate-600 mt-2 leading-relaxed">準備好就開始這一節測驗。</p>
+                    </div>
+                </div>
+                <div class="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-emerald-100 shadow-sm sm:max-w-[220px]">
+                    <div class="text-xs font-black tracking-[0.16em] text-emerald-500 uppercase">即時提示</div>
+                    <div id="notes-quiz-avatar-status" class="text-sm font-bold text-slate-700 mt-1">先讀清楚題目，再出手。</div>
+                </div>
+            </div>
+        </div>
         <div class="bg-white/80 p-6 rounded-2xl shadow-sm border border-emerald-100 mb-6 min-h-[120px]">
             <h3 id="nq-question" class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed w-full"></h3>
             <div id="nq-question-image-area"></div>
@@ -2930,6 +3036,8 @@
         var nqScore = 0;
         var nqEarned = 0;
         var nqCorrectCount = 0;
+        var notesTopicSectionMetaCache = {};
+        var notesQuizAvatarResetTimer = null;
 
         // 數學解難助手狀態
         var mathHelperState = {
@@ -3820,12 +3928,322 @@
                 }
             };
         }
+        function normalizeRecommendationLookupKey_(value) {
+            return String(value || '').replace(/[\s_\-]/g, '').trim().toLowerCase();
+        }
+        function inferGradeFromClass_(className) {
+            var raw = String(className || '').trim();
+            var zhMatch = raw.match(/中([一二三四五六])/);
+            if (zhMatch) {
+                return '中' + zhMatch[1];
+            }
+            var digitMatch = raw.match(/([1-6])/);
+            if (digitMatch) {
+                return ['', '中一', '中二', '中三', '中四', '中五', '中六'][Number(digitMatch[1])] || '';
+            }
+            return '';
+        }
+        function findRecommendationTopicMeta_(profileData, topicLabel) {
+            var topics = (((profileData || {}).mastery || {}).topics) || [];
+            var targetKey = normalizeRecommendationLookupKey_(topicLabel);
+            if (!targetKey) return null;
+            for (var i = 0; i < topics.length; i++) {
+                var item = topics[i] || {};
+                if (normalizeRecommendationLookupKey_(item.label || item.topic) === targetKey) {
+                    return item;
+                }
+            }
+            return null;
+        }
+        function getRecommendationDifficulty_(recommendation, topicMeta) {
+            if (recommendation && recommendation.difficulty) return String(recommendation.difficulty);
+            var score = Number(topicMeta && topicMeta.score || 0);
+            var gameAccuracy = Number(topicMeta && topicMeta.gameAccuracy || 0);
+            var notesCompletion = Number(topicMeta && topicMeta.notesCompletionPct || 0);
+            if (score >= 85 && gameAccuracy >= 80 && notesCompletion >= 80) return '困難';
+            if (score >= 60) return '普通';
+            return '簡單';
+        }
+        function getRecommendationTimeLimit_(recommendation, difficulty, topicMeta) {
+            if (recommendation && recommendation.timeLimit) {
+                return Math.max(10, Number(recommendation.timeLimit) || 20);
+            }
+            if (difficulty === '簡單') return 30;
+            if (difficulty === '困難') return 20;
+            return Number(topicMeta && topicMeta.gameAttempts || 0) > 0 ? 20 : 30;
+        }
+        function loadThemesForGrade_(gradeId, themeId, preferredTheme) {
+            var gradeEl = document.getElementById(gradeId);
+            var themeSel = document.getElementById(themeId);
+            var gradeVal = gradeEl ? String(gradeEl.value || '').trim() : '';
+            var preferredKey = normalizeRecommendationLookupKey_(preferredTheme);
+            if (!themeSel) return Promise.resolve({ matchedTopic: false, selectedTopic: '' });
+            if (!gradeVal) {
+                themeSel.disabled = true;
+                themeSel.innerHTML = '<option value="全部">— 請先選擇年級 —</option>';
+                return Promise.resolve({ matchedTopic: false, selectedTopic: '' });
+            }
+            themeSel.disabled = true;
+            themeSel.innerHTML = '<option value="全部">載入主題中...</option>';
+            return new Promise(function(resolve) {
+                google.script.run.withSuccessHandler(function(themes) {
+                    var isSingle = (themeId === 'theme');
+                    themeSel.innerHTML = isSingle ? '<option value="全部">🎲 全部主題</option>' : '<option value="全部">全部主題</option>';
+                    var matchedTopic = false;
+                    var selectedTopic = '全部';
+                    if (themes && themes.length > 0) {
+                        themes.forEach(function(t) {
+                            if (!t || t.trim() === '') return;
+                            themeSel.innerHTML += isSingle ? '<option value="' + t + '">📚 ' + t + '</option>' : '<option value="' + t + '">' + t + '</option>';
+                        });
+                    }
+                    themeSel.disabled = false;
+                    if (preferredKey) {
+                        Array.prototype.slice.call(themeSel.options || []).some(function(option) {
+                            if (normalizeRecommendationLookupKey_(option.value) === preferredKey) {
+                                themeSel.value = option.value;
+                                matchedTopic = true;
+                                selectedTopic = option.value;
+                                return true;
+                            }
+                            return false;
+                        });
+                    }
+                    resolve({ matchedTopic: matchedTopic, selectedTopic: selectedTopic });
+                }).withFailureHandler(function() {
+                    themeSel.disabled = false;
+                    themeSel.innerHTML = '<option value="全部">載入主題失敗，請稍後再試</option>';
+                    resolve({ matchedTopic: false, selectedTopic: '' });
+                }).getAvailableThemes(gradeVal);
+            });
+        }
+        function openRecommendedNotesTopic_(config) {
+            var grade = String(config && config.grade || '').trim();
+            var topic = String(config && config.topic || '').trim();
+            if (!grade) {
+                enterNotesModule();
+                showToast('未能自動判斷推薦年級，已帶你到筆記首頁。', 'warning', '個人化推薦');
+                return Promise.resolve(false);
+            }
+            currentNotesGrade = grade;
+            showSection('notes-topic-list');
+            document.getElementById('game-score-area').classList.add('hidden');
+            document.getElementById('notes-grade-label').innerText = '級別：' + grade;
+            return loadNotesTopics().then(function(topics) {
+                if (!topic) {
+                    showToast('已帶你到推薦的溫習頁面。', 'success', '個人化推薦', 1800);
+                    return true;
+                }
+                var matchedTopic = (Array.isArray(topics) ? topics : []).find(function(item) {
+                    return normalizeRecommendationLookupKey_(item) === normalizeRecommendationLookupKey_(topic);
+                });
+                if (matchedTopic) {
+                    openNotes(matchedTopic);
+                    showToast('已打開「' + matchedTopic + '」的溫習內容。', 'success', '個人化推薦', 1800);
+                    return true;
+                }
+                showToast('已帶你到推薦年級的課題列表，但找不到完全相同的課題。', 'warning', '個人化推薦', 2400);
+                return false;
+            });
+        }
+        function openRecommendedSingleChallenge_(config) {
+            var grade = String(config && config.grade || '').trim();
+            var topic = String(config && config.topic || '').trim();
+            var difficulty = String(config && config.difficulty || '普通').trim() || '普通';
+            var timeLimit = Math.max(10, Number(config && config.timeLimit || 20) || 20);
+            enterGameModule();
+            selectMode('single');
+            var gradeEl = document.getElementById('grade');
+            var diffEl = document.getElementById('difficulty');
+            var timeEl = document.getElementById('time-limit');
+            if (gradeEl && grade) gradeEl.value = grade;
+            if (diffEl) diffEl.value = difficulty;
+            if (timeEl) timeEl.value = String(timeLimit);
+            if (!grade) {
+                showToast('未能自動判斷推薦年級，已帶你到挑戰設定頁。', 'warning', '個人化推薦');
+                return Promise.resolve(false);
+            }
+            return loadThemesForGrade_('grade', 'theme', topic).then(function(result) {
+                if (topic && topic !== '全部' && !result.matchedTopic) {
+                    showToast('已預設年級、難度和時限，但找不到推薦課題，請手動選擇。', 'warning', '個人化推薦', 2600);
+                    return false;
+                }
+                showToast(topic && topic !== '全部' ? '已為你準備「' + topic + '」挑戰。' : '已為你準備好推薦挑戰。', 'success', '個人化推薦', 1800);
+                startSinglePlayer();
+                return true;
+            });
+        }
+        function buildRecommendationReasonMeta_(profileData) {
+            var data = profileData || {};
+            var recommendation = data.recommendation || {};
+            var topic = String(recommendation.topic || '').trim();
+            var topicMeta = findRecommendationTopicMeta_(data, topic) || {};
+            if (recommendation.reason) {
+                return {
+                    text: String(recommendation.reason),
+                    topic: topic,
+                    metricLabel: '',
+                    metricValue: '',
+                    tone: 'indigo'
+                };
+            }
+            if (recommendation.action === 'notes') {
+                if (topic && Number(topicMeta.notesCompletionPct || 0) > 0 && Number(topicMeta.notesCompletionPct || 0) < 100) {
+                    return {
+                        text: '因為這個課題的溫習進度還未完成',
+                        topic: topic,
+                        metricLabel: '完成度',
+                        metricValue: Math.round(Number(topicMeta.notesCompletionPct || 0)) + '%',
+                        tone: 'amber'
+                    };
+                }
+                if (topic && Number(topicMeta.gameAccuracy || 0) > 0 && Number(topicMeta.gameAccuracy || 0) < 70) {
+                    return {
+                        text: '因為這是你目前最需要先補強的弱項',
+                        topic: topic,
+                        metricLabel: '準確率',
+                        metricValue: Math.round(Number(topicMeta.gameAccuracy || 0)) + '%',
+                        tone: 'rose'
+                    };
+                }
+                if (topic) {
+                    return {
+                        text: '因為這是你現在最值得先補強的課題',
+                        topic: topic,
+                        metricLabel: '掌握度',
+                        metricValue: Math.round(Number(topicMeta.score || 0)) + '%',
+                        tone: 'indigo'
+                    };
+                }
+                return {
+                    text: '因為先完成筆記能幫你穩住之後的挑戰表現',
+                    topic: '',
+                    metricLabel: '',
+                    metricValue: '',
+                    tone: 'indigo'
+                };
+            }
+            if (topic && Number(topicMeta.gameAccuracy || 0) > 0 && Number(topicMeta.gameAccuracy || 0) < 70) {
+                return {
+                    text: '因為這個課題的挑戰表現仍偏低，現在最適合再練一次',
+                    topic: topic,
+                    metricLabel: '準確率',
+                    metricValue: Math.round(Number(topicMeta.gameAccuracy || 0)) + '%',
+                    tone: 'rose'
+                };
+            }
+            if (topic && Number(topicMeta.notesCompletionPct || 0) >= 100 && Number(topicMeta.score || 0) >= 80) {
+                return {
+                    text: '因為這個課題基礎已穩，適合直接進實戰',
+                    topic: topic,
+                    metricLabel: '掌握度',
+                    metricValue: Math.round(Number(topicMeta.score || 0)) + '%',
+                    tone: 'emerald'
+                };
+            }
+            if (Number(((data.metrics || {}).completedChallenges) || 0) < 10) {
+                return {
+                    text: '因為你現在最需要先累積更多實戰手感',
+                    topic: '',
+                    metricLabel: '已完成挑戰',
+                    metricValue: Number(((data.metrics || {}).completedChallenges) || 0) + ' 場',
+                    tone: 'sky'
+                };
+            }
+            if (topic) {
+                return {
+                    text: '因為這是你現在最適合先挑戰的課題',
+                    topic: topic,
+                    metricLabel: '掌握度',
+                    metricValue: Math.round(Number(topicMeta.score || 0)) + '%',
+                    tone: 'indigo'
+                };
+            }
+            return {
+                text: '因為這一步最能延續你目前的學習節奏',
+                topic: '',
+                metricLabel: '',
+                metricValue: '',
+                tone: 'indigo'
+            };
+        }
+        function getNextStepReasonToneClasses_(tone) {
+            var palette = {
+                rose: {
+                    wrap: 'mt-3 inline-flex max-w-full flex-wrap items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50/85 px-3 py-2 text-xs font-black text-rose-700',
+                    chip: 'inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-rose-700 border border-rose-200'
+                },
+                amber: {
+                    wrap: 'mt-3 inline-flex max-w-full flex-wrap items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50/85 px-3 py-2 text-xs font-black text-amber-700',
+                    chip: 'inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-amber-700 border border-amber-200'
+                },
+                emerald: {
+                    wrap: 'mt-3 inline-flex max-w-full flex-wrap items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50/85 px-3 py-2 text-xs font-black text-emerald-700',
+                    chip: 'inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-emerald-700 border border-emerald-200'
+                },
+                sky: {
+                    wrap: 'mt-3 inline-flex max-w-full flex-wrap items-center gap-2 rounded-2xl border border-sky-200 bg-sky-50/85 px-3 py-2 text-xs font-black text-sky-700',
+                    chip: 'inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-sky-700 border border-sky-200'
+                },
+                indigo: {
+                    wrap: 'mt-3 inline-flex max-w-full flex-wrap items-center gap-2 rounded-2xl border border-indigo-200 bg-indigo-50/85 px-3 py-2 text-xs font-black text-indigo-700',
+                    chip: 'inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-indigo-700 border border-indigo-200'
+                }
+            };
+            return palette[tone] || palette.indigo;
+        }
+        function renderNextStepReasonBadge_(target, reasonMeta) {
+            if (!target) return;
+            var meta = reasonMeta || {};
+            var tone = getNextStepReasonToneClasses_(meta.tone || 'indigo');
+            target.className = tone.wrap;
+            var chips = [];
+            if (meta.topic) {
+                chips.push('<span class="' + tone.chip + '">弱項課題：' + escapeHtml(meta.topic) + '</span>');
+            }
+            if (meta.metricLabel && meta.metricValue) {
+                chips.push('<span class="' + tone.chip + '">' + escapeHtml(meta.metricLabel) + '：' + escapeHtml(String(meta.metricValue)) + '</span>');
+            }
+            target.innerHTML = '<span>' + escapeHtml(meta.text || '因為這一步最適合你現在的學習狀態') + '</span>' + chips.join('');
+        }
         function getProfilePrimaryAction_(profileData) {
             var recommendation = (profileData && profileData.recommendation) || {};
+            var topic = String(recommendation.topic || '').trim();
+            var topicMeta = findRecommendationTopicMeta_(profileData, topic);
+            var grade = inferGradeFromClass_(playerInfo.class) || currentNotesGrade || '';
+            var reasonMeta = buildRecommendationReasonMeta_(profileData);
             if (recommendation.action === 'notes') {
-                return { label: recommendation.cta || '📖 去溫習', action: enterNotesModule };
+                return {
+                    icon: topic ? '📖' : '📘',
+                    reasonMeta: reasonMeta,
+                    title: recommendation.title || '先完成下一個課題',
+                    description: recommendation.description || '先補完目前最值得投入的課題，之後再回來挑戰會更有效。',
+                    label: recommendation.cta || (topic ? '📖 前往「' + topic + '」' : '📖 去溫習'),
+                    action: function() {
+                        return openRecommendedNotesTopic_({
+                            grade: grade,
+                            topic: topic
+                        });
+                    }
+                };
             }
-            return { label: recommendation.cta || '🎮 去挑戰', action: enterGameModule };
+            var difficulty = getRecommendationDifficulty_(recommendation, topicMeta);
+            var timeLimit = getRecommendationTimeLimit_(recommendation, difficulty, topicMeta);
+            return {
+                icon: topic ? '🎯' : '🎮',
+                reasonMeta: reasonMeta,
+                title: recommendation.title || '開始下一場推薦挑戰',
+                description: recommendation.description || '先打一場最適合你現在狀態的挑戰，讓今天的節奏接上。',
+                label: recommendation.cta || (topic ? '🎯 挑戰「' + topic + '」' : '🎮 去挑戰'),
+                action: function() {
+                    return openRecommendedSingleChallenge_({
+                        grade: grade,
+                        topic: topic,
+                        difficulty: difficulty,
+                        timeLimit: timeLimit
+                    });
+                }
+            };
         }
         function renderHomeStudentProfileCard_() {
             var content = document.getElementById('student-profile-modal-content');
@@ -3959,6 +4377,8 @@
                         studentProfileState.data = res || {};
                         studentProfileState.loadedAt = Date.now();
                         renderHomeStudentProfileCard_();
+                        var homeSection = document.getElementById('home-screen');
+                        if (homeSection && !homeSection.classList.contains('hidden')) renderHomeDashboard();
                         resolve(studentProfileState.data);
                     })
                     .withFailureHandler(function(err) {
@@ -4041,10 +4461,11 @@
             var chipDailyEl = document.getElementById('home-chip-daily');
             var chipPointsEl = document.getElementById('home-chip-points');
             var nextIcon = document.getElementById('home-next-step-icon');
+            var nextReason = document.getElementById('home-next-step-reason');
             var nextTitle = document.getElementById('home-next-step-title');
             var nextDesc = document.getElementById('home-next-step-desc');
             var nextBtn = document.getElementById('home-next-step-btn');
-            if (!missionWrap || !summary || !nextIcon || !nextTitle || !nextDesc || !nextBtn) return;
+            if (!missionWrap || !summary || !nextIcon || !nextReason || !nextTitle || !nextDesc || !nextBtn) return;
 
             var items = buildHomeMissionItems();
             var completed = items.filter(function(item) { return item.done; }).length;
@@ -4086,26 +4507,40 @@
                 triggerMissionCelebration(newlyCompletedIds, completed, items.length);
             }
 
-            if (!daily.challengeDone) {
+            var personalizedAction = studentProfileState.status === 'ready' && studentProfileState.data
+                ? getProfilePrimaryAction_(studentProfileState.data)
+                : null;
+            if (personalizedAction) {
+                nextIcon.innerText = personalizedAction.icon || '🧭';
+                renderNextStepReasonBadge_(nextReason, personalizedAction.reasonMeta || { text: '因為這一步最適合你現在的學習狀態', tone: 'indigo' });
+                nextTitle.innerText = personalizedAction.title || '下一步建議';
+                nextDesc.innerText = personalizedAction.description || '系統已根據你最近的表現，幫你準備好最適合的下一步。';
+                nextBtn.innerText = personalizedAction.label || '立即開始';
+                nextBtn.onclick = personalizedAction.action;
+            } else if (!daily.challengeDone) {
                 nextIcon.innerText = '🎯';
+                renderNextStepReasonBadge_(nextReason, { text: '因為今天還未開始第一場挑戰', metricLabel: '今日進度', metricValue: completed + '/' + items.length, tone: 'sky' });
                 nextTitle.innerText = '先完成今天的第一場挑戰';
                 nextDesc.innerText = '用一場短挑戰暖機，先把每日任務的第一格點亮。';
                 nextBtn.innerText = '前往挑戰';
                 nextBtn.onclick = enterGameModule;
             } else if (!daily.noteDone) {
                 nextIcon.innerText = '📖';
+                renderNextStepReasonBadge_(nextReason, { text: '因為今天還未完成筆記測驗', metricLabel: '今日進度', metricValue: completed + '/' + items.length, tone: 'amber' });
                 nextTitle.innerText = '接著完成今天的筆記測驗';
                 nextDesc.innerText = '讀完一節並通過測驗，今天的學習節奏就會更完整。';
                 nextBtn.innerText = '前往筆記';
                 nextBtn.onclick = enterNotesModule;
             } else if ((daily.pointsEarned || 0) < 120) {
                 nextIcon.innerText = '⭐';
+                renderNextStepReasonBadge_(nextReason, { text: '因為今天距離積分目標還差一點', metricLabel: '今日積分', metricValue: Math.min(daily.pointsEarned || 0, 120) + '/120', tone: 'amber' });
                 nextTitle.innerText = '再補一些積分，今天就完整了';
                 nextDesc.innerText = '今天還差 ' + Math.max(0, 120 - Number(daily.pointsEarned || 0)) + ' 積分，可以再挑戰一場或完成更多溫習。';
                 nextBtn.innerText = '再玩一場';
                 nextBtn.onclick = enterGameModule;
             } else {
                 nextIcon.innerText = '🏆';
+                renderNextStepReasonBadge_(nextReason, { text: streakDays >= 2 ? '因為今天主線已完成，適合整理弱項或再升級' : '因為今天主線已完成，可以自由補強或進階', metricLabel: '連續學習', metricValue: (streakDays || 0) + ' 天', tone: 'emerald' });
                 nextTitle.innerText = streakDays >= 2 ? '今天的任務全完成了' : '今天的主線已完成';
                 nextDesc.innerText = streakDays >= 2
                     ? '你已連續學習 ' + streakDays + ' 天，可以去錯題本複習，或直接挑戰更高難度。'
@@ -5014,7 +5449,13 @@
         }
 
         var ALL_SECTIONS = ['lobby-avatar-selection','home-screen','mode-selection','lobby-content','waiting-others-section','game-section','final-leaderboard-section','review-section','notes-grade-select','notes-topic-list','notes-section-list','notes-reader','notes-quiz','notes-quiz-result','notes-topic-complete','wrong-book-section','math-helper-section','math-helper-study-notes-section'];
-        function hideAllSections() { ALL_SECTIONS.forEach(function(id){ var el=document.getElementById(id); el.classList.add('hidden'); el.classList.remove('section-enter'); }); }
+        function hideAllSections() { ALL_SECTIONS.forEach(function(id){ var el=document.getElementById(id); if(!el)return; el.classList.add('hidden'); el.classList.remove('section-enter'); Array.prototype.forEach.call(el.children,function(child){ child.style.removeProperty('--section-stagger-index'); }); }); }
+        function prepareSectionTransition_(el) {
+            if (!el) return;
+            Array.prototype.forEach.call(el.children, function(child, index) {
+                child.style.setProperty('--section-stagger-index', Math.min(index, 8));
+            });
+        }
         function showSection(id) {
             if (id !== 'math-helper-section' && (mathHelperState.isRecording || mathHelperState.isVoiceInitializing)) {
                 stopMathHelperVoiceInput_(true);
@@ -5022,6 +5463,7 @@
             hideAllSections();
             var el = document.getElementById(id);
             el.classList.remove('hidden');
+            prepareSectionTransition_(el);
             void el.offsetWidth;
             el.classList.add('section-enter');
             updateMascotVisibility(id);
@@ -5193,27 +5635,7 @@
             document.addEventListener('visibilitychange', syncAmbientMusicState_);
         };
         function onGradeChange(gradeId, themeId) {
-            var gradeVal = document.getElementById(gradeId).value;
-            var themeSel = document.getElementById(themeId);
-            if (!gradeVal) {
-                themeSel.disabled = true;
-                themeSel.innerHTML = '<option value="全部">— 請先選擇年級 —</option>';
-                return;
-            }
-            themeSel.disabled = true;
-            themeSel.innerHTML = '<option value="全部">載入主題中...</option>';
-            google.script.run.withSuccessHandler(function(themes) {
-                var isSingle = (themeId === 'theme');
-                themeSel.innerHTML = isSingle ? '<option value="全部">🎲 全部主題</option>' : '<option value="全部">全部主題</option>';
-                if (themes && themes.length > 0) {
-                    themes.forEach(function(t) {
-                        if (t && t.trim() !== '') {
-                            themeSel.innerHTML += isSingle ? '<option value="' + t + '">📚 ' + t + '</option>' : '<option value="' + t + '">' + t + '</option>';
-                        }
-                    });
-                }
-                themeSel.disabled = false;
-            }).getAvailableThemes(gradeVal);
+            return loadThemesForGrade_(gradeId, themeId);
         }
         function createMathParticles(){var c=document.getElementById('math-particles-container');if(!c)return;c.innerHTML='';var sym=['+','-','×','÷','=','∞','π','∑','√','∫','≈','≠','%','θ','x','y','z','❄','❅','❆'];var count=isFocusMode?8:25;for(var i=0;i<count;i++){var el=document.createElement('div');el.innerText=sym[Math.floor(Math.random()*sym.length)];el.className='math-symbol';el.style.left=Math.random()*100+'vw';el.style.animationDuration=(Math.random()*15+10)+'s';el.style.animationDelay=(Math.random()*5)+'s';el.style.fontSize=(Math.random()*2+1.5)+'rem';if(isFocusMode){el.style.top=(Math.random()*95)+'vh';}c.appendChild(el);}}
         function renderAvatarSelection(){var g=document.getElementById('avatar-grid');g.innerHTML='';avatars.forEach(function(av){var b=document.createElement('button');b.className='flex flex-col items-center p-3 rounded-xl border-2 border-transparent hover:bg-white/50 transition-all group';b.onclick=function(){selectAvatar(av.id,b);};b.innerHTML=buildAvatarMarkup_(av,'avatar-visual--lg','avatar-idle group-hover:scale-110 transition-transform duration-300')+'<div class="text-sm font-bold mt-2 text-indigo-700 opacity-80 group-hover:opacity-100">'+av.name+'</div>';g.appendChild(b);});}
@@ -5743,9 +6165,15 @@
             switchWrongBookTab('game');
         }
 
-        function switchWrongBookTab(tab) {
+        function openWrongBookWithContext(tab, topicFilter) {
+            currentWrongBookTopicFilter = topicFilter || 'all';
+            showSection('wrong-book-section');
+            switchWrongBookTab(tab || 'game', true);
+        }
+
+        function switchWrongBookTab(tab, preserveTopicFilter) {
             currentWrongBookTab = tab;
-            currentWrongBookTopicFilter = 'all';
+            if (!preserveTopicFilter) currentWrongBookTopicFilter = 'all';
             var gameTab = document.getElementById('wb-tab-game');
             var notesTab = document.getElementById('wb-tab-notes');
             var manualTab = document.getElementById('wb-tab-manual');
@@ -6016,8 +6444,12 @@
         // 遊戲流程
         // ===================================================
         function startGameUI(){clearRoomStaleTimer();showSection('game-section');document.getElementById('game-score-area').classList.remove('hidden');currentQIndex=0;score=0;correctCount=0;combo=0;maxCombo=0;comboMilestonesShown={};wrongQuestions=[];reviewQuestions=[];reviewFilter='wrong';gameFinished=false;resetComboDisplay();updateScoreBoard();loadQuestion();}
-        function loadQuestion(){if(currentQIndex>=questions.length){endGame();return;}var q=questions[currentQIndex];var qd=document.getElementById('question');qd.innerHTML=q.question;renderMathInElement(qd,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});document.getElementById('question-image-area').innerHTML=buildQuestionImageHtml(q.imageUrl);var od=document.getElementById('options');od.innerHTML='';q.options.forEach(function(opt,i){var b=document.createElement('button');b.className="w-full p-5 bg-white border-2 border-indigo-100 rounded-2xl text-xl font-bold text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all text-left relative overflow-hidden btn-neon btn-neon-opt--indigo btn-sweep";b.innerHTML='<span class="inline-block bg-indigo-100 text-indigo-800 w-8 h-8 rounded-full text-center leading-8 mr-3 text-sm">'+String.fromCharCode(65+i)+'</span> '+opt;b.dataset.opt=opt;b.onclick=function(){playClickSound();checkAnswer(opt,false,b);};od.appendChild(b);});renderMathInElement(od,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});document.getElementById('progress-text').innerText='題數: '+(currentQIndex+1)+'/'+questions.length;document.getElementById('progress-bar').style.width=((currentQIndex)/questions.length*100)+'%';document.getElementById('top-avatar').className='text-3xl avatar-idle avatar-host';hideTopAvatarSpeech_();timeLeft=gameTimeLimit;document.getElementById('timer').innerText=timeLeft;document.getElementById('timer').style.color='#ef4444';updateTimeProgressBar();if(timer)clearInterval(timer);timer=setInterval(function(){timeLeft--;document.getElementById('timer').innerText=timeLeft;updateTimeProgressBar();if(timeLeft<=5)document.getElementById('timer').classList.add('animate-ping');else document.getElementById('timer').classList.remove('animate-ping');if(timeLeft<=0){clearInterval(timer);checkAnswer(null,true,null);}},1000);if(gameMode==='multi'&&currentRoomId){db.ref('rooms/'+currentRoomId+'/players/'+playerKey()).update({score:score,progress:currentQIndex+1}).catch(function(){});}}
-        function updateTimeProgressBar(){var b=document.getElementById('time-progress-bar');if(!b)return;var t=Math.max(1,Number(gameTimeLimit)||20);var r=Math.max(0,Math.min(1,timeLeft/t));b.style.width=(r*100)+'%';if(timeLeft<=5)b.className='h-3 bg-red-500 transition-all duration-300';else if(timeLeft<=t/2)b.className='h-3 bg-yellow-500 transition-all duration-300';else b.className='h-3 bg-green-500 transition-all duration-300';}
+        function animateQuestionRefresh_(buttons){var card=document.getElementById('question-card');if(card){card.classList.remove('question-card-refresh');void card.offsetWidth;card.classList.add('question-card-refresh');}Array.prototype.forEach.call(buttons||[],function(button,index){button.style.setProperty('--option-enter-delay',(index*70)+'ms');button.classList.remove('question-option-enter');void button.offsetWidth;button.classList.add('question-option-enter');});}
+        function getTimerState_(secondsLeft,totalSeconds){var total=Math.max(1,Number(totalSeconds)||20);if(secondsLeft<=5)return 'critical';if(secondsLeft<=Math.min(10,Math.ceil(total*0.5)))return 'warning';return 'normal';}
+        function applyTimerUiState_(){var timerEl=document.getElementById('timer');var stackEl=document.getElementById('timer-stack');if(!timerEl||!stackEl)return;var state=getTimerState_(timeLeft,gameTimeLimit);timerEl.className='text-2xl font-black timer-value timer-value--'+state+' w-12 text-center';stackEl.className='text-indigo-800 font-bold w-28 md:w-32 timer-stack timer-stack--'+state;}
+        function showTopAvatarGameSpeech_(message,tone,durationMs){var bubble=document.getElementById('top-avatar-speech');var text=document.getElementById('top-avatar-speech-text');if(!bubble||!text)return;text.innerText=message||'';bubble.classList.remove('hidden','top-avatar-speech--success','top-avatar-speech--warning','top-avatar-speech--critical','top-avatar-speech--show');if(tone)bubble.classList.add('top-avatar-speech--'+tone);void bubble.offsetWidth;bubble.classList.add('top-avatar-speech--show');if(topAvatarSpeechTimer)clearTimeout(topAvatarSpeechTimer);topAvatarSpeechTimer=setTimeout(function(){bubble.classList.remove('top-avatar-speech--show');bubble.classList.add('hidden');bubble.classList.remove('top-avatar-speech--success','top-avatar-speech--warning','top-avatar-speech--critical');topAvatarSpeechTimer=null;},durationMs||1700);}
+        function loadQuestion(){if(currentQIndex>=questions.length){endGame();return;}var q=questions[currentQIndex];var qd=document.getElementById('question');qd.innerHTML=q.question;renderMathInElement(qd,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});document.getElementById('question-image-area').innerHTML=buildQuestionImageHtml(q.imageUrl);var od=document.getElementById('options');od.innerHTML='';q.options.forEach(function(opt,i){var b=document.createElement('button');b.id='option-btn-'+currentQIndex+'-'+i;b.className="w-full p-5 bg-white border-2 border-indigo-100 rounded-2xl text-xl font-bold text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all text-left relative overflow-hidden btn-neon btn-neon-opt--indigo btn-sweep";b.innerHTML='<span class="inline-block bg-indigo-100 text-indigo-800 w-8 h-8 rounded-full text-center leading-8 mr-3 text-sm">'+String.fromCharCode(65+i)+'</span> '+opt;b.dataset.opt=opt;b.onclick=function(){playClickSound();checkAnswer(opt,false,b);};od.appendChild(b);});renderMathInElement(od,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});document.getElementById('progress-text').innerText='題數: '+(currentQIndex+1)+'/'+questions.length;document.getElementById('progress-bar').style.width=((currentQIndex)/questions.length*100)+'%';document.getElementById('top-avatar').className='text-3xl avatar-idle avatar-host';hideTopAvatarSpeech_();timeLeft=gameTimeLimit;document.getElementById('timer').innerText=timeLeft;applyTimerUiState_();updateTimeProgressBar();animateQuestionRefresh_(od.querySelectorAll('button'));if(timer)clearInterval(timer);timer=setInterval(function(){timeLeft--;document.getElementById('timer').innerText=timeLeft;applyTimerUiState_();updateTimeProgressBar();if(timeLeft<=0){clearInterval(timer);checkAnswer(null,true,null);}},1000);if(gameMode==='multi'&&currentRoomId){db.ref('rooms/'+currentRoomId+'/players/'+playerKey()).update({score:score,progress:currentQIndex+1}).catch(function(){});}}
+        function updateTimeProgressBar(){var b=document.getElementById('time-progress-bar');if(!b)return;var t=Math.max(1,Number(gameTimeLimit)||20);var r=Math.max(0,Math.min(1,timeLeft/t));var state=getTimerState_(timeLeft,t);b.style.width=(r*100)+'%';if(state==='critical')b.className='h-3 bg-gradient-to-r from-rose-400 to-red-500 transition-all duration-500';else if(state==='warning')b.className='h-3 bg-gradient-to-r from-amber-300 to-orange-400 transition-all duration-500';else b.className='h-3 bg-gradient-to-r from-emerald-400 to-green-500 transition-all duration-500';}
         function getComboScoreMultiplier(){return combo>=COMBO_MULTIPLIER_THRESHOLD?COMBO_SCORE_MULTIPLIER:1;}
         function resetComboDisplay(){var display=document.getElementById('combo-display');var flame=document.getElementById('combo-flame');var bonus=document.getElementById('combo-bonus');var banner=document.getElementById('combo-milestone-banner');if(display)display.classList.add('hidden');if(flame){flame.innerText='🔥';flame.className='flame-lv1';}if(bonus)bonus.classList.add('hidden');if(comboMilestoneTimer){clearTimeout(comboMilestoneTimer);comboMilestoneTimer=null;}if(banner){banner.classList.add('hidden');banner.innerHTML='';}}
         function getFlameLevelClass(streak){if(streak>=7)return 'flame-max';if(streak>=5)return 'flame-lv3';if(streak>=3)return 'flame-lv2';return 'flame-lv1';}
@@ -6058,7 +6490,7 @@
         function getPlayerResultRank(boardData){if(!Array.isArray(boardData)||!boardData.length)return null;var classKey=playerInfo.class+'-'+playerInfo.number;var fullName=playerInfo.avatarName+' '+classKey;for(var i=0;i<boardData.length;i++){var name=String(boardData[i].name||'');if(name===fullName||(classKey&&name.indexOf(classKey)!==-1))return i+1;}return null;}
         function getResultSummaryData(boardData){var totalQ=(questions&&questions.length)?questions.length:0;var accuracyPct=totalQ>0?Math.round((correctCount/totalQ)*100):0;var wrongCount=wrongQuestions.length;var rank=getPlayerResultRank(boardData);var summaryTitle='挑戰完成';var summaryDesc='你已經完成這場挑戰，準備好看下一步建議。';if(accuracyPct===100){summaryTitle='完美通關';summaryDesc='全數答對，節奏與準確度都很完整，這一場是滿分表現。';}else if(accuracyPct>=80){summaryTitle='穩定發揮';summaryDesc='整體答題很穩，已經接近熟練，現在最值得做的是把少數失誤補齊。';}else if(accuracyPct>=60){summaryTitle='差一點就更上一層';summaryDesc='基礎節奏不錯，但還有幾題需要回頭補強，先整理回顧最划算。';}else{summaryTitle='先補強再衝一次';summaryDesc='這次挑戰幫你找出了需要補強的位置，先回顧題目再重打會更有效。';}if(gameMode==='multi'&&rank===1){summaryDesc='你目前暫列第 1 名，保持這個狀態。';}var nextTitle='把這次手感延續下去';var nextDesc='你可以先看題目回顧，或直接再挑戰一場，把節奏續上。';var primary={label:'📝 題目回顧',action:showReview};var secondary={label:'🏠 回到首頁',action:backToHome};if(wrongCount===0&&accuracyPct>=80){nextTitle='趁手感好，再往上挑一級';nextDesc='這次失誤很少，最適合直接再打一場，或去看看能不能解鎖新獎勵。';primary={label:'🎮 再挑戰一場',action:function(){backToHome();enterGameModule();}};secondary={label:'🛍️ 看看商店',action:function(){backToHome();openShop();}};}else if(wrongCount>0&&accuracyPct<80){nextTitle='先補回顧，再回來挑戰';nextDesc='把剛剛卡住的題型先看懂，下一場的分數會提升得更明顯。';primary={label:'📝 立即回顧',action:showReview};secondary={label:'📖 去溫習筆記',action:function(){backToHome();enterNotesModule();}};}else if(accuracyPct===100&&gameMode==='single'){nextTitle='你可以直接挑戰更高難度';nextDesc='這場已經完全掌握，下一步適合提高難度，或進多人模式跟同學比一場。';primary={label:'⚔️ 試試多人對戰',action:function(){backToHome();enterGameModule();selectMode('multi');}};secondary={label:'🏠 回到首頁',action:backToHome};}return{accuracyPct:accuracyPct,wrongCount:wrongCount,rank:rank,summaryTitle:summaryTitle,summaryDesc:summaryDesc,nextTitle:nextTitle,nextDesc:nextDesc,primary:primary,secondary:secondary};}
         function renderResultExperience(boardData){var summary=getResultSummaryData(boardData);var titleEl=document.getElementById('result-summary-title');var descEl=document.getElementById('result-summary-desc');var statsEl=document.getElementById('result-stats-grid');var rankEl=document.getElementById('result-rank-pill');var nextTitleEl=document.getElementById('result-next-step-title');var nextDescEl=document.getElementById('result-next-step-desc');var primaryBtn=document.getElementById('result-primary-btn');var secondaryBtn=document.getElementById('result-secondary-btn');if(titleEl)titleEl.innerText=summary.summaryTitle;if(descEl)descEl.innerText=summary.summaryDesc;if(rankEl){if(summary.rank){rankEl.classList.remove('hidden');rankEl.innerText='🏅 第 '+summary.rank+' 名';}else{rankEl.classList.add('hidden');rankEl.innerText='';}}if(statsEl){var totalQ=(questions&&questions.length)?questions.length:0;var comboNote=maxCombo>=COMBO_MULTIPLIER_THRESHOLD?'已觸發積分加成':(totalQ>0?'再多幾題就能起火':'等待下一場挑戰');var statCards=[{label:'答對率',value:summary.accuracyPct+'%',note:'答對 '+correctCount+' / '+totalQ+' 題'},{label:'最高連擊',value:maxCombo+'x',note:comboNote},{label:'待補強題',value:summary.wrongCount+' 題',note:summary.wrongCount===0?'本次沒有錯題':'可到題目回顧立即整理'}];statsEl.innerHTML=statCards.map(function(card){return '<div class="result-stat-card"><div class="result-stat-card__label">'+card.label+'</div><div class="result-stat-card__value">'+card.value+'</div><div class="result-stat-card__note">'+card.note+'</div></div>';}).join('');}if(nextTitleEl)nextTitleEl.innerText=summary.nextTitle;if(nextDescEl)nextDescEl.innerText=summary.nextDesc;if(primaryBtn){primaryBtn.innerText=summary.primary.label;primaryBtn.onclick=summary.primary.action;}if(secondaryBtn){secondaryBtn.innerText=summary.secondary.label;secondaryBtn.onclick=summary.secondary.action;}}
-        function checkAnswer(sel,isTimeout,btn){clearInterval(timer);document.getElementById('timer').classList.remove('animate-ping');var btns=document.getElementById('options').querySelectorAll('button');btns.forEach(function(b){b.disabled=true;});var q=questions[currentQIndex];var selectedValue=isTimeout?'超時未作答':sel;var ok=!isTimeout&&(sel===q.answer);reviewQuestions.push({question:q.question||'',options:Array.isArray(q.options)?q.options.slice():[],answer:q.answer||'',selected:selectedValue||'',explanation:q.explanation||'無詳解',isCorrect:ok});if(isTimeout)playTimeoutSound();else if(ok)playCorrectSound(combo+1);else playWrongSound();triggerPlayerAvatarReaction_(ok);var av=document.getElementById('top-avatar');if(ok){combo++;if(combo>maxCombo)maxCombo=combo;correctCount++;var pts=BASE_QUESTION_POINTS+Math.floor(timeLeft/2);if(combo>=2)pts+=5*combo;pts=Math.round(pts*getComboScoreMultiplier());score+=pts;if(btn){btn.classList.add('flash-correct');var r=btn.getBoundingClientRect();launchSparkles(r.left+r.width/2,r.top+r.height/2);}updateComboDisplay();if(combo>=COMBO_MULTIPLIER_THRESHOLD)triggerStreakFlash();showComboMilestone(combo);popScoreElement('score');}else{combo=0;resetComboDisplay();if(btn)btn.classList.add('flash-wrong');btns.forEach(function(b){if(b.dataset&&b.dataset.opt===q.answer)b.classList.add('bg-green-100','border-green-400');});wrongQuestions.push({q:q.question,selected:selectedValue,correct:q.answer,explanation:q.explanation||'無詳解'});saveWrongQuestion('game',q,sel,isTimeout);}updateScoreBoard();if(ok){setTimeout(function(){currentQIndex++;loadQuestion();},1500);}else{setTimeout(function(){showExplanationModal(q,sel,isTimeout);explanationModalCallback=function(){currentQIndex++;loadQuestion();};},800);}}
+        function checkAnswer(sel,isTimeout,btn){clearInterval(timer);var timerEl=document.getElementById('timer');if(timerEl)timerEl.classList.remove('animate-ping');var btns=document.getElementById('options').querySelectorAll('button');btns.forEach(function(b){b.disabled=true;});var q=questions[currentQIndex];var selectedValue=isTimeout?'超時未作答':sel;var ok=!isTimeout&&(sel===q.answer);reviewQuestions.push({question:q.question||'',options:Array.isArray(q.options)?q.options.slice():[],answer:q.answer||'',selected:selectedValue||'',explanation:q.explanation||'無詳解',isCorrect:ok});if(isTimeout)playTimeoutSound();else if(ok)playCorrectSound(combo+1);else playWrongSound();triggerPlayerAvatarReaction_(ok);if(ok){combo++;if(combo>maxCombo)maxCombo=combo;correctCount++;var pts=BASE_QUESTION_POINTS+Math.floor(timeLeft/2);if(combo>=2)pts+=5*combo;pts=Math.round(pts*getComboScoreMultiplier());score+=pts;if(btn){btn.classList.add('flash-correct');var r=btn.getBoundingClientRect();launchSparkles(r.left+r.width/2,r.top+r.height/2);launchMiniConfettiBurst(btn.id,['#10b981','#34d399','#fbbf24','#60a5fa']);}showTopAvatarGameSpeech_('答對了，保持這個節奏。','success',1500);updateComboDisplay();if(combo>=COMBO_MULTIPLIER_THRESHOLD)triggerStreakFlash();showComboMilestone(combo);popScoreElement('score');}else{combo=0;resetComboDisplay();if(btn)btn.classList.add('flash-wrong');btns.forEach(function(b){if(b.dataset&&b.dataset.opt===q.answer)b.classList.add('bg-green-100','border-green-400');});launchMiniConfettiBurst(btn&&btn.id?btn.id:'question-card',isTimeout?['#fb7185','#fda4af','#fdba74']:['#f97316','#fb7185','#fca5a5']);showTopAvatarGameSpeech_(isTimeout?'時間到，下一題再快一點。':'差一點，先看詳解再來。',isTimeout?'critical':'warning',1900);wrongQuestions.push({q:q.question,selected:selectedValue,correct:q.answer,explanation:q.explanation||'無詳解'});saveWrongQuestion('game',q,sel,isTimeout);}updateScoreBoard();if(ok){setTimeout(function(){currentQIndex++;loadQuestion();},1500);}else{setTimeout(function(){showExplanationModal(q,sel,isTimeout);explanationModalCallback=function(){currentQIndex++;loadQuestion();};},800);}}
         function updateScoreBoard(){document.getElementById('score').innerText=score;}
         function updateMiniLeaderboard(po){var panel=document.getElementById('mini-leaderboard');if(!panel)return;if(gameMode!=='multi'||!currentRoomId){panel.classList.add('hidden');return;}var gs=document.getElementById('game-section');if(!gs||gs.classList.contains('hidden')){panel.classList.add('hidden');return;}panel.classList.remove('hidden');var players=po?Object.values(po):[];var sorted=players.map(function(p){return{name:p.class+'-'+p.number,avatar:p.avatar||'👤',avatarName:p.avatarName||'',avatarId:p.avatarId||'',score:Number(p.score||0)};}).sort(function(a,b){return b.score-a.score;});var sk=playerInfo.class+'-'+playerInfo.number;var medals=['🥇','🥈','🥉'];var le=document.getElementById('mini-lb-list');le.innerHTML='';sorted.slice(0,3).forEach(function(p,i){var isSelf=p.name===sk;var r=document.createElement('li');r.className='mini-lb-row'+(isSelf?' is-self':'');r.innerHTML='<span class="mini-lb-medal">'+medals[i]+'</span><span class="mini-lb-name">'+buildAvatarMarkup_(getAvatarConfigByPlayer_(p),'avatar-visual--xs','')+'<span>'+escapeHtml(p.name)+'</span></span><span class="mini-lb-score">'+p.score+'</span>';le.appendChild(r);});var sd=document.getElementById('mini-lb-self');var sr=-1;for(var i=0;i<sorted.length;i++){if(sorted[i].name===sk){sr=i;break;}}if(sr>=3){sd.classList.remove('hidden');sd.className='mini-lb-row is-self mt-2 pt-2 border-t border-white/10';var d=sorted[sr];sd.innerHTML='<span class="mini-lb-medal" style="font-size:0.7rem;color:rgba(255,255,255,0.5);">'+(sr+1)+'</span><span class="mini-lb-name">'+buildAvatarMarkup_(getAvatarConfigByPlayer_(d),'avatar-visual--xs','')+'<span>'+escapeHtml(d.name)+'</span></span><span class="mini-lb-score">'+d.score+'</span>';}else{sd.classList.add('hidden');sd.innerHTML='';}}
 
@@ -6127,32 +6559,210 @@
 
         function backToGradeSelect() { showSection('notes-grade-select'); }
 
+        function getNotesTopicSectionCacheKey_(topic) {
+            return currentNotesGrade + '::' + sanitizeKey(topic);
+        }
+
+        function buildNotesTopicSectionMetaFromPages_(pages) {
+            var seen = {};
+            var totalSections = 0;
+            (Array.isArray(pages) ? pages : []).forEach(function(page) {
+                var sectionName = String(page && page.section || '').trim();
+                if (!sectionName || seen[sectionName]) return;
+                seen[sectionName] = true;
+                totalSections++;
+            });
+            return { totalSections: totalSections };
+        }
+
+        function primeNotesTopicSectionMetaCache_(topic, pages) {
+            var cacheKey = getNotesTopicSectionCacheKey_(topic);
+            notesTopicSectionMetaCache[cacheKey] = buildNotesTopicSectionMetaFromPages_(pages);
+            return notesTopicSectionMetaCache[cacheKey];
+        }
+
+        function getNotesTopicSectionMeta_(topic) {
+            var cacheKey = getNotesTopicSectionCacheKey_(topic);
+            if (notesTopicSectionMetaCache[cacheKey]) {
+                return Promise.resolve(notesTopicSectionMetaCache[cacheKey]);
+            }
+            return new Promise(function(resolve) {
+                google.script.run.withSuccessHandler(function(res) {
+                    if (res && res.error) {
+                        resolve({ totalSections: 0 });
+                        return;
+                    }
+                    resolve(primeNotesTopicSectionMetaCache_(topic, Array.isArray(res) ? res : []));
+                }).withFailureHandler(function() {
+                    resolve({ totalSections: 0 });
+                }).getNoteContent(topic, currentNotesGrade);
+            });
+        }
+
+        function getNotesTopicCompletionMeta_(topic, totalSections) {
+            var topicKey = sanitizeKey(topic);
+            var progress = (studentData.notesProgress && studentData.notesProgress[topicKey]) || {};
+            var sections = progress.sections || {};
+            var completedCount = Object.keys(sections).filter(function(key) {
+                return sections[key] && sections[key].passed;
+            }).length;
+            var knownSectionCount = Math.max(0, Number(totalSections || 0));
+            var fallbackSectionCount = Object.keys(sections).length;
+            var resolvedTotal = knownSectionCount || fallbackSectionCount || (progress.topicComplete ? Math.max(1, completedCount) : 0);
+            var percent = progress.topicComplete
+                ? 100
+                : (resolvedTotal > 0 ? Math.round((completedCount / resolvedTotal) * 100) : 0);
+            var statusText = '未開始';
+            var badgeClass = 'text-xs bg-gray-100 text-gray-500 px-2.5 py-1 rounded-full font-bold';
+            if (progress.topicComplete || (resolvedTotal > 0 && completedCount >= resolvedTotal)) {
+                statusText = '已完成';
+                badgeClass = 'text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-bold';
+                percent = 100;
+            } else if (completedCount > 0 || progress.earnedPoints > 0) {
+                statusText = '學習中';
+                badgeClass = 'text-xs bg-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full font-bold';
+            }
+            return {
+                percent: Math.max(0, Math.min(100, percent)),
+                completedCount: completedCount,
+                totalSections: resolvedTotal,
+                statusText: statusText,
+                badgeClass: badgeClass,
+                isComplete: statusText === '已完成',
+                isInProgress: statusText === '學習中'
+            };
+        }
+
+        function buildNotesTopicProgressRingMarkup_(meta) {
+            var radius = 20;
+            var circumference = 2 * Math.PI * radius;
+            var progress = Math.max(0, Math.min(100, Number(meta && meta.percent || 0)));
+            var dashOffset = circumference * (1 - progress / 100);
+            var progressColorClass = meta && meta.isComplete
+                ? 'stroke-emerald-500'
+                : (meta && meta.isInProgress ? 'stroke-amber-400' : 'stroke-slate-300');
+            var detailText = meta && meta.totalSections > 0
+                ? (meta.completedCount + '/' + meta.totalSections)
+                : (progress > 0 ? '進行中' : '未開始');
+            return '' +
+                '<div class="relative flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-white/90 shadow-sm ring-1 ring-emerald-100">' +
+                    '<svg viewBox="0 0 48 48" class="h-20 w-20 -rotate-90" aria-hidden="true">' +
+                        '<circle cx="24" cy="24" r="20" fill="none" stroke-width="4" class="stroke-emerald-100"></circle>' +
+                        '<circle cx="24" cy="24" r="20" fill="none" stroke-width="4" stroke-linecap="round" class="' + progressColorClass + ' transition-all duration-500" style="stroke-dasharray:' + circumference.toFixed(2) + ';stroke-dashoffset:' + dashOffset.toFixed(2) + ';"></circle>' +
+                    '</svg>' +
+                    '<div class="absolute inset-0 flex flex-col items-center justify-center">' +
+                        '<span class="text-sm font-black text-slate-800">' + progress + '%</span>' +
+                        '<span class="text-[10px] font-bold text-slate-400">' + escapeHtml(detailText) + '</span>' +
+                    '</div>' +
+                '</div>';
+        }
+
+        function renderNotesTopicCards_(topics, sectionMetaMap) {
+            var grid = document.getElementById('notes-topics-grid');
+            grid.innerHTML = '';
+            topics.forEach(function(topic) {
+                var cacheKey = getNotesTopicSectionCacheKey_(topic);
+                var sectionMeta = sectionMetaMap[cacheKey] || notesTopicSectionMetaCache[cacheKey] || { totalSections: 0 };
+                var progressMeta = getNotesTopicCompletionMeta_(topic, sectionMeta.totalSections);
+                var subtitle = progressMeta.totalSections > 0
+                    ? ('已完成 ' + progressMeta.completedCount + ' / ' + progressMeta.totalSections + ' 章節')
+                    : (progressMeta.isInProgress ? '已有學習紀錄，建議繼續推進' : '尚未開始這個課題');
+                var btn = document.createElement('button');
+                btn.className = 'w-full rounded-[1.75rem] border border-emerald-100 bg-white/85 p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-lg';
+                btn.innerHTML = '' +
+                    '<div class="flex items-center gap-4">' +
+                        buildNotesTopicProgressRingMarkup_(progressMeta) +
+                        '<div class="min-w-0 flex-1">' +
+                            '<div class="flex flex-wrap items-center gap-2">' +
+                                '<span class="text-xs font-black tracking-[0.16em] text-emerald-500 uppercase">課題進度</span>' +
+                                '<span class="' + progressMeta.badgeClass + '">' + escapeHtml(progressMeta.statusText) + '</span>' +
+                            '</div>' +
+                            '<div class="mt-2 text-xl font-black text-slate-800 break-words">📗 ' + escapeHtml(topic) + '</div>' +
+                            '<p class="mt-2 text-sm text-slate-500 leading-relaxed">' + escapeHtml(subtitle) + '</p>' +
+                        '</div>' +
+                    '</div>';
+                btn.onclick = function() { openNotes(topic); };
+                grid.appendChild(btn);
+            });
+        }
+
+        function setNotesQuizAvatarCardTone_(tone) {
+            var card = document.getElementById('notes-quiz-avatar-card');
+            if (!card) return;
+            var base = 'mb-6 rounded-[2rem] p-5 shadow-sm transition-all duration-300';
+            var tones = {
+                idle: ' border border-emerald-100 bg-gradient-to-r from-white/95 via-emerald-50/90 to-cyan-50/80',
+                correct: ' border border-emerald-200 bg-gradient-to-r from-emerald-50 via-lime-50 to-cyan-50 shadow-emerald-100/80',
+                wrong: ' border border-orange-200 bg-gradient-to-r from-orange-50 via-amber-50 to-rose-50 shadow-orange-100/80'
+            };
+            card.className = base + (tones[tone] || tones.idle);
+        }
+
+        function renderNotesQuizAvatar_(extraClass, message, statusText, tone) {
+            var avatarHost = document.getElementById('notes-quiz-avatar');
+            var nameEl = document.getElementById('notes-quiz-avatar-name');
+            var messageEl = document.getElementById('notes-quiz-avatar-message');
+            var statusEl = document.getElementById('notes-quiz-avatar-status');
+            var currentAvatar = getCurrentAvatarConfig_();
+            setNotesQuizAvatarCardTone_(tone || 'idle');
+            applyAvatarVisualToElement_(avatarHost, currentAvatar, 'avatar-visual--quiz-hero', extraClass || 'avatar-idle');
+            if (nameEl) nameEl.innerText = currentAvatar.name || '數學拍檔';
+            if (messageEl) messageEl.innerText = message || '先讀清楚題目，再作答。';
+            if (statusEl) statusEl.innerText = statusText || '準備作答';
+        }
+
+        function triggerNotesQuizAvatarReaction_(isCorrect) {
+            var avatarId = inferPlayerAvatarId_();
+            var reactionClass = getAvatarReactionClass_(avatarId, isCorrect);
+            var reactionMessage = getAvatarReactionMessage_(avatarId, isCorrect);
+            if (notesQuizAvatarResetTimer) {
+                clearTimeout(notesQuizAvatarResetTimer);
+                notesQuizAvatarResetTimer = null;
+            }
+            renderNotesQuizAvatar_(reactionClass, reactionMessage, isCorrect ? '答對了，繼續追分' : '先看清失誤，再追回來', isCorrect ? 'correct' : 'wrong');
+            notesQuizAvatarResetTimer = setTimeout(function() {
+                renderNotesQuizAvatar_('avatar-idle', '下一題，保持專注。', '準備下一題', 'idle');
+                notesQuizAvatarResetTimer = null;
+            }, isCorrect ? 950 : 1000);
+        }
+
         function loadNotesTopics() {
             var grid = document.getElementById('notes-topics-grid');
             grid.innerHTML = '<div class="text-center text-gray-400 py-12 col-span-full">載入課題中...</div>';
-            google.script.run.withSuccessHandler(function(res) {
-                if (res && res.error) { grid.innerHTML = '<div class="text-center text-red-400 py-12 col-span-full">' + res.error + '</div>'; return; }
-                var topics = Array.isArray(res) ? res : [];
-                if (topics.length === 0) { grid.innerHTML = '<div class="text-center text-gray-400 py-12 col-span-full">此級別尚無課題</div>'; return; }
-                grid.innerHTML = '';
-                topics.forEach(function(t) {
-                    var key = sanitizeKey(t);
-                    var progress = (studentData.notesProgress && studentData.notesProgress[key]) || null;
-                    var badge = '';
-                    if (progress && progress.topicComplete) {
-                        badge = '<span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">✅ 已完成</span>';
-                    } else if (progress && progress.earnedPoints > 0) {
-                        badge = '<span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-bold">⏳ 學習中</span>';
-                    } else {
-                        badge = '<span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-bold">未開始</span>';
+            return new Promise(function(resolve) {
+                google.script.run.withSuccessHandler(function(res) {
+                    if (res && res.error) {
+                        grid.innerHTML = '<div class="text-center text-red-400 py-12 col-span-full">' + res.error + '</div>';
+                        resolve([]);
+                        return;
                     }
-                    var btn = document.createElement('button');
-                    btn.className = 'w-full flex items-center justify-between p-5 ghost-card ghost-card-emerald text-left';
-                    btn.innerHTML = '<div class="flex items-center gap-3"><span class="text-3xl">📗</span><span class="text-lg font-bold text-gray-800">' + t + '</span></div>' + badge;
-                    btn.onclick = function() { openNotes(t); };
-                    grid.appendChild(btn);
-                });
-            }).getNotesTopics(currentNotesGrade);
+                    var topics = Array.isArray(res) ? res : [];
+                    if (topics.length === 0) {
+                        grid.innerHTML = '<div class="text-center text-gray-400 py-12 col-span-full">此級別尚無課題</div>';
+                        resolve([]);
+                        return;
+                    }
+                    grid.innerHTML = '<div class="text-center text-gray-400 py-12 col-span-full">整理課題完成度中...</div>';
+                    Promise.all(topics.map(function(topic) {
+                        return getNotesTopicSectionMeta_(topic).then(function(meta) {
+                            return { topic: topic, meta: meta || { totalSections: 0 } };
+                        });
+                    })).then(function(metaEntries) {
+                        var sectionMetaMap = {};
+                        metaEntries.forEach(function(entry) {
+                            sectionMetaMap[getNotesTopicSectionCacheKey_(entry.topic)] = entry.meta || { totalSections: 0 };
+                        });
+                        renderNotesTopicCards_(topics, sectionMetaMap);
+                        resolve(topics);
+                    }).catch(function() {
+                        renderNotesTopicCards_(topics, {});
+                        resolve(topics);
+                    });
+                }).withFailureHandler(function(err) {
+                    grid.innerHTML = '<div class="text-center text-red-400 py-12 col-span-full">載入失敗：' + ((err && err.message) || err || '未知錯誤') + '</div>';
+                    resolve([]);
+                }).getNotesTopics(currentNotesGrade);
+            });
         }
 
         function backToTopicList() { selectNotesGrade(currentNotesGrade); }
@@ -6178,6 +6788,7 @@
             google.script.run.withSuccessHandler(function(res) {
                 if (res && res.error) { document.getElementById('sections-grid').innerHTML = '<div class="text-center text-red-400 py-12">' + res.error + '</div>'; return; }
                 allTopicPages = Array.isArray(res) ? res : [];
+                primeNotesTopicSectionMetaCache_(topic, allTopicPages);
                 if (allTopicPages.length === 0) { document.getElementById('sections-grid').innerHTML = '<div class="text-center text-gray-400 py-12">此課題尚無內容</div>'; return; }
 
                 var seen = {};
@@ -6290,6 +6901,7 @@
             document.getElementById('nq-topic-name').innerText = currentNotesTopic + ' — ' + currentSectionName;
             document.getElementById('nq-question').innerText = '載入題目中...';
             document.getElementById('nq-options').innerHTML = '';
+            renderNotesQuizAvatar_('avatar-idle', '這一節開始了，一起把分數衝高。', '載入題目中', 'idle');
 
             google.script.run.withSuccessHandler(function(res) {
                 if (res && res.error) { document.getElementById('nq-question').innerText = res.error; return; }
@@ -6306,6 +6918,8 @@
             var q = notesQuizQuestions[nqIndex];
             document.getElementById('nq-progress').innerText = '第 ' + (nqIndex + 1) + ' / ' + notesQuizQuestions.length + ' 題';
             document.getElementById('nq-points-hint').innerText = '答對可獲得 ⭐' + (q.points || BASE_QUESTION_POINTS) + ' 積分';
+            renderNotesQuizAvatar_('avatar-idle', '第 ' + (nqIndex + 1) + ' 題，先圈出關鍵字再作答。', '準備作答', 'idle');
+            setMascotState('thinking', '想一想，這題的關鍵概念是甚麼？🤔');
             var qEl = document.getElementById('nq-question');
             qEl.innerHTML = q.question;
             renderMathInElement(qEl, { delimiters: [{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
@@ -6337,11 +6951,13 @@
                     var r = btnEl.getBoundingClientRect();
                     launchSparkles(r.left + r.width/2, r.top + r.height/2);
                 }
+                triggerNotesQuizAvatarReaction_(true);
                 setMascotState('celebrate');
             } else {
                 playWrongSound();
                 if (btnEl) btnEl.classList.add('flash-wrong');
                 btns.forEach(function(b) { if (b.dataset && b.dataset.opt === q.answer) b.classList.add('bg-green-100', 'border-green-400'); });
+                triggerNotesQuizAvatarReaction_(false);
                 setMascotState('wrong');
                 saveWrongQuestion('notes', q, sel, false);
             }
@@ -6447,6 +7063,16 @@
                 retryBtn.innerText = '🔄 重新測驗';
                 retryBtn.onclick = function() { startSectionQuiz(); };
                 actions.appendChild(retryBtn);
+            }
+
+            if (nqCorrectCount < total) {
+                var wrongBookBtn = document.createElement('button');
+                wrongBookBtn.className = 'ghost-btn ghost-indigo py-3 px-6';
+                wrongBookBtn.innerText = '📕 錯題重練';
+                wrongBookBtn.onclick = function() {
+                    openWrongBookWithContext('notes', currentNotesTopic || 'all');
+                };
+                actions.appendChild(wrongBookBtn);
             }
 
             var backBtn = document.createElement('button');
