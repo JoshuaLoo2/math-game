@@ -37,23 +37,47 @@ function handleAvatarImageError(img) {
     if (fallback) fallback.classList.remove('hidden');
     img.parentNode.classList.add('avatar-visual--emoji');
 }
-function buildAvatarMarkup_(avatarConfig, sizeClass, extraClass) {
+function normalizeAvatarImageUrl_(url) {
+    if (!url) return '';
+    if (typeof toDriveDirectUrl === 'function') return toDriveDirectUrl(url);
+    return String(url || '').trim();
+}
+function getAvatarFrameConfigById_(frameId) {
+    for (var i = 0; i < (avatarFrameCatalog || []).length; i++) {
+        if (avatarFrameCatalog[i].id === frameId) return avatarFrameCatalog[i];
+    }
+    return null;
+}
+function getCurrentAvatarFrameId_() {
+    return (shopData && shopData.equippedFrame) || playerInfo.avatarFrameId || '';
+}
+function getRandomUnlockableAvatarFrame_() {
+    var frames = Array.isArray(avatarFrameCatalog) ? avatarFrameCatalog.slice() : [];
+    if (!frames.length) return null;
+    var owned = (shopData && shopData.ownedFrames) || {};
+    var pool = frames.filter(function(frame) { return !owned[frame.id]; });
+    if (!pool.length) pool = frames;
+    return pool[Math.floor(Math.random() * pool.length)] || null;
+}
+function buildAvatarMarkup_(avatarConfig, sizeClass, extraClass, frameId) {
     var resolved = avatarConfig || getAvatarConfigById_('cat');
-    var classes = 'avatar-visual ' + (sizeClass || 'avatar-visual--md') + (extraClass ? ' ' + extraClass : '');
+    var frame = getAvatarFrameConfigById_(frameId || '');
+    var classes = 'avatar-visual ' + (sizeClass || 'avatar-visual--md') + (extraClass ? ' ' + extraClass : '') + (frame && frame.className ? ' ' + frame.className : '');
     var name = escapeHtml(resolved.name || '角色');
     var emoji = escapeHtml(resolved.emoji || '👤');
-    var imageUrl = escapeHtml(resolved.imageUrl || '');
+    var imageUrl = escapeHtml(normalizeAvatarImageUrl_(resolved.imageUrl || ''));
     if (imageUrl) return '<span class="' + classes + '" title="' + name + '"><img src="' + imageUrl + '" alt="' + name + '" class="avatar-image" loading="lazy" referrerpolicy="no-referrer" onerror="handleAvatarImageError(this)"><span class="avatar-fallback hidden">' + emoji + '</span></span>';
     return '<span class="' + classes + ' avatar-visual--emoji" title="' + name + '"><span class="avatar-fallback">' + emoji + '</span></span>';
 }
-function applyAvatarVisualToElement_(element, avatarConfig, sizeClass, extraClass) {
+function applyAvatarVisualToElement_(element, avatarConfig, sizeClass, extraClass, frameId) {
     if (!element) return;
-    element.innerHTML = buildAvatarMarkup_(avatarConfig, sizeClass, extraClass);
+    element.innerHTML = buildAvatarMarkup_(avatarConfig, sizeClass, extraClass, frameId);
 }
 function refreshPlayerAvatarVisuals_() {
     var currentAvatar = getCurrentAvatarConfig_();
-    applyAvatarVisualToElement_(document.getElementById('top-avatar'), currentAvatar, 'avatar-visual--md', 'avatar-idle');
-    applyAvatarVisualToElement_(document.getElementById('home-avatar'), currentAvatar, 'avatar-visual--xl', 'avatar-idle');
+    var currentFrameId = getCurrentAvatarFrameId_();
+    applyAvatarVisualToElement_(document.getElementById('top-avatar'), currentAvatar, 'avatar-visual--md', 'avatar-idle', currentFrameId);
+    applyAvatarVisualToElement_(document.getElementById('home-avatar'), currentAvatar, 'avatar-visual--xl', 'avatar-idle', currentFrameId);
 }
 function escapeHtml(str) {
     return String(str || '').replace(/[&<>"']/g, function(ch) {
@@ -61,6 +85,56 @@ function escapeHtml(str) {
     });
 }
 var MAX_VISIBLE_TOASTS = 3;
+var bodyScrollLockOwners_ = {};
+var bodyScrollLockSnapshot_ = null;
+
+function syncBodyScrollLock_() {
+    if (!document.body || !document.documentElement) return;
+    var activeOwners = Object.keys(bodyScrollLockOwners_).filter(function(key) {
+        return !!bodyScrollLockOwners_[key];
+    });
+
+    if (!activeOwners.length) {
+        if (bodyScrollLockSnapshot_) {
+            document.body.style.position = bodyScrollLockSnapshot_.position;
+            document.body.style.top = bodyScrollLockSnapshot_.top;
+            document.body.style.left = bodyScrollLockSnapshot_.left;
+            document.body.style.right = bodyScrollLockSnapshot_.right;
+            document.body.style.width = bodyScrollLockSnapshot_.width;
+            document.body.style.overflow = bodyScrollLockSnapshot_.overflow;
+            window.scrollTo(0, bodyScrollLockSnapshot_.scrollY || 0);
+            bodyScrollLockSnapshot_ = null;
+        }
+        return;
+    }
+
+    if (!bodyScrollLockSnapshot_) {
+        var scrollY = window.pageYOffset || window.scrollY || document.documentElement.scrollTop || 0;
+        bodyScrollLockSnapshot_ = {
+            position: document.body.style.position || '',
+            top: document.body.style.top || '',
+            left: document.body.style.left || '',
+            right: document.body.style.right || '',
+            width: document.body.style.width || '',
+            overflow: document.body.style.overflow || '',
+            scrollY: scrollY
+        };
+        document.body.style.position = 'fixed';
+        document.body.style.top = (-scrollY) + 'px';
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function setBodyScrollLocked_(ownerKey, shouldLock) {
+    if (!ownerKey) return;
+    if (shouldLock) bodyScrollLockOwners_[ownerKey] = true;
+    else delete bodyScrollLockOwners_[ownerKey];
+    syncBodyScrollLock_();
+}
+
 function showToast(message, type, title, duration) {
     var stack = document.getElementById('app-toast-stack');
     if (!stack || !message) return;
@@ -101,6 +175,7 @@ function showConfirmDialog(options) {
     document.getElementById('confirm-ok-btn').innerText = options.confirmText || '確認';
     document.getElementById('confirm-cancel-btn').innerText = options.cancelText || '取消';
     modal.classList.remove('hidden');
+    setBodyScrollLocked_('confirm-modal', true);
     return new Promise(function(resolve) {
         confirmDialogAction = resolve;
     });
@@ -108,6 +183,7 @@ function showConfirmDialog(options) {
 function closeConfirmDialog(confirmed) {
     var modal = document.getElementById('confirm-modal');
     if (modal) modal.classList.add('hidden');
+    setBodyScrollLocked_('confirm-modal', false);
     if (confirmDialogAction) {
         var resolver = confirmDialogAction;
         confirmDialogAction = null;

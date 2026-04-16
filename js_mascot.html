@@ -1,7 +1,7 @@
 <script>
 var mascotTimer = null;
-var mascotExitTimer = null;
-var notesSections = ['notes-grade-select','notes-topic-list','notes-section-list','notes-reader','notes-quiz','notes-quiz-result','notes-topic-complete'];
+var notesSections = ['notes-school-level-select','notes-grade-select','notes-topic-list','notes-section-list','notes-reader','notes-quiz','notes-quiz-result','notes-topic-complete'];
+var challengeSections = ['mode-selection','game-section'];
 
 var mascotMessages = {
     idle: [
@@ -51,6 +51,34 @@ var mascotMessages = {
         '臨時抱佛腳？沒問題，這佛腳特別好抱！🦵✨',
         '來看看有什麼破關小撇步吧！👀',
         '深呼吸，讓我們開始修練大腦！🧘‍♂️'
+    ],
+    challengeIntro: [
+        '挑一個模式吧！今天這場要打得漂亮一點！🚀',
+        '準備好衝分了嗎？我已經在場邊替你加油！📣',
+        '先選單人暖機，或直接多人對戰，你來決定！🎮',
+        '數學大挑戰開場啦，今天我們一起打出好節奏！⚡'
+    ],
+    challengeCorrect: [
+        '這題收下了！繼續連擊！🔥',
+        '漂亮！這個節奏很可以！🎉',
+        '答得又快又準，保持住！⚡',
+        '太順了，再拿下一題！🏁'
+    ],
+    notesCorrect: [
+        '概念抓到了，這題很穩！📘✨',
+        '答對了，這一頁真的讀進去了！🌟',
+        '很好，重點有吸收進去！🧠',
+        '太好了，筆記沒有白看！🎊'
+    ],
+    notesSectionComplete: [
+        '這一章完成了！往下一章前進吧！🎉',
+        '章節通關，學習進度又推進了一格！📚',
+        '很穩！這章已經被你拿下了！🏆'
+    ],
+    notesTopicComplete: [
+        '整個課題完成了，你今天超有料！🏆',
+        '課題全破！這份筆記已經變成你的了！🌈',
+        '太強了，整個主題都被你征服了！✨'
     ]
 };
 
@@ -62,14 +90,9 @@ function getRandomMsg(type) {
 function updateMascotVisibility(sectionId) {
     var wrap = document.getElementById('teacher-mascot');
     if (!wrap) return;
-    if (mascotExitTimer) {
-        clearTimeout(mascotExitTimer);
-        mascotExitTimer = null;
-    }
     if (notesSections.indexOf(sectionId) !== -1) {
-        wrap.classList.remove('mascot-exiting');
         wrap.classList.remove('mascot-hidden');
-        if (sectionId === 'notes-grade-select' || sectionId === 'notes-topic-list') {
+        if (sectionId === 'notes-school-level-select' || sectionId === 'notes-grade-select' || sectionId === 'notes-topic-list') {
             setMascotState('enterNotes');
         } else if (sectionId === 'notes-reader') {
             setMascotState('reading');
@@ -78,14 +101,15 @@ function updateMascotVisibility(sectionId) {
         } else {
             setMascotState('idle');
         }
+    } else if (challengeSections.indexOf(sectionId) !== -1) {
+        wrap.classList.remove('mascot-hidden');
+        if (sectionId === 'mode-selection') {
+            setMascotState('challengeIntro');
+        } else {
+            setMascotState('idle', '專心答題，我會在旁邊幫你打氣！💪');
+        }
     } else {
-        if (wrap.classList.contains('mascot-hidden')) return;
-        wrap.classList.add('mascot-exiting');
-        mascotExitTimer = setTimeout(function() {
-            wrap.classList.add('mascot-hidden');
-            wrap.classList.remove('mascot-exiting');
-            mascotExitTimer = null;
-        }, 420);
+        wrap.classList.add('mascot-hidden');
     }
 }
 
@@ -104,6 +128,11 @@ function setMascotState(state, customMsg) {
         case 'thinking': charEl.classList.add('mascot-thinking'); break;
         case 'reading': charEl.classList.add('mascot-idle'); break;
         case 'enterNotes': charEl.classList.add('mascot-celebrate'); break;
+        case 'challengeIntro': charEl.classList.add('mascot-celebrate'); break;
+        case 'challengeCorrect': charEl.classList.add('mascot-celebrate'); break;
+        case 'notesCorrect': charEl.classList.add('mascot-celebrate'); break;
+        case 'notesSectionComplete': charEl.classList.add('mascot-celebrate'); break;
+        case 'notesTopicComplete': charEl.classList.add('mascot-celebrate'); break;
     }
     applyAvatarVisualToElement_(charEl, getCurrentAvatarConfig_(), 'avatar-visual--mascot', '');
 

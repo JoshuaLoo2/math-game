@@ -5,13 +5,64 @@ function getConfigId_(propKey, defaultValue) {
   return val || defaultValue;
 }
 function getQuestionsSheetId_() { return getConfigId_('QUESTIONS_SHEET_ID', '1RpKFnPmPDvDvW__nwzZWBnB5jlO6T_aHR9LellTNNiM'); }
+function getPrimaryQuestionsSheetId_() { return getConfigId_('PRIMARY_QUESTIONS_SHEET_ID', '1dZaOR-VJi5YcWi36IkXUnr8z958L9bmfTsMd_6Q1vSE'); }
 function getNotesSheetId_() { return getConfigId_('NOTES_SHEET_ID', '1i-4_v1u9Q7yhTXESEP4oDdeHCuDEsEpicb3RrUd0oks'); }
+function getPrimaryNotesSheetId_() { return getConfigId_('PRIMARY_NOTES_SHEET_ID', '16M6pRAMU1DuBMt0qBltOc1RtMVf7GvList8PRxyc8SY'); }
 function getNotesQuizSheetId_() { return getConfigId_('NOTES_QUIZ_SHEET_ID', '1hDpql-EG8zne7NDaabjfuy6Ip1nAxmP-H5I2woEX-tw'); }
+function getPrimaryNotesQuizSheetId_() { return getConfigId_('PRIMARY_NOTES_QUIZ_SHEET_ID', '1J6sFDhRLra_A2T7XwPizNRYDWmZ1_HRfy--vkBlk3Qo'); }
 function getFirebaseDbUrl_() { return getConfigId_('FIREBASE_DB_URL', 'https://math-game-3747d-default-rtdb.firebaseio.com'); }
 function getResultsSpreadsheetId_() { return getConfigId_('RESULTS_SPREADSHEET_ID', '1Ws1Q3uMnpr4erM3vBNbzL7j1a035rNb3pEAUCAqEmO0'); }
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const OPENROUTER_MODEL = "google/gemini-2.5-flash";
 const OPENROUTER_FALLBACK_MODEL = "meta-llama/llama-3.3-70b-instruct";
+const PRIMARY_GRADE_SET_ = { '小一': true, '小二': true, '小三': true, '小四': true, '小五': true, '小六': true };
+const SECONDARY_GRADE_SET_ = { '中一': true, '中二': true, '中三': true, '中四': true, '中五': true, '中六': true };
+
+function isPrimaryGrade_(grade) {
+  return !!PRIMARY_GRADE_SET_[String(grade || '').trim()];
+}
+
+function isSecondaryGrade_(grade) {
+  return !!SECONDARY_GRADE_SET_[String(grade || '').trim()];
+}
+
+function resolveSchoolLevelFromGrade_(grade) {
+  if (isPrimaryGrade_(grade)) return 'primary';
+  if (isSecondaryGrade_(grade)) return 'secondary';
+  return '';
+}
+
+function normalizeSchoolLevel_(schoolLevel, grade) {
+  var raw = String(schoolLevel || '').trim().toLowerCase();
+  if (raw === '小學') raw = 'primary';
+  if (raw === '中學') raw = 'secondary';
+  if (raw === 'primary' || raw === 'secondary') return raw;
+  return resolveSchoolLevelFromGrade_(grade);
+}
+
+function getQuestionsSheetIdForGrade_(grade) {
+  return normalizeSchoolLevel_('', grade) === 'primary' ? getPrimaryQuestionsSheetId_() : getQuestionsSheetId_();
+}
+
+function getNotesSheetIdForContext_(grade, schoolLevel) {
+  return normalizeSchoolLevel_(schoolLevel, grade) === 'primary' ? getPrimaryNotesSheetId_() : getNotesSheetId_();
+}
+
+function getNotesQuizSheetIdForContext_(grade, schoolLevel) {
+  return normalizeSchoolLevel_(schoolLevel, grade) === 'primary' ? getPrimaryNotesQuizSheetId_() : getNotesQuizSheetId_();
+}
+
+function openFirstSheetById_(sheetId, label) {
+  if (!sheetId) {
+    throw new Error('缺少 ' + label + ' 設定，請檢查 Script Properties。');
+  }
+  var ss = SpreadsheetApp.openById(sheetId);
+  var sheets = ss.getSheets();
+  if (!sheets || !sheets.length) {
+    throw new Error(label + ' 內沒有可讀取的工作表。');
+  }
+  return sheets[0];
+}
 
 function doGet() {
   return HtmlService.createTemplateFromFile('數學小遊戲')
@@ -246,8 +297,7 @@ function saveToSheet(data, type) {
 // ==========================================
 function getAvailableThemes(grade) {
   try {
-    const ss = SpreadsheetApp.openById(getQuestionsSheetId_());
-    const sheet = ss.getSheets()[0];
+    const sheet = openFirstSheetById_(getQuestionsSheetIdForGrade_(grade), '題庫 Sheet ID');
     const data = sheet.getDataRange().getValues();
 
     const headers = normalizeHeaders_(data.shift());
@@ -276,10 +326,9 @@ function getAvailableThemes(grade) {
 // ==========================================
 // 2. 讀取遊戲題庫 (Google Sheets)
 // ==========================================
-function getQuestions(difficulty, theme, grade) {
+function getQuestions(difficulty, theme, grade, weakTopics) {
   try {
-    const ss = SpreadsheetApp.openById(getQuestionsSheetId_());
-    const sheet = ss.getSheets()[0];
+    const sheet = openFirstSheetById_(getQuestionsSheetIdForGrade_(grade), '題庫 Sheet ID');
     const data = sheet.getDataRange().getValues();
 
     const headers = normalizeHeaders_(data.shift());
@@ -328,25 +377,71 @@ function getQuestions(difficulty, theme, grade) {
     const difficultyMap = { '簡單': 'easy', '普通': 'medium', '中等': 'medium', '困難': 'hard' };
     const targetDiff = difficultyMap[difficulty] || difficulty;
 
-    let filtered = data.filter(row => {
+    const normalizedTheme = String(theme || '').trim().toLowerCase();
+    const normalizedWeakTopics = (Array.isArray(weakTopics) ? weakTopics : (weakTopics ? [weakTopics] : []))
+      .map(function(item) { return String(item || '').trim().toLowerCase(); })
+      .filter(function(item, index, list) { return item && list.indexOf(item) === index; });
+    const weakTopicSet = {};
+    normalizedWeakTopics.forEach(function(item) { weakTopicSet[item] = true; });
+
+    const getRowTheme = function(row) {
+      return themeIdx !== -1 ? String(row[themeIdx] || '').trim() : '';
+    };
+    const rowHasBaseMatch = function(row) {
       const rowDiff = diffIdx !== -1 ? String(row[diffIdx] || "").trim().toLowerCase() : "";
-      const rowTheme = themeIdx !== -1 ? String(row[themeIdx] || "").trim() : "";
       const rowGrade = gradeIdx !== -1 ? String(row[gradeIdx] || "").trim() : "";
       const diffMatch = (!targetDiff || targetDiff === '全部') ? true : (rowDiff === targetDiff);
-      const themeMatch = (!theme || theme === '全部') ? true : (rowTheme.toLowerCase() === String(theme).toLowerCase());
       const gradeMatch = (!grade || grade === '全部') ? true : (rowGrade === grade);
       const isNotEmpty = String(row[qIdx]).trim() !== "";
-      return diffMatch && themeMatch && gradeMatch && isNotEmpty;
+      return diffMatch && gradeMatch && isNotEmpty;
+    };
+    const shuffleRows_ = function(list) {
+      return list.slice().sort(function() { return Math.random() - 0.5; });
+    };
+    const getRowQuestionKey = function(row) {
+      return String(row[qIdx] || '').trim();
+    };
+
+    const eligibleRows = data.filter(rowHasBaseMatch);
+    const regularPool = eligibleRows.filter(function(row) {
+      const rowTheme = getRowTheme(row);
+      return (!theme || theme === '全部') ? true : (rowTheme.toLowerCase() === normalizedTheme);
+    });
+    const weakPool = eligibleRows.filter(function(row) {
+      const rowTheme = getRowTheme(row).toLowerCase();
+      return !!weakTopicSet[rowTheme];
     });
 
-    if (filtered.length === 0) {
+    if (eligibleRows.length === 0 || (regularPool.length === 0 && weakPool.length === 0)) {
       return { error: '找不到符合條件的題目 (難度: ' + difficulty + ', 主題: ' + theme + ')' };
     }
 
-    filtered.sort(() => Math.random() - 0.5);
-    filtered = filtered.slice(0, 10);
+    const selectedQuestionKeys = {};
+    const selectedRows = [];
+    shuffleRows_(weakPool).slice(0, 5).forEach(function(row) {
+      const key = getRowQuestionKey(row);
+      if (!key || selectedQuestionKeys[key]) return;
+      selectedQuestionKeys[key] = true;
+      selectedRows.push(row);
+    });
 
-    const questions = filtered.map(row => {
+    shuffleRows_(regularPool).forEach(function(row) {
+      if (selectedRows.length >= 10) return;
+      const key = getRowQuestionKey(row);
+      if (!key || selectedQuestionKeys[key]) return;
+      selectedQuestionKeys[key] = true;
+      selectedRows.push(row);
+    });
+
+    shuffleRows_(eligibleRows).forEach(function(row) {
+      if (selectedRows.length >= 10) return;
+      const key = getRowQuestionKey(row);
+      if (!key || selectedQuestionKeys[key]) return;
+      selectedQuestionKeys[key] = true;
+      selectedRows.push(row);
+    });
+
+    const questions = shuffleRows_(selectedRows).slice(0, 10).map(row => {
       let options = [];
       optIndices.forEach(idx => {
         if (idx < row.length && String(row[idx]).trim() !== "") {
@@ -372,6 +467,8 @@ function getQuestions(difficulty, theme, grade) {
 
       return {
         question: String(row[qIdx]).trim(),
+        topic: getRowTheme(row),
+        theme: getRowTheme(row),
         options: options,
         answer: String(row[ansIdx]).trim(),
         explanation: (expIdx !== -1 && String(row[expIdx]).trim() !== "") ? String(row[expIdx]).trim() : "請留意計算步驟喔！",
@@ -481,6 +578,7 @@ function finishGame(roomId, playerInfo, score, meta) {
 function inferGradeFromClass_(className) {
   var raw = String(className || '').trim();
   if (!raw) return '';
+  if (/^小[一二三四五六]/.test(raw)) return raw.slice(0, 2);
   if (/^中[一二三四五六]/.test(raw)) return raw.slice(0, 2);
   var match = raw.match(/^(\d+)/);
   if (!match) return '';
@@ -518,7 +616,7 @@ function clampNumber_(value, min, max) {
   return num;
 }
 
-function buildNotesTopicMeta_(grade) {
+function buildNotesTopicMeta_(grade, schoolLevel) {
   var result = {
     topics: [],
     sectionCountByTopic: {},
@@ -526,8 +624,7 @@ function buildNotesTopicMeta_(grade) {
   };
 
   try {
-    var ss = SpreadsheetApp.openById(getNotesSheetId_());
-    var sheet = ss.getSheets()[0];
+    var sheet = openFirstSheetById_(getNotesSheetIdForContext_(grade, schoolLevel), '溫習筆記 Sheet ID');
     var data = sheet.getDataRange().getValues();
     var headers = normalizeHeaders_(data.shift());
     var topicIdx = findColumnIndex_(headers, ['課題', 'topic', '主題', 'theme', 'chapter']);
@@ -861,15 +958,24 @@ function getStudentProfileData(playerInfo, forceRefresh) {
       return activityB - activityA || b.score - a.score;
     }).slice(0, 6);
     var recommendation = buildProfileRecommendation_(metrics, masteryTopics, topicMeta);
+    var ownedFrames = ((student.shop || {}).ownedFrames) || {};
+    var ownedFrameCount = Object.keys(ownedFrames).filter(function(key) { return !!ownedFrames[key]; }).length;
+    var equippedFrameId = String(((student.shop || {}).equippedFrame) || student.avatarFrameId || '');
+    var loginStreak = clampNumber_(student.loginStreakDays || 0, 0);
+    var lastLoginDate = String(student.lastLoginDate || '');
 
     var profile = {
       generatedAt: Date.now(),
+      streak: loginStreak,
+      lastLoginDate: lastLoginDate,
+      equippedFrameId: equippedFrameId,
       metrics: {
         totalScore: metrics.totalScore,
         completedChallenges: metrics.completedChallenges,
         completedTopics: metrics.completedTopics,
         bestScore: metrics.bestScore,
         redeemedRoles: metrics.redeemedRoles,
+        ownedFrameCount: ownedFrameCount,
         unlockedAchievements: unlockedAchievements,
         totalAchievements: achievements.length,
         totalTopics: metrics.totalTopics
@@ -903,15 +1009,15 @@ function getStudentProfileData(playerInfo, forceRefresh) {
 // ==========================================
 // 5. 溫習筆記 - 取得課題列表
 // ==========================================
-function getNotesTopics(grade) {
+function getNotesTopics(grade, schoolLevel) {
   try {
-    var ss = SpreadsheetApp.openById(getNotesSheetId_());
-    var sheet = ss.getSheets()[0];
+    var sheet = openFirstSheetById_(getNotesSheetIdForContext_(grade, schoolLevel), '溫習筆記 Sheet ID');
     var data = sheet.getDataRange().getValues();
 
     var headers = normalizeHeaders_(data.shift());
     var topicIdx = findColumnIndex_(headers, ['課題', 'topic', '主題', 'theme', 'chapter']);
     var gradeIdx = findColumnIndex_(headers, ['級別', 'grade', '年級', 'level', '班級']);
+    var sectionIdx = findColumnIndex_(headers, ['section', '章節', '單元']);
 
     if (topicIdx === -1) return { error: '筆記試算表缺少「課題」欄位。' };
 
@@ -923,12 +1029,29 @@ function getNotesTopics(grade) {
         if (rowGrade !== grade) continue;
       }
       var t = String(data[i][topicIdx] || "").trim();
-      if (t !== "" && !seen[t]) {
-        seen[t] = true;
-        topics.push(t);
+      if (t === "") continue;
+
+      if (!seen[t]) {
+        seen[t] = {
+          name: t,
+          sectionMap: {}
+        };
+        topics.push(seen[t]);
+      }
+
+      if (sectionIdx !== -1) {
+        var sectionName = String(data[i][sectionIdx] || '').trim();
+        if (sectionName) {
+          seen[t].sectionMap[sectionName] = true;
+        }
       }
     }
-    return topics;
+    return topics.map(function(item) {
+      return {
+        name: item.name,
+        sectionCount: Object.keys(item.sectionMap).length
+      };
+    });
   } catch (e) {
     return { error: '讀取筆記課題錯誤: ' + e.message };
   }
@@ -937,10 +1060,9 @@ function getNotesTopics(grade) {
 // ==========================================
 // 6a. 溫習筆記 - 取得指定課題的章節列表
 // ==========================================
-function getNoteSections(topic, grade) {
+function getNoteSections(topic, grade, schoolLevel) {
   try {
-    var ss = SpreadsheetApp.openById(getNotesSheetId_());
-    var sheet = ss.getSheets()[0];
+    var sheet = openFirstSheetById_(getNotesSheetIdForContext_(grade, schoolLevel), '溫習筆記 Sheet ID');
     var data = sheet.getDataRange().getValues();
 
     var headers = normalizeHeaders_(data.shift());
@@ -983,10 +1105,9 @@ function getNoteSections(topic, grade) {
 // ==========================================
 // 6b. 溫習筆記 - 取得指定課題的筆記內容
 // ==========================================
-function getNoteContent(topic, grade, section) {
+function getNoteContent(topic, grade, section, schoolLevel) {
   try {
-    var ss = SpreadsheetApp.openById(getNotesSheetId_());
-    var sheet = ss.getSheets()[0];
+    var sheet = openFirstSheetById_(getNotesSheetIdForContext_(grade, schoolLevel), '溫習筆記 Sheet ID');
     var data = sheet.getDataRange().getValues();
 
     var headers = normalizeHeaders_(data.shift());
@@ -1041,10 +1162,9 @@ function getNoteContent(topic, grade, section) {
 // ==========================================
 // 7. 溫習筆記 - 取得指定課題的測驗題目
 // ==========================================
-function getNotesQuiz(topic, grade, section) {
+function getNotesQuiz(topic, grade, section, schoolLevel) {
   try {
-    var ss = SpreadsheetApp.openById(getNotesQuizSheetId_());
-    var sheet = ss.getSheets()[0];
+    var sheet = openFirstSheetById_(getNotesQuizSheetIdForContext_(grade, schoolLevel), '溫習測驗 Sheet ID');
     var data = sheet.getDataRange().getValues();
 
     var headers = normalizeHeaders_(data.shift());
@@ -1663,12 +1783,59 @@ function cleanupStaleRooms() {
         UrlFetchApp.fetch(roomUrl, { method: 'delete', muteHttpExceptions: true });
         cleaned++;
       }
+      // Also clean up host_disconnected rooms past their resume deadline
+      if (room.status === 'host_disconnected' && room.resumeDeadline && now > room.resumeDeadline) {
+        UrlFetchApp.fetch(roomUrl, { method: 'delete', muteHttpExceptions: true });
+        cleaned++;
+      }
     });
 
     Logger.log('cleanupStaleRooms: removed ' + cleaned + ' rooms');
     return { cleaned: cleaned };
   } catch (e) {
     Logger.log('cleanupStaleRooms error: ' + e.message);
+    return { error: e.message };
+  }
+}
+
+// ==========================================
+// 進行中工作階段持久化 (Active Session Persistence)
+// ==========================================
+function saveActiveSession(playerInfo, sessionType, sessionData) {
+  try {
+    var playerKey = buildStudentResultPlayerKey_(playerInfo);
+    if (!playerKey) return { error: '缺少學生資料。' };
+    var type = String(sessionType || 'challenge').trim();
+    if (type !== 'challenge' && type !== 'notes') return { error: '不支援的 session 類型。' };
+    var data = sessionData || {};
+    data.updatedAt = Date.now();
+    return patchFirebase_('students/' + playerKey + '/activeSessions/' + type, data);
+  } catch (e) {
+    return { error: e.message };
+  }
+}
+
+function getActiveSession(playerInfo, sessionType) {
+  try {
+    var playerKey = buildStudentResultPlayerKey_(playerInfo);
+    if (!playerKey) return { error: '缺少學生資料。' };
+    var type = String(sessionType || 'challenge').trim();
+    return fetchFromFirebase_('students/' + playerKey + '/activeSessions/' + type);
+  } catch (e) {
+    return { error: e.message };
+  }
+}
+
+function clearActiveSession(playerInfo, sessionType) {
+  try {
+    var playerKey = buildStudentResultPlayerKey_(playerInfo);
+    if (!playerKey) return { error: '缺少學生資料。' };
+    var type = String(sessionType || 'challenge').trim();
+    var cleanPath = 'students/' + playerKey + '/activeSessions/' + type;
+    var url = getFirebaseDbUrl_() + '/' + cleanPath + '.json';
+    UrlFetchApp.fetch(url, { method: 'delete', muteHttpExceptions: true });
+    return { success: true };
+  } catch (e) {
     return { error: e.message };
   }
 }
