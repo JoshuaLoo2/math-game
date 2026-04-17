@@ -2489,6 +2489,10 @@
             <button id="ambient-music-toggle" type="button" onclick="toggleAmbientMusic()" aria-pressed="true" aria-label="背景音樂：開" title="背景音樂：開" class="inline-flex items-center justify-center px-3 py-2.5 rounded-xl text-sm font-bold bg-white/70 border-2 border-emerald-200 text-emerald-800 hover:border-emerald-400 hover:bg-emerald-50/90 transition-colors shadow-sm whitespace-nowrap btn-neon btn-neon--emerald btn-sweep">
                 <span class="text-lg leading-none" aria-hidden="true">🔊</span>
             </button>
+            <button id="tts-toggle" type="button" onclick="ttsToggle()" aria-pressed="false" aria-label="朗讀：關" title="朗讀：關" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-white/70 border-2 border-gray-300 text-gray-500 hover:border-amber-400 hover:bg-amber-50/90 transition-colors shadow-sm whitespace-nowrap btn-neon btn-neon--amber btn-sweep">
+                <span class="text-base leading-none" aria-hidden="true">📢</span>
+                <span class="tts-label">朗讀：關</span>
+            </button>
             <button id="focus-mode-toggle" type="button" onclick="toggleFocusMode()" aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-white/70 border-2 border-sky-200 text-sky-800 hover:border-sky-400 hover:bg-sky-50/90 transition-colors shadow-sm whitespace-nowrap btn-neon btn-neon--blue btn-sweep">
                 <span class="text-base leading-none" aria-hidden="true">🎯</span>
                 <span>專注模式：關</span>
@@ -2617,7 +2621,17 @@
             </button>
         </div>
         <div class="leaf-divider" aria-hidden="true">🌼</div>
-        <div class="mt-6 w-full">
+        <div class="mt-2 mb-4 w-full">
+            <button id="daily-challenge-home-btn" onclick="enterDailyChallenge()" class="w-full flex items-center justify-center gap-4 sm:gap-6 px-6 py-6 sm:py-7 bg-gradient-to-r from-violet-50/90 via-purple-50/85 to-fuchsia-50/70 backdrop-blur-sm border-2 border-purple-300/60 rounded-2xl ghost-btn group hover:border-purple-400 btn-neon-card btn-neon-card--purple btn-sweep relative overflow-hidden">
+                <span class="text-4xl sm:text-5xl shrink-0 group-hover:scale-110 transition-transform duration-300">📅</span>
+                <div class="text-left flex-1 min-w-0">
+                    <span class="text-xl sm:text-2xl font-bold text-purple-800 block">每日挑戰</span>
+                    <span id="daily-challenge-home-hint" class="text-sm text-purple-500 mt-1 block">每天 5 題，完成即賺 ⭐40 積分</span>
+                </div>
+                <span id="daily-challenge-home-badge" class="hidden absolute top-3 right-3 bg-green-100 text-green-700 text-xs font-black px-3 py-1 rounded-full border border-green-200">✅ 已完成</span>
+            </button>
+        </div>
+        <div class="mt-2 w-full">
             <button onclick="openWrongBook()" class="w-full flex items-center justify-center gap-4 sm:gap-6 px-6 py-6 sm:py-7 bg-white/25 backdrop-blur-sm border-2 border-rose-300/40 rounded-2xl ghost-btn ghost-orange group hover:border-rose-400 btn-neon-card btn-neon-card--rose btn-sweep">
                 <span class="text-4xl sm:text-5xl shrink-0 group-hover:scale-110 transition-transform duration-300">📕</span>
                 <div class="text-left flex-1 min-w-0">
@@ -2626,6 +2640,51 @@
                 </div>
             </button>
         </div>
+    </section>
+
+    <!-- 每日挑戰 -->
+    <section id="daily-challenge-section" class="hidden app-main-width glass-panel p-8 relative z-10 mt-10">
+        <button onclick="backToHome()" class="absolute top-4 left-4 text-gray-500 hover:text-purple-600 font-bold flex items-center gap-1 transition-colors">← 返回首頁</button>
+        <div class="text-center mt-6 mb-6">
+            <h2 class="text-3xl font-black text-purple-800">📅 每日挑戰</h2>
+            <p class="text-purple-600 font-bold mt-2">每天 5 題，根據你的錯題或趣味數學出題</p>
+            <p class="text-sm text-gray-400 mt-1">完成後可獲得 ⭐40 積分</p>
+        </div>
+        <div id="dc-loading" class="text-center py-16 text-lg text-purple-500 font-bold">正在準備今天的題目 ✨...</div>
+        <div id="dc-game-area" class="hidden">
+            <div class="flex justify-between items-center mb-6 p-4 rounded-2xl bg-purple-50/60 border border-purple-100">
+                <span id="dc-progress" class="text-purple-800 font-black text-lg">第 1 / 5 題</span>
+                <span id="dc-score-display" class="text-purple-600 font-bold">答對: 0 / 5</span>
+            </div>
+            <div id="dc-question-card" class="bg-white/90 p-8 rounded-2xl shadow-md border border-purple-100 mb-8 min-h-[150px]">
+                <h3 id="dc-question" class="text-2xl md:text-3xl font-bold text-gray-800 leading-tight w-full"></h3>
+                <div id="dc-question-image-area"></div>
+            </div>
+            <div id="dc-options" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+    </section>
+
+    <!-- 每日挑戰結果 -->
+    <section id="daily-challenge-result" class="hidden app-main-width glass-panel p-10 text-center relative z-10 mt-10">
+        <div id="dc-result-emoji" class="text-7xl mb-4 avatar-celebrate">🎉</div>
+        <h2 class="text-3xl font-black text-purple-800 mb-4">每日挑戰完成！</h2>
+        <p id="dc-result-score" class="text-2xl font-bold text-gray-800 mb-2"></p>
+        <div class="mt-4 inline-flex items-center gap-2 bg-gradient-to-r from-yellow-50 to-amber-50 px-6 py-3 rounded-full border border-yellow-200 shadow-sm">
+            <span class="text-2xl">⭐</span>
+            <span class="text-2xl font-black text-yellow-600">+40 積分</span>
+        </div>
+        <p class="mt-3 text-sm text-gray-400">明天再來挑戰吧！</p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center mt-8">
+            <button onclick="showDcReview()" class="ghost-btn ghost-blue py-3 px-6 text-lg">📝 題目回顧</button>
+            <button onclick="backToHome()" class="ghost-btn ghost-gray py-3 px-6 text-lg">🏠 回到首頁</button>
+        </div>
+    </section>
+
+    <!-- 每日挑戰回顧 -->
+    <section id="daily-challenge-review" class="hidden app-main-width glass-panel p-8 relative z-10 mt-10">
+        <button onclick="showSection('daily-challenge-result')" class="absolute top-4 left-4 text-gray-500 hover:text-purple-600 font-bold flex items-center gap-1 transition-colors">← 返回結果</button>
+        <h2 class="text-2xl font-black text-center text-purple-800 mt-6 mb-6">📝 每日挑戰回顧</h2>
+        <div id="dc-review-list" class="space-y-4"></div>
     </section>
 
     <!-- 獎勵商店 Modal (Overlay) -->
@@ -2701,9 +2760,12 @@
                 <div class="text-xs font-bold text-blue-600 mb-2">💡 詳解</div>
                 <div id="exp-explanation-text" class="text-gray-700 leading-relaxed break-words"></div>
             </div>
-            <button onclick="closeExplanationModal()" class="w-full bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-bold py-4 rounded-xl text-lg shadow-md btn-neon btn-neon--indigo btn-sweep">
-                繼續答題 →
-            </button>
+            <div class="flex gap-3">
+                <button onclick="ttsReadExplanation()" class="flex-shrink-0 bg-amber-50 border-2 border-amber-200 text-amber-700 font-bold py-4 px-5 rounded-xl text-lg shadow-sm hover:bg-amber-100 transition-colors">🔊 朗讀</button>
+                <button onclick="closeExplanationModal()" class="flex-1 bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-bold py-4 rounded-xl text-lg shadow-md btn-neon btn-neon--indigo btn-sweep">
+                    繼續答題 →
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2894,9 +2956,9 @@
                             </div>
                             <div class="flex flex-wrap items-center gap-2 pt-1">
                                 <input type="file" id="math-helper-file-input" accept="image/*" class="hidden" onchange="handleMathHelperFile(event)">
-                                <button type="button" onclick="document.getElementById('math-helper-file-input').click()" class="ghost-btn ghost-indigo px-4 py-3 text-sm whitespace-nowrap">📷 題目圖片</button>
-                                <button type="button" id="math-helper-voice-btn" onclick="handleMathHelperVoiceToggle()" class="ghost-btn ghost-purple px-4 py-3 text-sm whitespace-nowrap hidden">🎤 語音輸入</button>
-                                <button type="button" onclick="sendMathHelperMessage()" class="ghost-btn ghost-orange px-5 py-3 text-sm whitespace-nowrap sm:ml-auto">送出問題</button>
+                                <button type="button" onclick="document.getElementById('math-helper-file-input').click()" class="ghost-btn ghost-indigo px-4 py-3 text-sm whitespace-nowrap">📷 </button>
+                                <button type="button" id="math-helper-voice-btn" onclick="handleMathHelperVoiceToggle()" class="ghost-btn ghost-purple px-4 py-3 text-sm whitespace-nowrap hidden">🎤 </button>
+                                <button type="button" onclick="sendMathHelperMessage()" class="ghost-btn ghost-orange px-5 py-3 text-sm whitespace-nowrap sm:ml-auto">輸入</button>
                             </div>
                         </div>
                         <div id="math-helper-voice-hint" class="math-helper-voice-hint mt-2 px-2 text-xs font-bold text-slate-400"></div>
@@ -3025,6 +3087,7 @@
         <div class="game-concert-lights" aria-hidden="true"><div class="concert-beam concert-beam--a"></div><div class="concert-beam concert-beam--b"></div><div class="concert-beam concert-beam--c"></div></div>
         <!-- 全螢幕「連擊火光閃爍」 -->
         <div id="streak-flash" class="streak-flash" aria-hidden="true"></div>
+        <div class="flex justify-end mb-2 game-content-layer"><button onclick="if(confirm('確定要退出遊戲嗎？目前的進度將不會保存。')){endGame();backToHome();}" class="ghost-btn ghost-gray py-2 px-4 text-sm">🚪 退出遊戲</button></div>
         <div class="game-stage-topbar flex justify-between items-center mb-6 p-4 rounded-2xl game-content-layer">
             <div class="text-indigo-800 font-bold w-28 md:w-32"><div class="flex items-center justify-between gap-2"><span class="inline-flex items-center gap-1">⏱️ <span class="text-base md:text-lg">時間</span>:</span><span id="timer" class="text-2xl font-black text-red-500 w-12 text-center">20</span><span class="text-base md:text-lg">s</span></div><div class="mt-2 h-3 bg-indigo-50 rounded-full overflow-hidden shadow-inner"><div id="time-progress-bar" class="h-3 bg-green-500 transition-all duration-300" style="width:100%;"></div></div></div>
             <div class="flex-1 mx-6 bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner"><div id="progress-bar" class="bg-gradient-to-r from-blue-400 to-indigo-500 h-4 rounded-full transition-all duration-300 w-0"></div></div>
@@ -3061,6 +3124,7 @@
                 <p id="result-next-step-desc" class="text-sm md:text-base text-slate-500 leading-relaxed mt-2">你可以先看題目回顧，或直接再挑戰一場，把節奏續上。</p>
             <div class="flex flex-col sm:flex-row gap-3 mt-5">
                 <button id="result-primary-btn" class="ghost-btn ghost-blue py-3 px-6 text-lg">📝 題目回顧</button>
+                <button id="result-retry-btn" class="ghost-btn ghost-orange py-3 px-6 text-lg" onclick="backToHome();enterGameModule();">🔄 再次挑戰</button>
                 <button id="result-secondary-btn" class="ghost-btn ghost-gray py-3 px-6 text-lg">🏠 回到首頁</button>
             </div>
         </div>
@@ -3173,6 +3237,7 @@
         </div>
         <div class="notes-stage-actions flex justify-between items-center">
             <button id="note-prev-btn" onclick="prevNotePage()" class="ghost-btn ghost-gray py-3 px-6" disabled>← 上一頁</button>
+            <button onclick="ttsReadNotePage()" class="ghost-btn ghost-orange py-2 px-4 text-sm">🔊 朗讀本頁</button>
             <button id="note-next-btn" onclick="nextNotePage()" class="ghost-btn ghost-emerald py-3 px-6">下一頁 →</button>
         </div>
     </section>
@@ -3193,6 +3258,10 @@
         </div>
         <div id="nq-options" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         <div id="nq-points-hint" class="text-center text-sm text-yellow-600 font-bold mt-4 notes-stage-actions"></div>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center mt-6 notes-stage-actions">
+            <button onclick="if(confirm('確定要離開測驗嗎？目前的進度將不會保存。')){clearActiveSession_();clearSessionFromFirebase_('notes');stopSessionAutosave_();backToSectionList();}" class="ghost-btn ghost-gray py-2 px-5 text-sm">🚪 離開測驗</button>
+            <button onclick="if(confirm('確定要離開測驗並查看筆記嗎？')){clearActiveSession_();clearSessionFromFirebase_('notes');stopSessionAutosave_();openSection(currentSectionIndex);}" class="ghost-btn ghost-emerald py-2 px-5 text-sm">📖 查看筆記</button>
+        </div>
     </section>
 
     <!-- 區塊 N4：測驗結果 -->
@@ -3407,6 +3476,77 @@
         var nqScore = 0;
         var nqEarned = 0;
         var nqCorrectCount = 0;
+
+        // 讀屏功能 (TTS) 狀態
+        var TTS_STORAGE_KEY = 'mathfun_tts_enabled';
+        var ttsEnabled = false;
+        var ttsVoice_ = null;
+
+        function ttsInit_() {
+            try { ttsEnabled = localStorage.getItem(TTS_STORAGE_KEY) === '1'; } catch(e) {}
+            updateTtsToggleLabel_();
+            // 預選語音（zh-HK 優先）
+            if (typeof speechSynthesis !== 'undefined') {
+                var pickVoice = function() {
+                    var voices = speechSynthesis.getVoices();
+                    var pref = ['zh-HK','zh-TW','zh-CN','zh'];
+                    for (var p = 0; p < pref.length; p++) {
+                        for (var v = 0; v < voices.length; v++) {
+                            if (voices[v].lang && voices[v].lang.replace(/_/g,'-').indexOf(pref[p]) === 0) { ttsVoice_ = voices[v]; return; }
+                        }
+                    }
+                };
+                pickVoice();
+                if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = pickVoice;
+            }
+        }
+        function ttsSpeak(text) {
+            if (typeof speechSynthesis === 'undefined' || !text) return;
+            speechSynthesis.cancel();
+            var utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'zh-HK';
+            utter.rate = 1.05;
+            utter.pitch = 1.45;
+            if (ttsVoice_) utter.voice = ttsVoice_;
+            speechSynthesis.speak(utter);
+        }
+        function ttsStop() { if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel(); }
+        function ttsAutoSpeak(text) { if (ttsEnabled) ttsSpeak(text); }
+        function ttsBuildQuestionText(qHtml, options, idx, total) {
+            var parts = [];
+            if (typeof idx === 'number' && typeof total === 'number') parts.push('第' + (idx + 1) + '題，共' + total + '題。');
+            parts.push(getPlainTextFromHtml(qHtml));
+            if (Array.isArray(options)) {
+                options.forEach(function(opt, i) {
+                    parts.push('選項' + String.fromCharCode(65 + i) + '：' + getPlainTextFromHtml(opt));
+                });
+            }
+            return parts.join('。');
+        }
+        function ttsToggle() {
+            ttsEnabled = !ttsEnabled;
+            try { localStorage.setItem(TTS_STORAGE_KEY, ttsEnabled ? '1' : '0'); } catch(e) {}
+            updateTtsToggleLabel_();
+            if (!ttsEnabled) ttsStop();
+            showToast(ttsEnabled ? '朗讀功能已開啟 📢' : '朗讀功能已關閉', ttsEnabled ? 'success' : 'info', '讀屏設定');
+        }
+        function updateTtsToggleLabel_() {
+            var btn = document.getElementById('tts-toggle');
+            if (!btn) return;
+            var label = ttsEnabled ? '朗讀：開' : '朗讀：關';
+            btn.setAttribute('aria-pressed', String(ttsEnabled));
+            btn.setAttribute('aria-label', label);
+            btn.setAttribute('title', label);
+            var span = btn.querySelector('.tts-label');
+            if (span) span.innerText = label;
+            if (ttsEnabled) {
+                btn.classList.remove('border-gray-300', 'text-gray-500');
+                btn.classList.add('border-amber-300', 'text-amber-700');
+            } else {
+                btn.classList.remove('border-amber-300', 'text-amber-700');
+                btn.classList.add('border-gray-300', 'text-gray-500');
+            }
+        }
 
         // 數學解難助手狀態
         var mathHelperState = {
@@ -5837,7 +5977,7 @@
                 });
         }
 
-        var ALL_SECTIONS = ['lobby-avatar-selection','home-screen','mode-selection','lobby-content','waiting-others-section','game-section','final-leaderboard-section','review-section','notes-school-level-select','notes-grade-select','notes-topic-list','notes-section-list','notes-reader','notes-quiz','notes-quiz-result','notes-topic-complete','wrong-book-section','math-helper-section','math-helper-study-notes-section'];
+        var ALL_SECTIONS = ['lobby-avatar-selection','home-screen','mode-selection','lobby-content','waiting-others-section','game-section','final-leaderboard-section','review-section','notes-school-level-select','notes-grade-select','notes-topic-list','notes-section-list','notes-reader','notes-quiz','notes-quiz-result','notes-topic-complete','wrong-book-section','math-helper-section','math-helper-study-notes-section','daily-challenge-section','daily-challenge-result','daily-challenge-review'];
         function getSectionEnterClass_(id) {
             if (id === 'mode-selection') return 'section-enter-challenge';
             if (id === 'game-section') return 'section-enter-game';
@@ -5868,6 +6008,7 @@
             });
         }
         function showSection(id) {
+            ttsStop();
             if (id !== 'math-helper-section' && (mathHelperState.isRecording || mathHelperState.isVoiceInitializing)) {
                 stopMathHelperVoiceInput_(true);
             }
@@ -6016,6 +6157,7 @@
             ambientMusicEnabled = readAmbientMusicPref_();
             applyFocusMode(isFocusMode);
             updateAmbientMusicToggleLabel_();
+            ttsInit_();
             renderAvatarSelection();
             ensureMathHelperWelcome_();
             // 全域按鈕點擊聲：套用於大多數按鈕（起始介面、商店、模組入口等）
@@ -6160,6 +6302,7 @@
 
             showSection('home-screen');
             showToast('歡迎回來，準備開始今天的數學任務。', 'success', '登入成功');
+            updateDcHomeBtn_();
         }
 
         function backToHome() {
@@ -6176,6 +6319,7 @@
             ensureSingleStartBtnReady();
             updatePointsDisplay();
             showSection('home-screen');
+            updateDcHomeBtn_();
         }
 
         function resetToHome() { backToHome(); }
@@ -6412,6 +6556,14 @@
             modal.classList.remove('hidden');
             setBodyScrollLocked_('explanation-modal', true);
             renderMathInElement(modal, { delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
+            ttsAutoSpeak('題目：' + getPlainTextFromHtml(q.question || '') + '。你的答案：' + getPlainTextFromHtml(isTimeout ? '超時未作答' : (selected || '')) + '。正確答案：' + getPlainTextFromHtml(q.answer || '') + '。' + (explanation && explanation !== '無詳解' ? '詳解：' + getPlainTextFromHtml(explanation) : ''));
+        }
+        function ttsReadExplanation() {
+            var qText = getPlainTextFromHtml(document.getElementById('exp-question-text').innerHTML || '');
+            var selText = getPlainTextFromHtml(document.getElementById('exp-selected').innerHTML || '');
+            var corText = getPlainTextFromHtml(document.getElementById('exp-correct').innerHTML || '');
+            var expText = getPlainTextFromHtml(document.getElementById('exp-explanation-text').innerHTML || '');
+            ttsSpeak('題目：' + qText + '。你的答案：' + selText + '。正確答案：' + corText + (expText ? '。詳解：' + expText : ''));
         }
 
         function closeExplanationModal() {
@@ -6464,65 +6616,6 @@
             updates[getWrongBookSourcePath_(source) + '/' + key] = data;
             updates[getWrongBookIndexSourcePath_(source) + '/' + key] = data;
             return db.ref().update(updates);
-        }
-
-        function summarizeWeakTopicsFromWrongBookItems_(items) {
-            var topicStats = {};
-            (items || []).forEach(function(item) {
-                var data = item && item.data ? item.data : {};
-                var topic = String(data.topic || '').trim();
-                if (!topic || topic === '未分類課題') return;
-                if (!topicStats[topic]) {
-                    topicStats[topic] = { topic: topic, count: 0, latest: 0 };
-                }
-                topicStats[topic].count += 1;
-                topicStats[topic].latest = Math.max(topicStats[topic].latest, Number(data.timestamp || 0));
-            });
-            return Object.keys(topicStats).map(function(topic) {
-                return topicStats[topic];
-            }).sort(function(a, b) {
-                return b.count - a.count || b.latest - a.latest || a.topic.localeCompare(b.topic);
-            }).slice(0, 5).map(function(item) {
-                return item.topic;
-            });
-        }
-
-        function getWeakTopicsForGame_() {
-            if (!playerInfo.class || !playerInfo.number) return Promise.resolve([]);
-            if (shouldUseWrongBookCache_('game')) {
-                return Promise.resolve(summarizeWeakTopicsFromWrongBookItems_(getWrongBookCacheEntry_('game').items));
-            }
-            return db.ref(getWrongBookIndexSourcePath_('game'))
-                .orderByChild('timestamp')
-                .once('value')
-                .then(function(snap) {
-                    if (!snap.exists()) {
-                        setWrongBookCache_('game', []);
-                        return [];
-                    }
-                    var items = [];
-                    snap.forEach(function(child) {
-                        items.push({ key: child.key, data: child.val() || {} });
-                    });
-                    items.reverse();
-                    setWrongBookCache_('game', items);
-                    return summarizeWeakTopicsFromWrongBookItems_(items);
-                })
-                .catch(function(err) {
-                    console.warn('getWeakTopicsForGame_ error:', err && err.message ? err.message : err);
-                    return [];
-                });
-        }
-
-        function requestGameQuestions_(difficulty, theme, grade) {
-            return getWeakTopicsForGame_().then(function(weakTopics) {
-                return new Promise(function(resolve, reject) {
-                    google.script.run
-                        .withSuccessHandler(function(res) { resolve(res); })
-                        .withFailureHandler(function(err) { reject(err); })
-                        .getQuestions(difficulty, theme, grade, weakTopics || []);
-                });
-            });
         }
 
         function removeWrongBookEntry_(source, key) {
@@ -6970,7 +7063,7 @@
         // ===================================================
         // 單人模式
         // ===================================================
-        function startSinglePlayer(){initSfx();var g=document.getElementById('grade').value;var d=document.getElementById('difficulty').value;var t=document.getElementById('theme').value;gameTimeLimit=parseInt(document.getElementById('time-limit').value)||20;if(!g){showToast('請先選擇年級。','warning','尚未選擇年級');return;}startSingleLoading();requestGameQuestions_(d,t,g).then(function(res){if(res.error){showToast(res.error,'error');resetBtns();return;}questions=normalizeQuestions(res);stopSingleLoading();showToast('題目已準備完成，開始挑戰。','success','準備就緒',1800);startGameUI();}).catch(function(err){showToast('載入失敗：'+((err&&err.message)||String(err)||'未知錯誤'),'error');resetBtns();});}
+        function startSinglePlayer(){initSfx();var g=document.getElementById('grade').value;var d=document.getElementById('difficulty').value;var t=document.getElementById('theme').value;gameTimeLimit=parseInt(document.getElementById('time-limit').value)||20;if(!g){showToast('請先選擇年級。','warning','尚未選擇年級');return;}startSingleLoading();google.script.run.withSuccessHandler(function(res){if(res.error){showToast(res.error,'error');resetBtns();return;}questions=normalizeQuestions(res);stopSingleLoading();showToast('題目已準備完成，開始挑戰。','success','準備就緒',1800);startGameUI();}).withFailureHandler(function(err){showToast('載入失敗：'+((err&&err.message)||String(err)||'未知錯誤'),'error');resetBtns();}).getQuestions(d,t,g);}
         function resetBtns(){ensureSingleStartBtnReady();}
 
         // ===================================================
@@ -6984,7 +7077,7 @@
         function startRoomStaleTimer(){clearRoomStaleTimer();if(isHost)return;roomStaleTimer=setTimeout(function(){if(currentRoomId&&!gameStarted&&!gameFinished){handleHostLeft();}},ROOM_STALE_TIMEOUT_MS);}
         function enterWaitingRoom(){showSection('waiting-others-section');document.getElementById('waiting-room-id').innerText=currentRoomId;document.getElementById('room-info').classList.remove('hidden');document.getElementById('display-room-id').innerText=currentRoomId;if(isHost){document.getElementById('host-controls').classList.remove('hidden');document.getElementById('guest-msg').classList.add('hidden');db.ref('rooms/'+currentRoomId).update({status:'waiting',resumeDeadline:null}).catch(function(){});db.ref('rooms/'+currentRoomId).onDisconnect().update({status:'host_disconnected',resumeDeadline:Date.now()+SESSION_TTL_MS});}else{document.getElementById('host-controls').classList.add('hidden');document.getElementById('guest-msg').classList.remove('hidden');db.ref('rooms/'+currentRoomId+'/players/'+playerKey()).update({presence:'online'}).catch(function(){});db.ref('rooms/'+currentRoomId+'/players/'+playerKey()).onDisconnect().update({presence:'disconnected',lastSeenAt:firebase.database.ServerValue.TIMESTAMP});}attachRoomListener();startRoomStaleTimer();}
         function attachRoomListener(){detachRoomListener();if(!currentRoomId)return;roomListenerRef=db.ref('rooms/'+currentRoomId);roomListenerCallback=function(snap){if(!snap.exists()){if(!isHost&&!gameFinished)handleHostLeft();return;}var room=snap.val()||{};if(!isHost&&(room.status==='host_left'||room.status==='closed')&&!gameFinished){handleHostLeft();return;}if(!isHost&&room.status==='host_disconnected'&&!gameFinished){if(room.resumeDeadline&&Date.now()>room.resumeDeadline){handleHostLeft();return;}}if(room.timeLimit)gameTimeLimit=Number(room.timeLimit);var po=room.players||{};var players=Object.values(po);var ws=document.getElementById('waiting-others-section');if(ws&&!ws.classList.contains('hidden')){var list=document.getElementById('players-list');list.innerHTML='';document.getElementById('player-count').innerText=players.length;players.forEach(function(p){var li=document.createElement('li');li.className="flex items-center p-2 bg-white rounded-lg shadow-sm gap-2";li.innerHTML=buildAvatarMarkup_(getAvatarConfigByPlayer_(p),'avatar-visual--sm','')+'<span class="font-bold text-gray-700">'+p.class+'-'+p.number+'</span>';list.appendChild(li);});}var gs=document.getElementById('game-section');if(gs&&!gs.classList.contains('hidden')&&gameMode==='multi'){updateMiniLeaderboard(po);}if(room.status==='playing'&&!isHost&&!gameStarted&&room.questions){gameStarted=true;questions=normalizeQuestions(room.questions);startGameUI();}var lbs=document.getElementById('final-leaderboard-section');if(lbs&&!lbs.classList.contains('hidden')&&gameMode==='multi'){var tp=players.length;var fc=players.filter(function(p){return p.progress==='finished';}).length;document.getElementById('finished-count').innerText=fc;document.getElementById('total-count').innerText=tp;var lb=players.map(function(p){return{name:p.class+'-'+p.number,avatar:p.avatar,avatarName:p.avatarName||'',avatarId:p.avatarId||'',score:Number(p.score||0),progress:p.progress};}).sort(function(a,b){return b.score-a.score;});renderFinalLeaderboard(lb);if(tp>0&&fc>=tp){document.getElementById('waiting-result-msg').innerText='✅ 所有玩家已完成！';}}};roomListenerRef.on('value',roomListenerCallback);}
-        function hostStartGame(){initSfx();var btn=document.getElementById('btn-host-start');btn.innerText='正在啟動...';btn.disabled=true;requestGameQuestions_(roomSettingsDiff,roomSettingsTheme,roomSettingsGrade).then(function(res){if(res.error){showToast(res.error,'error');btn.innerText='房主：開始遊戲！';btn.disabled=false;return;}questions=normalizeQuestions(res);gameStarted=true;db.ref('rooms/'+currentRoomId).update({status:'playing',startedAt:firebase.database.ServerValue.TIMESTAMP,questions:questions}).then(function(){showToast('題目已同步給所有玩家，開始挑戰。','success','遊戲開始',1800);startGameUI();}).catch(function(e){showToast('開始遊戲失敗：'+(e.message||String(e)),'error');btn.innerText='房主：開始遊戲！';btn.disabled=false;});}).catch(function(err){showToast('載入失敗：'+((err&&err.message)||String(err)||'未知錯誤'),'error');btn.innerText='房主：開始遊戲！';btn.disabled=false;});}
+        function hostStartGame(){initSfx();var btn=document.getElementById('btn-host-start');btn.innerText='正在啟動...';btn.disabled=true;google.script.run.withSuccessHandler(function(res){if(res.error){showToast(res.error,'error');btn.innerText='房主：開始遊戲！';btn.disabled=false;return;}questions=normalizeQuestions(res);gameStarted=true;db.ref('rooms/'+currentRoomId).update({status:'playing',startedAt:firebase.database.ServerValue.TIMESTAMP,questions:questions}).then(function(){showToast('題目已同步給所有玩家，開始挑戰。','success','遊戲開始',1800);startGameUI();}).catch(function(e){showToast('開始遊戲失敗：'+(e.message||String(e)),'error');btn.innerText='房主：開始遊戲！';btn.disabled=false;});}).getQuestions(roomSettingsDiff,roomSettingsTheme,roomSettingsGrade);}
         function firebaseLeaveRoom(){if(!currentRoomId)return;try{if(isHost){var r=db.ref('rooms/'+currentRoomId);r.onDisconnect().cancel();r.update({status:'host_left'});}else{var p=db.ref('rooms/'+currentRoomId+'/players/'+playerKey());p.onDisconnect().cancel();p.remove();}}catch(e){}}
         function leaveAndGoBack(){clearRoomStaleTimer();clearActiveSession_();clearSessionFromFirebase_('challenge');stopSessionAutosave_();firebaseLeaveRoom();detachRoomListener();document.getElementById('room-info').classList.add('hidden');currentRoomId=null;isHost=false;gameStarted=false;gameFinished=false;hostLeftHandled=false;resetBtns();showSection('mode-selection');}
 
@@ -6994,7 +7087,7 @@
         function startGameUI(){clearRoomStaleTimer();showSection('game-section');document.getElementById('game-score-area').classList.remove('hidden');currentQIndex=0;score=0;correctCount=0;combo=0;maxCombo=0;comboMilestonesShown={};wrongQuestions=[];reviewQuestions=[];reviewFilter='wrong';gameFinished=false;resetComboDisplay();updateScoreBoard();loadQuestion();saveChallengeSession_();startSessionAutosave_(saveChallengeSession_);}
         function animateQuestionTransition_(cardId,buttons){var card=document.getElementById(cardId||'');if(card){card.classList.remove('question-card-refresh');void card.offsetWidth;card.classList.add('question-card-refresh');}Array.prototype.forEach.call(buttons||[],function(button,index){var revealDelay=index*55;button.style.setProperty('--option-enter-delay',revealDelay+'ms');button.classList.remove('question-option-enter');button.style.opacity='1';button.style.transform='translateY(0) scale(1)';void button.offsetWidth;button.classList.add('question-option-enter');setTimeout(function(){if(!button||!button.isConnected)return;button.classList.remove('question-option-enter');button.style.opacity='1';button.style.transform='translateY(0) scale(1)';},revealDelay+420);});}
         function pulseFeedbackCard_(id, stateClass){var card=document.getElementById(id);if(!card||!stateClass)return;card.classList.remove('question-card-success','question-card-fail');void card.offsetWidth;card.classList.add(stateClass);setTimeout(function(){card.classList.remove(stateClass);},520);}
-        function loadQuestion(){if(currentQIndex>=questions.length){endGame();return;}var q=questions[currentQIndex];var qd=document.getElementById('question');qd.innerHTML=q.question;renderMathInElement(qd,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});document.getElementById('question-image-area').innerHTML=buildQuestionImageHtml(q.imageUrl);var od=document.getElementById('options');od.innerHTML='';q.options.forEach(function(opt,i){var b=document.createElement('button');b.className="w-full p-5 bg-white border-2 border-indigo-100 rounded-2xl text-xl font-bold text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all text-left relative overflow-hidden btn-neon btn-neon-opt--indigo btn-sweep";b.innerHTML='<span class="inline-block bg-indigo-100 text-indigo-800 w-8 h-8 rounded-full text-center leading-8 mr-3 text-sm">'+String.fromCharCode(65+i)+'</span> '+opt;b.dataset.opt=opt;b.onclick=function(){playClickSound();checkAnswer(opt,false,b);};od.appendChild(b);});renderMathInElement(od,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});animateQuestionTransition_('question-card',od.querySelectorAll('button'));document.getElementById('progress-text').innerText='題數: '+(currentQIndex+1)+'/'+questions.length;document.getElementById('progress-bar').style.width=((currentQIndex)/questions.length*100)+'%';document.getElementById('top-avatar').className='text-3xl avatar-idle avatar-host';hideTopAvatarSpeech_();if(restoringTimeLeft_!==null){timeLeft=restoringTimeLeft_;restoringTimeLeft_=null;}else{timeLeft=gameTimeLimit;}document.getElementById('timer').innerText=timeLeft;document.getElementById('timer').style.color='#ef4444';updateTimeProgressBar();if(timer)clearInterval(timer);timer=setInterval(function(){timeLeft--;document.getElementById('timer').innerText=timeLeft;updateTimeProgressBar();if(timeLeft<=5)document.getElementById('timer').classList.add('animate-ping');else document.getElementById('timer').classList.remove('animate-ping');if(timeLeft<=0){clearInterval(timer);checkAnswer(null,true,null);}},1000);if(gameMode==='multi'&&currentRoomId){db.ref('rooms/'+currentRoomId+'/players/'+playerKey()).update({score:score,progress:currentQIndex+1}).catch(function(){});}saveChallengeSession_();}
+        function loadQuestion(){if(currentQIndex>=questions.length){endGame();return;}var q=questions[currentQIndex];var qd=document.getElementById('question');qd.innerHTML=q.question;renderMathInElement(qd,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});document.getElementById('question-image-area').innerHTML=buildQuestionImageHtml(q.imageUrl);var od=document.getElementById('options');od.innerHTML='';q.options.forEach(function(opt,i){var b=document.createElement('button');b.className="w-full p-5 bg-white border-2 border-indigo-100 rounded-2xl text-xl font-bold text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all text-left relative overflow-hidden btn-neon btn-neon-opt--indigo btn-sweep";b.innerHTML='<span class="inline-block bg-indigo-100 text-indigo-800 w-8 h-8 rounded-full text-center leading-8 mr-3 text-sm">'+String.fromCharCode(65+i)+'</span> '+opt;b.dataset.opt=opt;b.onclick=function(){playClickSound();checkAnswer(opt,false,b);};od.appendChild(b);});renderMathInElement(od,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});animateQuestionTransition_('question-card',od.querySelectorAll('button'));document.getElementById('progress-text').innerText='題數: '+(currentQIndex+1)+'/'+questions.length;document.getElementById('progress-bar').style.width=((currentQIndex)/questions.length*100)+'%';document.getElementById('top-avatar').className='text-3xl avatar-idle avatar-host';hideTopAvatarSpeech_();if(restoringTimeLeft_!==null){timeLeft=restoringTimeLeft_;restoringTimeLeft_=null;}else{timeLeft=gameTimeLimit;}document.getElementById('timer').innerText=timeLeft;document.getElementById('timer').style.color='#ef4444';updateTimeProgressBar();if(timer)clearInterval(timer);timer=setInterval(function(){timeLeft--;document.getElementById('timer').innerText=timeLeft;updateTimeProgressBar();if(timeLeft<=5)document.getElementById('timer').classList.add('animate-ping');else document.getElementById('timer').classList.remove('animate-ping');if(timeLeft<=0){clearInterval(timer);checkAnswer(null,true,null);}},1000);if(gameMode==='multi'&&currentRoomId){db.ref('rooms/'+currentRoomId+'/players/'+playerKey()).update({score:score,progress:currentQIndex+1}).catch(function(){});}saveChallengeSession_();ttsAutoSpeak(ttsBuildQuestionText(q.question,q.options,currentQIndex,questions.length));}
         function updateTimeProgressBar(){var b=document.getElementById('time-progress-bar');if(!b)return;var t=Math.max(1,Number(gameTimeLimit)||20);var r=Math.max(0,Math.min(1,timeLeft/t));b.style.width=(r*100)+'%';if(timeLeft<=5)b.className='h-3 bg-red-500 transition-all duration-300';else if(timeLeft<=t/2)b.className='h-3 bg-yellow-500 transition-all duration-300';else b.className='h-3 bg-green-500 transition-all duration-300';}
         function getComboScoreMultiplier(){return combo>=COMBO_MULTIPLIER_THRESHOLD?COMBO_SCORE_MULTIPLIER:1;}
         function resetComboDisplay(){var display=document.getElementById('combo-display');var flame=document.getElementById('combo-flame');var bonus=document.getElementById('combo-bonus');var banner=document.getElementById('combo-milestone-banner');if(display)display.classList.add('hidden');if(flame){flame.innerText='🔥';flame.className='flame-lv1';}if(bonus)bonus.classList.add('hidden');if(comboMilestoneTimer){clearTimeout(comboMilestoneTimer);comboMilestoneTimer=null;}if(banner){banner.classList.add('hidden');banner.innerHTML='';}}
@@ -7117,7 +7210,7 @@
             return{accuracyPct:accuracyPct,wrongCount:wrongCount,rank:rank,summaryTitle:summaryTitle,summaryDesc:summaryDesc,nextTitle:nextTitle,nextDesc:nextDesc,primary:primary,secondary:secondary};
         }
         function renderResultExperience(boardData){var summary=getResultSummaryData(boardData);var titleEl=document.getElementById('result-summary-title');var descEl=document.getElementById('result-summary-desc');var statsEl=document.getElementById('result-stats-grid');var rankEl=document.getElementById('result-rank-pill');var nextTitleEl=document.getElementById('result-next-step-title');var nextDescEl=document.getElementById('result-next-step-desc');var primaryBtn=document.getElementById('result-primary-btn');var secondaryBtn=document.getElementById('result-secondary-btn');if(titleEl)titleEl.innerText=summary.summaryTitle;if(descEl)descEl.innerText=summary.summaryDesc;if(rankEl){if(summary.rank){rankEl.classList.remove('hidden');rankEl.innerText='🏅 第 '+summary.rank+' 名';}else{rankEl.classList.add('hidden');rankEl.innerText='';}}if(statsEl){var totalQ=(questions&&questions.length)?questions.length:0;var comboNote=maxCombo>=COMBO_MULTIPLIER_THRESHOLD?'已觸發積分加成':(totalQ>0?'再多幾題就能起火':'等待下一場挑戰');var statCards=[{label:'答對率',value:summary.accuracyPct+'%',note:'答對 '+correctCount+' / '+totalQ+' 題'},{label:'最高連擊',value:maxCombo+'x',note:comboNote},{label:'待補強題',value:summary.wrongCount+' 題',note:summary.wrongCount===0?'本次沒有錯題':'可到題目回顧立即整理'}];statsEl.innerHTML=statCards.map(function(card){return '<div class="result-stat-card"><div class="result-stat-card__label">'+card.label+'</div><div class="result-stat-card__value">'+card.value+'</div><div class="result-stat-card__note">'+card.note+'</div></div>';}).join('');}if(nextTitleEl)nextTitleEl.innerText=summary.nextTitle;if(nextDescEl)nextDescEl.innerText=summary.nextDesc;if(primaryBtn){primaryBtn.innerText=summary.primary.label;primaryBtn.onclick=summary.primary.action;}if(secondaryBtn){secondaryBtn.innerText=summary.secondary.label;secondaryBtn.onclick=summary.secondary.action;}}
-        function checkAnswer(sel,isTimeout,btn){clearInterval(timer);document.getElementById('timer').classList.remove('animate-ping');var btns=document.getElementById('options').querySelectorAll('button');btns.forEach(function(b){b.disabled=true;});var q=questions[currentQIndex];var selectedValue=isTimeout?'超時未作答':sel;var ok=!isTimeout&&(sel===q.answer);reviewQuestions.push({question:q.question||'',options:Array.isArray(q.options)?q.options.slice():[],answer:q.answer||'',selected:selectedValue||'',explanation:q.explanation||'無詳解',isCorrect:ok});if(isTimeout)playTimeoutSound();else if(ok)playCorrectSound(combo+1);else playWrongSound();triggerPlayerAvatarReaction_(ok);if(ok){pulseFeedbackCard_('question-card','question-card-success');combo++;if(combo>maxCombo)maxCombo=combo;correctCount++;var pts=BASE_QUESTION_POINTS+Math.floor(timeLeft/2);if(combo>=2)pts+=5*combo;pts=Math.round(pts*getComboScoreMultiplier());score+=pts;if(btn){btn.classList.add('flash-correct');var r=btn.getBoundingClientRect();launchSparkles(r.left+r.width/2,r.top+r.height/2);if(shouldLaunchGameMiniConfetti_(combo,timeLeft)){launchMiniConfettiBurst(ensureElementAnchorId_(btn,'game-answer'));}}setMascotState('challengeCorrect');updateComboDisplay();if(combo>=COMBO_MULTIPLIER_THRESHOLD)triggerStreakFlash();showComboMilestone(combo);popScoreElement('score');}else{pulseFeedbackCard_('question-card','question-card-fail');combo=0;resetComboDisplay();if(btn)btn.classList.add('flash-wrong');btns.forEach(function(b){if(b.dataset&&b.dataset.opt===q.answer)b.classList.add('bg-green-100','border-green-400');});if(isTimeout){setMascotState('wrong','這題時間到了，下一題我們再搶快一點！⏱️');}else{setMascotState('wrong');}wrongQuestions.push({q:q.question,selected:selectedValue,correct:q.answer,explanation:q.explanation||'無詳解'});saveWrongQuestion('game',q,sel,isTimeout);}updateScoreBoard();saveChallengeSession_();if(ok){setTimeout(function(){currentQIndex++;loadQuestion();},1500);}else{setTimeout(function(){showExplanationModal(q,sel,isTimeout);explanationModalCallback=function(){currentQIndex++;loadQuestion();};},800);}}
+        function checkAnswer(sel,isTimeout,btn){ttsStop();clearInterval(timer);document.getElementById('timer').classList.remove('animate-ping');var btns=document.getElementById('options').querySelectorAll('button');btns.forEach(function(b){b.disabled=true;});var q=questions[currentQIndex];var selectedValue=isTimeout?'超時未作答':sel;var ok=!isTimeout&&(sel===q.answer);reviewQuestions.push({question:q.question||'',options:Array.isArray(q.options)?q.options.slice():[],answer:q.answer||'',selected:selectedValue||'',explanation:q.explanation||'無詳解',isCorrect:ok,imageUrl:q.imageUrl||''});if(isTimeout)playTimeoutSound();else if(ok)playCorrectSound(combo+1);else playWrongSound();triggerPlayerAvatarReaction_(ok);if(ok){pulseFeedbackCard_('question-card','question-card-success');combo++;if(combo>maxCombo)maxCombo=combo;correctCount++;var pts=BASE_QUESTION_POINTS+Math.floor(timeLeft/2);if(combo>=2)pts+=5*combo;pts=Math.round(pts*getComboScoreMultiplier());score+=pts;if(btn){btn.classList.add('flash-correct');var r=btn.getBoundingClientRect();launchSparkles(r.left+r.width/2,r.top+r.height/2);if(shouldLaunchGameMiniConfetti_(combo,timeLeft)){launchMiniConfettiBurst(ensureElementAnchorId_(btn,'game-answer'));}}setMascotState('challengeCorrect');updateComboDisplay();if(combo>=COMBO_MULTIPLIER_THRESHOLD)triggerStreakFlash();showComboMilestone(combo);popScoreElement('score');}else{pulseFeedbackCard_('question-card','question-card-fail');combo=0;resetComboDisplay();if(btn)btn.classList.add('flash-wrong');btns.forEach(function(b){if(b.dataset&&b.dataset.opt===q.answer)b.classList.add('bg-green-100','border-green-400');});if(isTimeout){setMascotState('wrong','這題時間到了，下一題我們再搶快一點！⏱️');}else{setMascotState('wrong');}wrongQuestions.push({q:q.question,selected:selectedValue,correct:q.answer,explanation:q.explanation||'無詳解'});saveWrongQuestion('game',q,sel,isTimeout);}updateScoreBoard();saveChallengeSession_();if(ok){setTimeout(function(){currentQIndex++;loadQuestion();},1500);}else{setTimeout(function(){showExplanationModal(q,sel,isTimeout);explanationModalCallback=function(){currentQIndex++;loadQuestion();};},800);}}
         function updateScoreBoard(){document.getElementById('score').innerText=score;}
         function updateMiniLeaderboard(po){var panel=document.getElementById('mini-leaderboard');if(!panel)return;if(gameMode!=='multi'||!currentRoomId){panel.classList.add('hidden');return;}var gs=document.getElementById('game-section');if(!gs||gs.classList.contains('hidden')){panel.classList.add('hidden');return;}panel.classList.remove('hidden');var players=po?Object.values(po):[];var sorted=players.map(function(p){return{name:p.class+'-'+p.number,avatar:p.avatar||'👤',avatarName:p.avatarName||'',avatarId:p.avatarId||'',score:Number(p.score||0)};}).sort(function(a,b){return b.score-a.score;});var sk=playerInfo.class+'-'+playerInfo.number;var medals=['🥇','🥈','🥉'];var le=document.getElementById('mini-lb-list');le.innerHTML='';sorted.slice(0,3).forEach(function(p,i){var isSelf=p.name===sk;var r=document.createElement('li');r.className='mini-lb-row'+(isSelf?' is-self':'');r.innerHTML='<span class="mini-lb-medal">'+medals[i]+'</span><span class="mini-lb-name">'+buildAvatarMarkup_(getAvatarConfigByPlayer_(p),'avatar-visual--xs','')+'<span>'+escapeHtml(p.name)+'</span></span><span class="mini-lb-score">'+p.score+'</span>';le.appendChild(r);});var sd=document.getElementById('mini-lb-self');var sr=-1;for(var i=0;i<sorted.length;i++){if(sorted[i].name===sk){sr=i;break;}}if(sr>=3){sd.classList.remove('hidden');sd.className='mini-lb-row is-self mt-2 pt-2 border-t border-white/10';var d=sorted[sr];sd.innerHTML='<span class="mini-lb-medal" style="font-size:0.7rem;color:rgba(255,255,255,0.5);">'+(sr+1)+'</span><span class="mini-lb-name">'+buildAvatarMarkup_(getAvatarConfigByPlayer_(d),'avatar-visual--xs','')+'<span>'+escapeHtml(d.name)+'</span></span><span class="mini-lb-score">'+d.score+'</span>';}else{sd.classList.add('hidden');sd.innerHTML='';}}
 
@@ -7165,9 +7258,222 @@
         function backToResults(){showSection('final-leaderboard-section');}
         function getReviewQuestionsByFilter_(){if(reviewFilter==='correct')return reviewQuestions.filter(function(item){return item.isCorrect;});if(reviewFilter==='wrong')return reviewQuestions.filter(function(item){return !item.isCorrect;});return reviewQuestions.slice();}
         function updateReviewFilterUi_(){var correctItems=reviewQuestions.filter(function(item){return item.isCorrect;});var wrongItems=reviewQuestions.filter(function(item){return !item.isCorrect;});var correctBtn=document.getElementById('review-filter-correct');var wrongBtn=document.getElementById('review-filter-wrong');var correctCount=document.getElementById('review-correct-count');var wrongCount=document.getElementById('review-wrong-count');var caption=document.getElementById('review-filter-caption');if(correctCount)correctCount.innerText=String(correctItems.length);if(wrongCount)wrongCount.innerText=String(wrongItems.length);if(correctBtn){correctBtn.classList.toggle('ring-2',reviewFilter==='correct');correctBtn.classList.toggle('ring-emerald-300',reviewFilter==='correct');correctBtn.classList.toggle('scale-[1.01]',reviewFilter==='correct');}if(wrongBtn){wrongBtn.classList.toggle('ring-2',reviewFilter==='wrong');wrongBtn.classList.toggle('ring-rose-300',reviewFilter==='wrong');wrongBtn.classList.toggle('scale-[1.01]',reviewFilter==='wrong');}if(caption){caption.innerText=reviewFilter==='correct'?'目前顯示：全部答對的題目':'目前顯示：全部答錯的題目';}}
-        function renderReviewList_(){var rl=document.getElementById('review-list');if(!rl)return;rl.innerHTML='';if(!reviewQuestions.length){rl.innerHTML='<div class="text-center p-12 text-2xl font-bold text-indigo-500 bg-indigo-50 rounded-3xl border-2 border-indigo-100">目前還沒有可回顧的題目。</div>';return;}var items=getReviewQuestionsByFilter_();if(!items.length){rl.innerHTML=reviewFilter==='correct'?'<div class="text-center p-10 text-xl font-bold text-emerald-600 bg-emerald-50 rounded-3xl border-2 border-emerald-100">這一場目前沒有答對題目可顯示。</div>':'<div class="text-center p-10 text-xl font-bold text-rose-600 bg-rose-50 rounded-3xl border-2 border-rose-100">這一場目前沒有答錯題目可顯示。</div>';return;}items.forEach(function(item,index){var div=document.createElement('div');var correctOptions=(item.options||[]).filter(function(opt){return opt===item.answer;});var statusClass=item.isCorrect?'border-emerald-100':'border-red-100';var statusBadge=item.isCorrect?'<span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-sm font-black text-emerald-700">✅ 答對</span>':'<span class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-sm font-black text-rose-700">❌ 答錯</span>';var yourAnswerClass=item.isCorrect?'bg-emerald-50/80 border-emerald-100':'bg-amber-50/80 border-amber-100';div.className='bg-white/90 p-4 sm:p-6 rounded-2xl shadow-md border '+statusClass+' relative mt-6 w-full max-w-full box-border';div.innerHTML='<div class="absolute -top-4 left-2 sm:left-4 w-10 h-10 bg-gradient-to-br from-indigo-500 to-sky-500 text-white font-black text-lg rounded-full flex items-center justify-center shadow-lg border-2 border-white">'+(index+1)+'</div><div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-5 mt-2 sm:mt-0 pl-2 sm:pl-4"><div class="text-lg sm:text-xl font-bold text-gray-800 break-words overflow-x-auto max-w-full">'+escapeHtml(item.question||'')+'</div>'+statusBadge+'</div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-full"><div class="'+yourAnswerClass+' p-4 sm:p-5 rounded-xl border overflow-x-auto max-w-full min-w-0"><div class="text-sm font-black text-slate-600 mb-2">🧠 你的作答</div><div class="text-gray-800 font-bold text-base sm:text-lg break-words">'+escapeHtml(item.selected||'未作答')+'</div></div><div class="bg-green-50/80 p-4 sm:p-5 rounded-xl border border-green-100 overflow-x-auto max-w-full min-w-0"><div class="text-sm font-black text-green-600 mb-2">✅ 正確選項</div><div class="space-y-2">'+(correctOptions.length?correctOptions.map(function(opt){return '<div class="rounded-lg bg-white/80 px-3 py-2 font-bold text-gray-800 break-words">'+escapeHtml(opt)+'</div>';}).join(''):'<div class="text-gray-400">沒有資料</div>')+'</div></div></div>'+(item.explanation&&item.explanation!=='無詳解'?'<div class="mt-4 bg-blue-50/80 p-4 sm:p-5 rounded-xl border border-blue-100 overflow-x-auto max-w-full min-w-0"><div class="text-sm font-black text-blue-600 mb-2">💡 詳解</div><div class="text-gray-800 leading-relaxed break-words">'+item.explanation+'</div></div>':'');rl.appendChild(div);});renderMathInElement(document.getElementById('review-list'),{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});}
+        function renderReviewList_(){var rl=document.getElementById('review-list');if(!rl)return;rl.innerHTML='';if(!reviewQuestions.length){rl.innerHTML='<div class="text-center p-12 text-2xl font-bold text-indigo-500 bg-indigo-50 rounded-3xl border-2 border-indigo-100">目前還沒有可回顧的題目。</div>';return;}var items=getReviewQuestionsByFilter_();if(!items.length){rl.innerHTML=reviewFilter==='correct'?'<div class="text-center p-10 text-xl font-bold text-emerald-600 bg-emerald-50 rounded-3xl border-2 border-emerald-100">這一場目前沒有答對題目可顯示。</div>':'<div class="text-center p-10 text-xl font-bold text-rose-600 bg-rose-50 rounded-3xl border-2 border-rose-100">這一場目前沒有答錯題目可顯示。</div>';return;}items.forEach(function(item,index){var div=document.createElement('div');var correctOptions=(item.options||[]).filter(function(opt){return opt===item.answer;});var statusClass=item.isCorrect?'border-emerald-100':'border-red-100';var statusBadge=item.isCorrect?'<span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-sm font-black text-emerald-700">✅ 答對</span>':'<span class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-sm font-black text-rose-700">❌ 答錯</span>';var yourAnswerClass=item.isCorrect?'bg-emerald-50/80 border-emerald-100':'bg-amber-50/80 border-amber-100';div.className='bg-white/90 p-4 sm:p-6 rounded-2xl shadow-md border '+statusClass+' relative mt-6 w-full max-w-full box-border';var reviewImageHtml=item.imageUrl?buildQuestionImageHtml(item.imageUrl):'';div.innerHTML='<div class="absolute -top-4 left-2 sm:left-4 w-10 h-10 bg-gradient-to-br from-indigo-500 to-sky-500 text-white font-black text-lg rounded-full flex items-center justify-center shadow-lg border-2 border-white">'+(index+1)+'</div><div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-5 mt-2 sm:mt-0 pl-2 sm:pl-4"><div class="text-lg sm:text-xl font-bold text-gray-800 break-words overflow-x-auto max-w-full">'+escapeHtml(item.question||'')+'</div>'+statusBadge+'</div>'+reviewImageHtml+'<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-full"><div class="'+yourAnswerClass+' p-4 sm:p-5 rounded-xl border overflow-x-auto max-w-full min-w-0"><div class="text-sm font-black text-slate-600 mb-2">🧠 你的作答</div><div class="text-gray-800 font-bold text-base sm:text-lg break-words">'+escapeHtml(item.selected||'未作答')+'</div></div><div class="bg-green-50/80 p-4 sm:p-5 rounded-xl border border-green-100 overflow-x-auto max-w-full min-w-0"><div class="text-sm font-black text-green-600 mb-2">✅ 正確選項</div><div class="space-y-2">'+(correctOptions.length?correctOptions.map(function(opt){return '<div class="rounded-lg bg-white/80 px-3 py-2 font-bold text-gray-800 break-words">'+escapeHtml(opt)+'</div>';}).join(''):'<div class="text-gray-400">沒有資料</div>')+'</div></div></div>'+(item.explanation&&item.explanation!=='無詳解'?'<div class="mt-4 bg-blue-50/80 p-4 sm:p-5 rounded-xl border border-blue-100 overflow-x-auto max-w-full min-w-0"><div class="text-sm font-black text-blue-600 mb-2">💡 詳解</div><div class="text-gray-800 leading-relaxed break-words">'+item.explanation+'</div></div>':'')+'<div class="mt-4 text-right"><button class="tts-review-btn inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-700 font-bold py-2 px-4 rounded-xl text-sm hover:bg-amber-100 transition-colors" data-review-idx="'+index+'">🔊 朗讀本題</button></div>';rl.appendChild(div);});rl.addEventListener('click',function(e){var btn=e.target.closest('.tts-review-btn');if(!btn)return;var idx=Number(btn.dataset.reviewIdx);var items=getReviewQuestionsByFilter_();var it=items[idx];if(!it)return;var text='題目：'+getPlainTextFromHtml(it.question||'')+'。你的答案：'+getPlainTextFromHtml(it.selected||'未作答')+'。正確答案：'+getPlainTextFromHtml(it.answer||'')+(it.explanation&&it.explanation!=='無詳解'?'。詳解：'+getPlainTextFromHtml(it.explanation):'');ttsSpeak(text);});renderMathInElement(document.getElementById('review-list'),{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});}
         function setReviewFilter(filter){reviewFilter=filter==='correct'?'correct':'wrong';updateReviewFilterUi_();renderReviewList_();}
         function showReview(){showSection('review-section');if(!reviewQuestions.length){reviewFilter='wrong';}else{var hasWrong=reviewQuestions.some(function(item){return !item.isCorrect;});reviewFilter=hasWrong?'wrong':'correct';}updateReviewFilterUi_();renderReviewList_();}
+
+        // ===================================================
+        // 每日挑戰模組
+        // ===================================================
+        var DAILY_CHALLENGE_POINTS = 40;
+        var DAILY_CHALLENGE_COUNT = 5;
+        var dcQuestions = [];
+        var dcIndex = 0;
+        var dcCorrect = 0;
+        var dcReviewData = [];
+
+        var DC_FALLBACK_QUESTIONS = [
+            { question:'如果一個正方形的面積是 64 cm²，它的邊長是多少？', options:['6 cm','7 cm','8 cm','9 cm'], answer:'8 cm', explanation:'正方形面積 = 邊長²，所以邊長 = √64 = 8 cm。' },
+            { question:'一列火車以 80 km/h 的速度行駛 2.5 小時，走了多遠？', options:['160 km','180 km','200 km','220 km'], answer:'200 km', explanation:'距離 = 速度 × 時間 = 80 × 2.5 = 200 km。' },
+            { question:'2, 6, 18, 54, ?  下一個數字是什麼？', options:['108','162','148','126'], answer:'162', explanation:'每個數 ×3：2→6→18→54→162。' },
+            { question:'一個袋子裏有 3 個紅球和 7 個藍球，隨機取一球，取到紅球的概率是多少？', options:['3/7','3/10','7/10','1/3'], answer:'3/10', explanation:'紅球數 / 總球數 = 3 / (3+7) = 3/10。' },
+            { question:'小明有 $120，花了 $45 買文具，又花了 $30 買午飯。他還剩多少錢？', options:['$35','$40','$45','$50'], answer:'$45', explanation:'$120 - $45 - $30 = $45。' },
+            { question:'一個長方形的長是 12 cm，寬是 5 cm，它的周界是多少？', options:['34 cm','30 cm','60 cm','17 cm'], answer:'34 cm', explanation:'周界 = 2 × (長 + 寬) = 2 × (12 + 5) = 34 cm。' },
+            { question:'以下哪個數字能同時被 3 和 4 整除？', options:['16','18','24','25'], answer:'24', explanation:'24 ÷ 3 = 8（整除）；24 ÷ 4 = 6（整除）。' },
+            { question:'找規律：1, 1, 2, 3, 5, 8, ?', options:['10','11','12','13'], answer:'13', explanation:'斐波那契數列：每個數 = 前兩個數之和，5 + 8 = 13。' },
+            { question:'一個三角形的三個角分別是 40° 和 75°，第三個角是多少度？', options:['55°','65°','70°','75°'], answer:'65°', explanation:'三角形內角和 = 180°，第三個角 = 180 - 40 - 75 = 65°。' },
+            { question:'如果 3x + 7 = 22，x 等於幾？', options:['3','4','5','6'], answer:'5', explanation:'3x = 22 - 7 = 15，x = 15 ÷ 3 = 5。' },
+            { question:'一杯水有 250 ml，8 杯水一共是多少升？', options:['1.5 升','1.8 升','2 升','2.5 升'], answer:'2 升', explanation:'250 × 8 = 2000 ml = 2 升。' },
+            { question:'在 1 到 50 之間，有多少個質數？', options:['14','15','16','17'], answer:'15', explanation:'2,3,5,7,11,13,17,19,23,29,31,37,41,43,47 共 15 個。' }
+        ];
+
+        function getDcDayKey_() { return 'dc_' + playerKey() + '_' + getTodayKey(); }
+
+        function isDailyChallengeCompleted_() {
+            try { return localStorage.getItem(getDcDayKey_()) === 'done'; } catch(e) { return false; }
+        }
+
+        function updateDcHomeBtn_() {
+            var badge = document.getElementById('daily-challenge-home-badge');
+            var hint = document.getElementById('daily-challenge-home-hint');
+            if (!badge) return;
+            if (isDailyChallengeCompleted_()) {
+                badge.classList.remove('hidden');
+                if (hint) hint.innerText = '今天已完成，明天再來！';
+            } else {
+                badge.classList.add('hidden');
+                if (hint) hint.innerText = '每天 5 題，完成即賺 ⭐40 積分';
+            }
+        }
+
+        async function fetchWrongBookItemsRaw_() {
+            var items = [];
+            var sources = ['game', 'notes'];
+            for (var s = 0; s < sources.length; s++) {
+                var source = sources[s];
+                try {
+                    var snap = await db.ref(getWrongBookIndexSourcePath_(source)).orderByChild('timestamp').once('value');
+                    if (snap.exists()) {
+                        snap.forEach(function(child) {
+                            var d = child.val();
+                            if (d && d.question && Array.isArray(d.options) && d.options.length >= 2 && d.answer) {
+                                items.push({ question: d.question, options: d.options, answer: d.answer, explanation: d.explanation || '', imageUrl: d.imageUrl || '' });
+                            }
+                        });
+                    }
+                } catch(e) {}
+            }
+            return items;
+        }
+
+        function seededShuffle_(arr, seed) {
+            var r = arr.slice();
+            var s = Math.abs(seed) || 1;
+            for (var i = r.length - 1; i > 0; i--) {
+                s = (s * 9301 + 49297) % 233280;
+                var j = Math.floor((s / 233280) * (i + 1));
+                var t = r[i]; r[i] = r[j]; r[j] = t;
+            }
+            return r;
+        }
+
+        function buildDcSeed_() {
+            var key = getTodayKey() + '_' + playerKey();
+            var h = 0;
+            for (var i = 0; i < key.length; i++) { h = ((h << 5) - h) + key.charCodeAt(i); h |= 0; }
+            return h;
+        }
+
+        async function enterDailyChallenge() {
+            if (isDailyChallengeCompleted_()) {
+                showToast('你今天已經完成每日挑戰了，明天再來吧！ 💪', 'info', '每日挑戰');
+                return;
+            }
+            showSection('daily-challenge-section');
+            document.getElementById('dc-loading').classList.remove('hidden');
+            document.getElementById('dc-game-area').classList.add('hidden');
+            dcQuestions = [];
+            dcIndex = 0;
+            dcCorrect = 0;
+            dcReviewData = [];
+
+            var seed = buildDcSeed_();
+            var wrongItems = await fetchWrongBookItemsRaw_();
+            var shuffled = seededShuffle_(wrongItems, seed);
+
+            if (shuffled.length >= DAILY_CHALLENGE_COUNT) {
+                dcQuestions = shuffled.slice(0, DAILY_CHALLENGE_COUNT);
+            } else {
+                dcQuestions = shuffled.slice();
+                var fallback = seededShuffle_(DC_FALLBACK_QUESTIONS, seed);
+                var usedQ = new Set(dcQuestions.map(function(q){ return q.question; }));
+                for (var i = 0; i < fallback.length && dcQuestions.length < DAILY_CHALLENGE_COUNT; i++) {
+                    if (!usedQ.has(fallback[i].question)) {
+                        dcQuestions.push(fallback[i]);
+                        usedQ.add(fallback[i].question);
+                    }
+                }
+            }
+
+            // Shuffle option order per question with seeded randomness
+            for (var qi = 0; qi < dcQuestions.length; qi++) {
+                dcQuestions[qi].options = seededShuffle_(dcQuestions[qi].options, seed + qi + 1);
+            }
+
+            document.getElementById('dc-loading').classList.add('hidden');
+            document.getElementById('dc-game-area').classList.remove('hidden');
+            loadDcQuestion_();
+        }
+
+        function loadDcQuestion_() {
+            if (dcIndex >= dcQuestions.length) { endDailyChallenge_(); return; }
+            var q = dcQuestions[dcIndex];
+            document.getElementById('dc-progress').innerText = '第 ' + (dcIndex + 1) + ' / ' + dcQuestions.length + ' 題';
+            document.getElementById('dc-score-display').innerText = '答對: ' + dcCorrect + ' / ' + dcQuestions.length;
+            var qEl = document.getElementById('dc-question');
+            qEl.innerHTML = q.question;
+            renderMathInElement(qEl, { delimiters: [{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
+            document.getElementById('dc-question-image-area').innerHTML = buildQuestionImageHtml(q.imageUrl);
+            var od = document.getElementById('dc-options');
+            od.innerHTML = '';
+            q.options.forEach(function(opt, i) {
+                var btn = document.createElement('button');
+                btn.className = "w-full p-5 bg-white border-2 border-purple-100 rounded-2xl text-xl font-bold text-gray-700 hover:bg-purple-50 hover:border-purple-300 transition-all text-left relative overflow-hidden btn-neon btn-neon-opt--purple btn-sweep";
+                btn.innerHTML = '<span class="inline-block bg-purple-100 text-purple-800 w-8 h-8 rounded-full text-center leading-8 mr-3 text-sm">' + String.fromCharCode(65 + i) + '</span> ' + opt;
+                btn.dataset.opt = opt;
+                btn.onclick = function() { playClickSound(); checkDcAnswer_(opt, btn); };
+                od.appendChild(btn);
+            });
+            renderMathInElement(od, { delimiters: [{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
+            animateQuestionTransition_('dc-question-card', od.querySelectorAll('button'));
+            ttsAutoSpeak(ttsBuildQuestionText(q.question, q.options, dcIndex, dcQuestions.length));
+        }
+
+        function checkDcAnswer_(sel, btnEl) {
+            ttsStop();
+            var btns = document.getElementById('dc-options').querySelectorAll('button');
+            btns.forEach(function(b) { b.disabled = true; });
+            var q = dcQuestions[dcIndex];
+            var ok = (sel === q.answer);
+            dcReviewData.push({ question: q.question, options: q.options.slice(), answer: q.answer, selected: sel, explanation: q.explanation || '', isCorrect: ok, imageUrl: q.imageUrl || '' });
+            if (ok) {
+                pulseFeedbackCard_('dc-question-card', 'question-card-success');
+                playCorrectSound(1);
+                dcCorrect++;
+                if (btnEl) {
+                    btnEl.classList.add('flash-correct');
+                    var r = btnEl.getBoundingClientRect();
+                    launchSparkles(r.left + r.width/2, r.top + r.height/2);
+                }
+                setMascotState('challengeCorrect');
+                setTimeout(function() { dcIndex++; loadDcQuestion_(); }, 1200);
+            } else {
+                pulseFeedbackCard_('dc-question-card', 'question-card-fail');
+                playWrongSound();
+                if (btnEl) btnEl.classList.add('flash-wrong');
+                btns.forEach(function(b) { if (b.dataset && b.dataset.opt === q.answer) b.classList.add('bg-green-100', 'border-green-400'); });
+                setMascotState('wrong');
+                setTimeout(function() {
+                    showExplanationModal(q, sel, false);
+                    explanationModalCallback = function() { dcIndex++; loadDcQuestion_(); };
+                }, 800);
+            }
+            document.getElementById('dc-score-display').innerText = '答對: ' + dcCorrect + ' / ' + dcQuestions.length;
+        }
+
+        async function endDailyChallenge_() {
+            try { localStorage.setItem(getDcDayKey_(), 'done'); } catch(e) {}
+            showSection('daily-challenge-result');
+            document.getElementById('dc-result-score').innerText = '答對 ' + dcCorrect + ' / ' + dcQuestions.length + ' 題';
+            document.getElementById('dc-result-emoji').innerText = dcCorrect === dcQuestions.length ? '🏆' : (dcCorrect >= 3 ? '🎉' : '💪');
+            document.getElementById('dc-result-emoji').className = dcCorrect >= 3 ? 'text-7xl mb-4 avatar-celebrate' : 'text-7xl mb-4 avatar-sad';
+            launchConfetti();
+            await addGamePoints(DAILY_CHALLENGE_POINTS);
+            await recordDailyLearningActivity({ challengeDone: true, pointsEarned: DAILY_CHALLENGE_POINTS });
+            updateDcHomeBtn_();
+            showToast('每日挑戰完成！獲得 ⭐' + DAILY_CHALLENGE_POINTS + ' 積分', 'success', '每日挑戰');
+        }
+
+        function showDcReview() {
+            showSection('daily-challenge-review');
+            var rl = document.getElementById('dc-review-list');
+            rl.innerHTML = '';
+            dcReviewData.forEach(function(item, index) {
+                var ok = item.isCorrect;
+                var statusBadge = ok ? '<span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-sm font-black text-emerald-700">✅ 答對</span>' : '<span class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-sm font-black text-rose-700">❌ 答錯</span>';
+                var statusClass = ok ? 'border-emerald-100' : 'border-red-100';
+                var imgHtml = item.imageUrl ? buildQuestionImageHtml(item.imageUrl) : '';
+                var div = document.createElement('div');
+                div.className = 'bg-white/90 p-4 sm:p-6 rounded-2xl shadow-md border ' + statusClass + ' relative mt-6';
+                div.innerHTML = '<div class="absolute -top-4 left-2 sm:left-4 w-10 h-10 bg-gradient-to-br from-purple-500 to-fuchsia-500 text-white font-black text-lg rounded-full flex items-center justify-center shadow-lg border-2 border-white">' + (index + 1) + '</div>'
+                    + '<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-5 mt-2 sm:mt-0 pl-2 sm:pl-4"><div class="text-lg sm:text-xl font-bold text-gray-800 break-words">' + escapeHtml(item.question) + '</div>' + statusBadge + '</div>'
+                    + imgHtml
+                    + '<div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="' + (ok ? 'bg-emerald-50/80 border-emerald-100' : 'bg-amber-50/80 border-amber-100') + ' p-4 rounded-xl border"><div class="text-sm font-black text-slate-600 mb-2">🧠 你的作答</div><div class="text-gray-800 font-bold break-words">' + escapeHtml(item.selected) + '</div></div><div class="bg-green-50/80 p-4 rounded-xl border border-green-100"><div class="text-sm font-black text-green-600 mb-2">✅ 正確答案</div><div class="text-gray-800 font-bold break-words">' + escapeHtml(item.answer) + '</div></div></div>'
+                    + (item.explanation ? '<div class="mt-4 bg-blue-50/80 p-4 rounded-xl border border-blue-100"><div class="text-sm font-black text-blue-600 mb-2">💡 詳解</div><div class="text-gray-800 leading-relaxed break-words">' + item.explanation + '</div></div>' : '');
+                rl.appendChild(div);
+            });
+            renderMathInElement(rl, { delimiters: [{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
+        }
 
         // ===================================================
         // 溫習筆記模組
@@ -7427,8 +7733,15 @@
                 nextBtn.innerText = '下一頁 →';
                 nextBtn.onclick = nextNotePage;
             }
+            if (ttsEnabled) ttsReadNotePage();
         }
 
+        function ttsReadNotePage() {
+            var p = notesPages[currentNotePage];
+            if (!p) return;
+            var text = (p.title ? p.title + '。' : '') + getPlainTextFromHtml(p.content || '');
+            ttsSpeak(text);
+        }
         function prevNotePage() { if (currentNotePage > 0) { currentNotePage--; renderNotePage(); } }
         function nextNotePage() { if (currentNotePage < notesPages.length - 1) { currentNotePage++; renderNotePage(); } }
 
@@ -7473,9 +7786,11 @@
             });
             renderMathInElement(od, { delimiters: [{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
             animateQuestionTransition_('nq-question-card', od.querySelectorAll('button'));
+            ttsAutoSpeak(ttsBuildQuestionText(q.question, q.options, nqIndex, notesQuizQuestions.length));
         }
 
         function checkNQAnswer(sel, btnEl) {
+            ttsStop();
             var btns = document.getElementById('nq-options').querySelectorAll('button');
             btns.forEach(function(b) { b.disabled = true; });
             var q = notesQuizQuestions[nqIndex];

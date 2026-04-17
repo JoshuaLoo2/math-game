@@ -326,7 +326,7 @@ function getAvailableThemes(grade) {
 // ==========================================
 // 2. 讀取遊戲題庫 (Google Sheets)
 // ==========================================
-function getQuestions(difficulty, theme, grade, weakTopics) {
+function getQuestions(difficulty, theme, grade) {
   try {
     const sheet = openFirstSheetById_(getQuestionsSheetIdForGrade_(grade), '題庫 Sheet ID');
     const data = sheet.getDataRange().getValues();
@@ -377,71 +377,25 @@ function getQuestions(difficulty, theme, grade, weakTopics) {
     const difficultyMap = { '簡單': 'easy', '普通': 'medium', '中等': 'medium', '困難': 'hard' };
     const targetDiff = difficultyMap[difficulty] || difficulty;
 
-    const normalizedTheme = String(theme || '').trim().toLowerCase();
-    const normalizedWeakTopics = (Array.isArray(weakTopics) ? weakTopics : (weakTopics ? [weakTopics] : []))
-      .map(function(item) { return String(item || '').trim().toLowerCase(); })
-      .filter(function(item, index, list) { return item && list.indexOf(item) === index; });
-    const weakTopicSet = {};
-    normalizedWeakTopics.forEach(function(item) { weakTopicSet[item] = true; });
-
-    const getRowTheme = function(row) {
-      return themeIdx !== -1 ? String(row[themeIdx] || '').trim() : '';
-    };
-    const rowHasBaseMatch = function(row) {
+    let filtered = data.filter(row => {
       const rowDiff = diffIdx !== -1 ? String(row[diffIdx] || "").trim().toLowerCase() : "";
+      const rowTheme = themeIdx !== -1 ? String(row[themeIdx] || "").trim() : "";
       const rowGrade = gradeIdx !== -1 ? String(row[gradeIdx] || "").trim() : "";
       const diffMatch = (!targetDiff || targetDiff === '全部') ? true : (rowDiff === targetDiff);
+      const themeMatch = (!theme || theme === '全部') ? true : (rowTheme.toLowerCase() === String(theme).toLowerCase());
       const gradeMatch = (!grade || grade === '全部') ? true : (rowGrade === grade);
       const isNotEmpty = String(row[qIdx]).trim() !== "";
-      return diffMatch && gradeMatch && isNotEmpty;
-    };
-    const shuffleRows_ = function(list) {
-      return list.slice().sort(function() { return Math.random() - 0.5; });
-    };
-    const getRowQuestionKey = function(row) {
-      return String(row[qIdx] || '').trim();
-    };
-
-    const eligibleRows = data.filter(rowHasBaseMatch);
-    const regularPool = eligibleRows.filter(function(row) {
-      const rowTheme = getRowTheme(row);
-      return (!theme || theme === '全部') ? true : (rowTheme.toLowerCase() === normalizedTheme);
-    });
-    const weakPool = eligibleRows.filter(function(row) {
-      const rowTheme = getRowTheme(row).toLowerCase();
-      return !!weakTopicSet[rowTheme];
+      return diffMatch && themeMatch && gradeMatch && isNotEmpty;
     });
 
-    if (eligibleRows.length === 0 || (regularPool.length === 0 && weakPool.length === 0)) {
+    if (filtered.length === 0) {
       return { error: '找不到符合條件的題目 (難度: ' + difficulty + ', 主題: ' + theme + ')' };
     }
 
-    const selectedQuestionKeys = {};
-    const selectedRows = [];
-    shuffleRows_(weakPool).slice(0, 5).forEach(function(row) {
-      const key = getRowQuestionKey(row);
-      if (!key || selectedQuestionKeys[key]) return;
-      selectedQuestionKeys[key] = true;
-      selectedRows.push(row);
-    });
+    filtered.sort(() => Math.random() - 0.5);
+    filtered = filtered.slice(0, 10);
 
-    shuffleRows_(regularPool).forEach(function(row) {
-      if (selectedRows.length >= 10) return;
-      const key = getRowQuestionKey(row);
-      if (!key || selectedQuestionKeys[key]) return;
-      selectedQuestionKeys[key] = true;
-      selectedRows.push(row);
-    });
-
-    shuffleRows_(eligibleRows).forEach(function(row) {
-      if (selectedRows.length >= 10) return;
-      const key = getRowQuestionKey(row);
-      if (!key || selectedQuestionKeys[key]) return;
-      selectedQuestionKeys[key] = true;
-      selectedRows.push(row);
-    });
-
-    const questions = shuffleRows_(selectedRows).slice(0, 10).map(row => {
+    const questions = filtered.map(row => {
       let options = [];
       optIndices.forEach(idx => {
         if (idx < row.length && String(row[idx]).trim() !== "") {
@@ -467,8 +421,6 @@ function getQuestions(difficulty, theme, grade, weakTopics) {
 
       return {
         question: String(row[qIdx]).trim(),
-        topic: getRowTheme(row),
-        theme: getRowTheme(row),
         options: options,
         answer: String(row[ansIdx]).trim(),
         explanation: (expIdx !== -1 && String(row[expIdx]).trim() !== "") ? String(row[expIdx]).trim() : "請留意計算步驟喔！",
