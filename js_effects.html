@@ -1,4 +1,105 @@
 <script>
+function prefersReducedMotion_() {
+    try {
+        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    } catch (e) {
+        return false;
+    }
+}
+
+function requestSciFiHaptic_(outcome) {
+    if (prefersReducedMotion_()) return;
+    if (!navigator || typeof navigator.vibrate !== 'function') return;
+    try {
+        navigator.vibrate(outcome === 'fail' ? [42, 20, 54, 18, 24] : [16, 12, 28]);
+    } catch (e) {}
+}
+
+function setQuestionCardFeedbackVars_(card, outcome) {
+    if (!card) return;
+    if (outcome === 'fail') {
+        var x1 = (7 + Math.random() * 7) * (Math.random() > 0.5 ? 1 : -1);
+        var y1 = (-1 + Math.random() * 4) * (Math.random() > 0.5 ? 1 : -1);
+        var tilt1 = (0.65 + Math.random() * 0.65) * (x1 > 0 ? 1 : -1);
+        card.style.setProperty('--impact-x1', x1 + 'px');
+        card.style.setProperty('--impact-y1', y1 + 'px');
+        card.style.setProperty('--impact-tilt1', tilt1 + 'deg');
+        card.style.setProperty('--impact-x2', (-x1 * 0.82) + 'px');
+        card.style.setProperty('--impact-y2', (-y1 * 0.36) + 'px');
+        card.style.setProperty('--impact-tilt2', (-tilt1 * 0.78) + 'deg');
+        card.style.setProperty('--impact-x3', (x1 * 0.58) + 'px');
+        card.style.setProperty('--impact-y3', (y1 * 0.28) + 'px');
+        card.style.setProperty('--impact-tilt3', (tilt1 * 0.52) + 'deg');
+        card.style.setProperty('--impact-x4', (-x1 * 0.34) + 'px');
+        card.style.setProperty('--impact-y4', (-y1 * 0.12) + 'px');
+        card.style.setProperty('--impact-tilt4', (-tilt1 * 0.26) + 'deg');
+        return;
+    }
+    card.style.setProperty('--success-rise', (7 + Math.random() * 5) + 'px');
+    card.style.setProperty('--success-rebound', (2 + Math.random() * 2) + 'px');
+    card.style.setProperty('--success-scale-peak', (1.018 + Math.random() * 0.012).toFixed(3));
+    card.style.setProperty('--success-scale-settle', (1.004 + Math.random() * 0.006).toFixed(3));
+}
+
+function spawnQuestionCardFeedbackFlash_(card, outcome) {
+    if (!card) return;
+    Array.prototype.forEach.call(card.querySelectorAll('.question-card-feedback-flash'), function(node) {
+        node.remove();
+    });
+    card.classList.add('question-card-feedback-host');
+    var flash = document.createElement('div');
+    flash.className = 'question-card-feedback-flash ' + (outcome === 'fail' ? 'is-wrong' : 'is-correct');
+    card.appendChild(flash);
+    setTimeout(function() {
+        if (flash.parentNode) flash.parentNode.removeChild(flash);
+    }, outcome === 'fail' ? 560 : 720);
+}
+
+function spawnQuestionCardFeedbackDecor_(card, outcome) {
+    if (!card) return;
+    Array.prototype.forEach.call(card.querySelectorAll('.question-card-feedback-ornament'), function(node) {
+        node.remove();
+    });
+    card.classList.add('question-card-feedback-host');
+    if (outcome === 'fail') {
+        var scanline = document.createElement('div');
+        scanline.className = 'question-card-feedback-ornament is-scanline';
+        card.appendChild(scanline);
+        setTimeout(function() {
+            if (scanline.parentNode) scanline.parentNode.removeChild(scanline);
+        }, 520);
+        return;
+    }
+    for (var i = 0; i < 2; i++) {
+        (function(delayMs) {
+            var ring = document.createElement('div');
+            ring.className = 'question-card-feedback-ornament is-energy-ring';
+            ring.style.animationDelay = delayMs + 'ms';
+            card.appendChild(ring);
+            setTimeout(function() {
+                if (ring.parentNode) ring.parentNode.removeChild(ring);
+            }, 860 + delayMs);
+        })(i * 70);
+    }
+}
+
+function triggerSciFiAnswerFeedback_(cardId, stateClass) {
+    var card = document.getElementById(cardId || '');
+    if (!card || !stateClass) return;
+    var outcome = stateClass === 'question-card-fail' ? 'fail' : 'success';
+    setQuestionCardFeedbackVars_(card, outcome);
+    spawnQuestionCardFeedbackFlash_(card, outcome);
+    spawnQuestionCardFeedbackDecor_(card, outcome);
+    requestSciFiHaptic_(outcome);
+    card.classList.remove('question-card-success', 'question-card-fail');
+    void card.offsetWidth;
+    card.classList.add(stateClass);
+    setTimeout(function() {
+        if (!card) return;
+        card.classList.remove(stateClass);
+    }, outcome === 'fail' ? 620 : 720);
+}
+
 function launchConfetti(customColors) {
     var colors = customColors || (typeof getActiveThemeParticlePalette_ === 'function' ? getActiveThemeParticlePalette_() : null) || getEquippedEffectColors();
     if (!colors) return;

@@ -64,31 +64,54 @@ function openFirstSheetById_(sheetId, label) {
   return sheets[0];
 }
 
+function findSheetByPossibleNames_(sheets, possibleNames) {
+  var candidates = (possibleNames || []).map(function(name) {
+    return String(name || '').toLowerCase().normalize('NFKC').replace(/[\s_\.\-:：]+/g, '');
+  }).filter(function(name) { return name !== ''; });
+
+  for (var i = 0; i < sheets.length; i++) {
+    var sheet = sheets[i];
+    var normalized = String(sheet.getName() || '').toLowerCase().normalize('NFKC').replace(/[\s_\.\-:：]+/g, '');
+    if (candidates.indexOf(normalized) !== -1) return sheet;
+  }
+
+  return null;
+}
+
 function openQuestionTypeSheetsById_(sheetId, label) {
   if (!sheetId) {
     throw new Error('缺少 ' + label + ' 設定，請檢查 Script Properties。');
   }
 
   var ss = SpreadsheetApp.openById(sheetId);
+  var allSheets = ss.getSheets();
   var sheetConfigs = [
-    { name: 'multipleChoice', questionType: 'multipleChoice' },
-    { name: 'fillBlank', questionType: 'fillBlank' },
-    { name: 'matching', questionType: 'matching' }
+    {
+      names: ['multipleChoice', 'multiple choice', 'multiple_choice', 'multiple-choice', 'mc', 'choice', 'choices', '選擇題', '選擇'],
+      questionType: 'multipleChoice'
+    },
+    {
+      names: ['fillBlank', 'fill blank', 'fill_blank', 'fill-blank', 'fillintheblank', 'blank', '填空題', '填空', '填充題', '填充'],
+      questionType: 'fillBlank'
+    },
+    {
+      names: ['matching', 'match', 'pairing', 'pairmatch', '配對題', '配對'],
+      questionType: 'matching'
+    }
   ];
   var sources = sheetConfigs.map(function(config) {
-    var sheet = ss.getSheetByName(config.name);
+    var sheet = findSheetByPossibleNames_(allSheets, config.names);
     if (!sheet) return null;
     return { sheet: sheet, questionType: config.questionType };
   }).filter(function(item) { return !!item; });
 
   if (sources.length) return sources;
 
-  var fallbackSheets = ss.getSheets();
-  if (!fallbackSheets || !fallbackSheets.length) {
+  if (!allSheets || !allSheets.length) {
     throw new Error(label + ' 內沒有可讀取的工作表。');
   }
 
-  return [{ sheet: fallbackSheets[0], questionType: '' }];
+  return [{ sheet: allSheets[0], questionType: '' }];
 }
 
 function doGet() {
@@ -228,6 +251,83 @@ function buildAcceptedAnswers_(answerValue, extraValue) {
   return accepted;
 }
 
+function parseMatchingPairsFromAnswer_(answerValue) {
+  return String(answerValue || '')
+    .split(/\r?\n|\s*[\|｜;；]\s*/)
+    .map(function(entry) { return String(entry || '').trim(); })
+    .filter(function(entry) { return entry !== ''; })
+    .map(function(entry) {
+      var parts = entry.split(/\s*(?:->|=>|→|⇒|⟶|⟹)\s*/);
+      if (parts.length < 2) return null;
+      var left = String(parts.shift() || '').trim();
+      var right = String(parts.join('->') || '').trim();
+      if (!left || !right) return null;
+      return { left: left, right: right };
+    })
+    .filter(function(pair) { return !!pair; });
+}
+
+function normalizeGroupedOptionSeparators_(value) {
+  var text = String(value || '');
+  var normalized = '';
+  var roundDepth = 0;
+  var squareDepth = 0;
+  var curlyDepth = 0;
+
+  for (var i = 0; i < text.length; i++) {
+    var ch = text.charAt(i);
+
+    if (ch === '(') roundDepth++;
+    else if (ch === ')' && roundDepth > 0) roundDepth--;
+    else if (ch === '[') squareDepth++;
+    else if (ch === ']' && squareDepth > 0) squareDepth--;
+    else if (ch === '{') curlyDepth++;
+    else if (ch === '}' && curlyDepth > 0) curlyDepth--;
+
+    if ((ch === ';' || ch === '；') && (roundDepth > 0 || squareDepth > 0 || curlyDepth > 0)) {
+      normalized += ',';
+      continue;
+    }
+
+    normalized += ch;
+  }
+
+  return normalized;
+}
+
+function splitOptionsByCommaOutsideGrouping_(value) {
+  var text = normalizeGroupedOptionSeparators_(value);
+  var options = [];
+  var current = '';
+  var roundDepth = 0;
+  var squareDepth = 0;
+  var curlyDepth = 0;
+
+  for (var i = 0; i < text.length; i++) {
+    var ch = text.charAt(i);
+
+    if (ch === '(') roundDepth++;
+    else if (ch === ')' && roundDepth > 0) roundDepth--;
+    else if (ch === '[') squareDepth++;
+    else if (ch === ']' && squareDepth > 0) squareDepth--;
+    else if (ch === '{') curlyDepth++;
+    else if (ch === '}' && curlyDepth > 0) curlyDepth--;
+
+    if ((ch === ',' || ch === '，') && roundDepth === 0 && squareDepth === 0 && curlyDepth === 0) {
+      var normalized = current.trim();
+      if (normalized !== '') options.push(normalized);
+      current = '';
+      continue;
+    }
+
+    current += ch;
+  }
+
+  var tail = current.trim();
+  if (tail !== '') options.push(tail);
+  return options;
+}
+
 function extractQuestionOptions_(row, optIndices) {
   var options = [];
   (optIndices || []).forEach(function(idx) {
@@ -237,9 +337,9 @@ function extractQuestionOptions_(row, optIndices) {
   });
 
   if (options.length === 1) {
-    var singleOpt = options[0];
+    var singleOpt = normalizeGroupedOptionSeparators_(options[0]);
     if (singleOpt.includes(',') || singleOpt.includes('，')) {
-      options = singleOpt.split(/[,，]/).map(function(item) { return item.trim(); }).filter(function(item) { return item !== ''; });
+      options = splitOptionsByCommaOutsideGrouping_(singleOpt);
     } else if (singleOpt.includes('\n')) {
       options = singleOpt.split('\n').map(function(item) { return item.trim(); }).filter(function(item) { return item !== ''; });
     } else if (/A[\.\)]/i.test(singleOpt) && /B[\.\)]/i.test(singleOpt)) {
@@ -258,7 +358,7 @@ function extractQuestionOptions_(row, optIndices) {
   return options;
 }
 
-function buildMatchingPairs_(leftValue, rightValue) {
+function buildMatchingPairs_(leftValue, rightValue, answerValue) {
   var leftItems = parseCellList_(leftValue);
   var rightItems = parseCellList_(rightValue);
   var count = Math.min(leftItems.length, rightItems.length);
@@ -268,7 +368,7 @@ function buildMatchingPairs_(leftValue, rightValue) {
     pairs.push({ left: leftItems[i], right: rightItems[i] });
   }
 
-  return pairs;
+  return pairs.length ? pairs : parseMatchingPairsFromAnswer_(answerValue);
 }
 
 function buildQuestionPayload_(row, config) {
@@ -291,7 +391,8 @@ function buildQuestionPayload_(row, config) {
   if (questionType === 'matching') {
     payload.matchingPairs = buildMatchingPairs_(
       config.matchLeftIdx !== -1 ? row[config.matchLeftIdx] : '',
-      config.matchRightIdx !== -1 ? row[config.matchRightIdx] : ''
+      config.matchRightIdx !== -1 ? row[config.matchRightIdx] : '',
+      answer
     );
     payload.options = [];
     if (!payload.matchingPairs.length) return null;
@@ -564,8 +665,8 @@ function getQuestions(difficulty, theme, grade) {
       const typeIdx  = findIdx(['questiontype', '題型', '題目類型', 'qtype', 'questionkind']);
       const acceptedIdx = findIdx(['acceptedanswers', 'acceptableanswers', 'altanswers', '可接受答案', '其他答案']);
       const imgIdx   = findIdx(['image', 'imageurl', '圖片', '圖片url', '插圖']);
-      const matchLeftIdx = findIdx(['matchingleft', 'leftitems', 'leftoptions', 'pairleft', '配對左', '配對左欄', '左欄']);
-      const matchRightIdx = findIdx(['matchingright', 'rightitems', 'rightoptions', 'pairright', '配對右', '配對右欄', '右欄']);
+      const matchLeftIdx = findIdx(['matchingleft', 'leftitems', 'leftoptions', 'pairleft', '配對左', '配對左欄', '左欄', 'left']);
+      const matchRightIdx = findIdx(['matchingright', 'rightitems', 'rightoptions', 'pairright', '配對右', '配對右欄', '右欄', 'right']);
       const optAIdx  = findIdx(['optiona', '選項a', 'a', 'option1', '選項1', 'choicea', 'choice1', '選擇a', '選擇1', 'opt1', 'opta', '1', '選項', '選擇', 'option', 'options', 'choices']);
       const optBIdx  = findIdx(['optionb', '選項b', 'b', 'option2', '選項2', 'choiceb', 'choice2', '選擇b', '選擇2', 'opt2', 'optb', '2']);
       const optCIdx  = findIdx(['optionc', '選項c', 'c', 'option3', '選項3', 'choicec', 'choice3', '選擇c', '選擇3', 'opt3', 'optc', '3']);
@@ -1339,8 +1440,8 @@ function getNotesQuiz(topic, grade, section, schoolLevel) {
       var acceptedIdx = findIdx(['acceptedanswers', 'acceptableanswers', 'altanswers', '可接受答案', '其他答案']);
       var ptsIdx     = findIdx(['積分', 'points', '分數', 'score', 'reward']);
       var imgIdx     = findIdx(['image', 'imageurl', '圖片', '圖片url', '插圖']);
-      var matchLeftIdx = findIdx(['matchingleft', 'leftitems', 'leftoptions', 'pairleft', '配對左', '配對左欄', '左欄']);
-      var matchRightIdx = findIdx(['matchingright', 'rightitems', 'rightoptions', 'pairright', '配對右', '配對右欄', '右欄']);
+      var matchLeftIdx = findIdx(['matchingleft', 'leftitems', 'leftoptions', 'pairleft', '配對左', '配對左欄', '左欄', 'left']);
+      var matchRightIdx = findIdx(['matchingright', 'rightitems', 'rightoptions', 'pairright', '配對右', '配對右欄', '右欄', 'right']);
       var optAIdx  = findIdx(['optiona', '選項a', 'a', 'option1', '選項1']);
       var optBIdx  = findIdx(['optionb', '選項b', 'b', 'option2', '選項2']);
       var optCIdx  = findIdx(['optionc', '選項c', 'c', 'option3', '選項3']);
