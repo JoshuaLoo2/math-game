@@ -4,34 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>數學安多fun- 終極動態版</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
 
-    <!-- KaTeX 數學公式渲染 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <!-- DNS / connection 預熱 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
 
     <!-- Firebase Compat SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
 
+    <!-- KaTeX 數學公式渲染 — 登入時不需要，延遲載入 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+
     <style>
-        body {
-            font-family: 'Noto Sans TC', 'Inter', sans-serif;
-            color: #1f3b2f;
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-color: #eef9ef;
-            background-image:
+        :root {
+            --theme-body-bg: #eef9ef;
+            --theme-body-image:
                 radial-gradient(circle at 12% 14%, rgba(255, 249, 196, 0.95) 0%, rgba(255, 249, 196, 0) 18%),
                 radial-gradient(circle at 84% 12%, rgba(191, 219, 254, 0.55) 0%, rgba(191, 219, 254, 0) 20%),
                 radial-gradient(circle at 50% 120%, rgba(110, 231, 183, 0.22) 0%, rgba(110, 231, 183, 0) 38%),
                 linear-gradient(rgba(110, 231, 183, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(110, 231, 183, 0.05) 1px, transparent 1px),
                 linear-gradient(180deg, #effcf6 0%, #dff7ec 44%, #d4efe0 100%);
-            background-size: auto, auto, auto, 48px 48px, 48px 48px, auto;
+            --theme-body-size: auto, auto, auto, 48px 48px, 48px 48px, auto;
+            --theme-body-before: radial-gradient(circle, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%);
+            --theme-body-after: radial-gradient(circle, rgba(167,243,208,0.5) 0%, rgba(167,243,208,0) 68%);
+            --theme-panel-bg: linear-gradient(180deg, rgba(255,255,255,0.84) 0%, rgba(248,255,250,0.78) 100%);
+            --theme-panel-shadow:
+                0 18px 46px 0 rgba(35, 84, 55, 0.12),
+                0 0 0 1px rgba(255,255,255,0.42) inset,
+                0 0 24px rgba(52, 211, 153, 0.16),
+                0 0 42px rgba(59, 130, 246, 0.12);
+            --theme-panel-border-gradient: linear-gradient(
+                115deg,
+                rgba(34, 211, 238, 0.18) 0%,
+                rgba(110, 231, 183, 0.34) 14%,
+                rgba(56, 189, 248, 0.78) 30%,
+                rgba(129, 140, 248, 0.5) 46%,
+                rgba(255, 209, 102, 0.42) 60%,
+                rgba(45, 212, 191, 0.66) 76%,
+                rgba(125, 211, 252, 0.82) 88%,
+                rgba(34, 211, 238, 0.18) 100%
+            );
+            --theme-panel-glow-gradient: linear-gradient(
+                135deg,
+                rgba(34, 211, 238, 0.06) 0%,
+                rgba(96, 165, 250, 0.2) 22%,
+                rgba(129, 140, 248, 0.14) 40%,
+                rgba(253, 224, 71, 0.1) 56%,
+                rgba(45, 212, 191, 0.24) 74%,
+                rgba(125, 211, 252, 0.14) 100%
+            );
+            --theme-panel-glow-shadow:
+                0 0 24px rgba(34, 211, 238, 0.18),
+                0 0 36px rgba(59, 130, 246, 0.16),
+                0 0 52px rgba(45, 212, 191, 0.14);
+            --theme-math-color: rgba(255,255,255,0.3);
+            --theme-math-shadow: 0 0 14px rgba(255,255,255,0.18);
+            --theme-math-font: 'Times New Roman', Times, serif;
+            --theme-math-weight: 700;
+        }
+        body {
+            font-family: 'Noto Sans TC', 'Inter', sans-serif;
+            color: #1f3b2f;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-color: var(--theme-body-bg);
+            background-image: var(--theme-body-image);
+            background-size: var(--theme-body-size);
             position: relative;
+            transition: background-color 0.45s ease, color 0.3s ease;
         }
         body::before,
         body::after {
@@ -49,7 +98,7 @@
             width: 18rem;
             height: 18rem;
             border-radius: 999px;
-            background: radial-gradient(circle, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%);
+            background: var(--theme-body-before);
         }
         body::after {
             right: -7%;
@@ -57,22 +106,19 @@
             width: 22rem;
             height: 22rem;
             border-radius: 999px;
-            background: radial-gradient(circle, rgba(167,243,208,0.5) 0%, rgba(167,243,208,0) 68%);
+            background: var(--theme-body-after);
         }
         .glass-panel {
             position: relative;
             isolation: isolate;
-            background: linear-gradient(180deg, rgba(255,255,255,0.84) 0%, rgba(248,255,250,0.78) 100%);
+            background: var(--theme-panel-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid transparent;
-            box-shadow:
-                0 18px 46px 0 rgba(35, 84, 55, 0.12),
-                0 0 0 1px rgba(255,255,255,0.42) inset,
-                0 0 24px rgba(52, 211, 153, 0.16),
-                0 0 42px rgba(59, 130, 246, 0.12);
+            box-shadow: var(--theme-panel-shadow);
             border-radius: 1.9rem;
             background-clip: padding-box;
+            transition: background 0.35s ease, box-shadow 0.35s ease;
         }
         .glass-panel::before,
         .glass-panel::after {
@@ -84,17 +130,7 @@
         }
         .glass-panel::before {
             padding: 1.6px;
-            background: linear-gradient(
-                115deg,
-                rgba(34, 211, 238, 0.18) 0%,
-                rgba(110, 231, 183, 0.34) 14%,
-                rgba(56, 189, 248, 0.78) 30%,
-                rgba(129, 140, 248, 0.5) 46%,
-                rgba(255, 209, 102, 0.42) 60%,
-                rgba(45, 212, 191, 0.66) 76%,
-                rgba(125, 211, 252, 0.82) 88%,
-                rgba(34, 211, 238, 0.18) 100%
-            );
+            background: var(--theme-panel-border-gradient);
             background-size: 240% 240%;
             background-position: 0% 50%;
             -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -108,23 +144,12 @@
         }
         .glass-panel::after {
             inset: -5px;
-            background: linear-gradient(
-                135deg,
-                rgba(34, 211, 238, 0.06) 0%,
-                rgba(96, 165, 250, 0.2) 22%,
-                rgba(129, 140, 248, 0.14) 40%,
-                rgba(253, 224, 71, 0.1) 56%,
-                rgba(45, 212, 191, 0.24) 74%,
-                rgba(125, 211, 252, 0.14) 100%
-            );
+            background: var(--theme-panel-glow-gradient);
             background-size: 230% 230%;
             background-position: 0% 50%;
             filter: blur(15px) saturate(1.14);
             opacity: 0.62;
-            box-shadow:
-                0 0 24px rgba(34, 211, 238, 0.18),
-                0 0 36px rgba(59, 130, 246, 0.16),
-                0 0 52px rgba(45, 212, 191, 0.14);
+            box-shadow: var(--theme-panel-glow-shadow);
             animation: glassPanelBorderGlow 7.8s ease-in-out infinite;
             z-index: -1;
         }
@@ -149,15 +174,132 @@
             position: absolute;
             top: 0;
             left: 0;
-            color: rgba(255,255,255,0.3);
-            font-weight: bold;
-            font-family: 'Times New Roman', Times, serif;
+            color: var(--theme-math-color);
+            text-shadow: var(--theme-math-shadow);
+            font-weight: var(--theme-math-weight);
+            font-family: var(--theme-math-font);
             animation: symbolRise linear infinite;
             animation-fill-mode: backwards;
             -webkit-animation-fill-mode: backwards;
             will-change: transform;
         }
         .math-symbol--snow { color: rgba(255,255,255,0.55); font-weight: 400; font-family: system-ui, 'Segoe UI Symbol', sans-serif; text-shadow: 0 0 10px rgba(255,255,255,0.35); }
+        .home-visual-theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.55rem 0.9rem;
+            border-radius: 1rem;
+            border: 2px solid rgba(99,102,241,0.14);
+            background: rgba(255,255,255,0.82);
+            color: #4338ca;
+            box-shadow: 0 10px 24px rgba(79,70,229,0.12);
+        }
+        .theme-showcase-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.7rem;
+            padding: 1.25rem;
+            border: 1px solid rgba(191,219,254,0.42);
+            background: linear-gradient(135deg, rgba(255,255,255,0.94) 0%, rgba(248,250,252,0.86) 52%, rgba(219,234,254,0.74) 100%);
+            box-shadow: 0 18px 40px rgba(15,23,42,0.08);
+        }
+        .theme-showcase-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(125,211,252,0.18) 0%, rgba(125,211,252,0) 34%), radial-gradient(circle at bottom left, rgba(244,114,182,0.14) 0%, rgba(244,114,182,0) 36%);
+            pointer-events: none;
+        }
+        .theme-showcase-card__content {
+            position: relative;
+            z-index: 1;
+        }
+        .theme-showcase-card__eyebrow {
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #0284c7;
+        }
+        .theme-showcase-card__headline {
+            font-size: 1.45rem;
+            line-height: 1.25;
+            font-weight: 900;
+            color: #0f172a;
+        }
+        .theme-showcase-card__desc {
+            font-size: 0.96rem;
+            line-height: 1.7;
+            color: #475569;
+        }
+        .theme-showcase-card__element {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.7rem 0.85rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(148,163,184,0.18);
+            background: rgba(255,255,255,0.76);
+            box-shadow: 0 10px 20px rgba(15,23,42,0.06);
+        }
+        .theme-showcase-card__element-emoji {
+            font-size: 1.35rem;
+            line-height: 1;
+        }
+        .theme-showcase-card__element-title {
+            font-size: 0.82rem;
+            font-weight: 900;
+            color: #1e293b;
+        }
+        .theme-showcase-card__element-desc {
+            font-size: 0.78rem;
+            color: #64748b;
+        }
+        .theme-showcase-orbit {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 0.55rem;
+            max-width: 14rem;
+            pointer-events: none;
+        }
+        .theme-showcase-orbit__token {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.25rem;
+            height: 2.25rem;
+            padding: 0 0.8rem;
+            border-radius: 999px;
+            background: rgba(15,23,42,0.08);
+            border: 1px solid rgba(255,255,255,0.6);
+            color: #0f172a;
+            font-size: 1rem;
+            box-shadow: 0 10px 24px rgba(15,23,42,0.08);
+            animation: themeOrbitFloat 5.5s ease-in-out infinite;
+        }
+        .theme-showcase-orbit__token:nth-child(2n) { animation-duration: 6.6s; }
+        .theme-showcase-orbit__token:nth-child(3n) { animation-duration: 4.9s; }
+        .theme-showcase-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.55rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.78);
+            border: 1px solid rgba(99,102,241,0.18);
+            color: #3730a3;
+            font-size: 0.82rem;
+            font-weight: 900;
+        }
+        @keyframes themeOrbitFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-6px) scale(1.04); }
+        }
         @keyframes symbolRise {
             0%   { transform: translate3d(0, 105vh, 0) rotate(0deg) scale(0.85); opacity: 0; }
             8%   { opacity: 0.95; }
@@ -649,7 +791,206 @@
         .mini-lb-medal { width:1.1rem; text-align:center; flex-shrink:0; font-size:0.85rem; }
         .mini-lb-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:flex; align-items:center; gap:0.35rem; }
         .mini-lb-score { flex-shrink:0; font-weight:700; font-variant-numeric:tabular-nums; }
-        @media(max-width:640px){ .mini-lb-panel{width:150px;top:0.5rem;right:0.5rem;padding:0.55rem 0.65rem;} .mini-lb-row{font-size:0.7rem;} .game-stage{padding:1rem 0.9rem 1.2rem!important;margin-top:0.6rem!important;overflow:visible!important;} .game-stage-topbar{margin-bottom:0.95rem!important;padding:0.85rem!important;align-items:stretch;gap:0.65rem;flex-wrap:wrap;} .game-stage-topbar > :first-child{width:100%;} .game-stage-topbar > :nth-child(2){order:3;width:100%;margin:0!important;height:0.8rem;} .game-stage-topbar > :last-child{margin-left:auto;} .game-stage-question{padding:1.1rem!important;margin-bottom:0.95rem!important;min-height:120px;} #question{font-size:1.55rem!important;line-height:1.35!important;} #options{gap:0.7rem!important;grid-template-columns:minmax(0,1fr)!important;} #options button{padding:0.95rem 1rem!important;font-size:1rem!important;line-height:1.4!important;border-radius:1.1rem!important;min-width:0!important;white-space:normal!important;overflow:visible!important;word-break:break-word!important;} #options button span:first-child{width:1.85rem!important;height:1.85rem!important;line-height:1.85rem!important;margin-right:0.6rem!important;} #combo-display{padding:0.55rem 0.75rem!important;} #notes-quiz{padding:1rem 0.9rem 1.25rem!important;margin-top:0.7rem!important;overflow:visible!important;} #notes-quiz .notes-stage-banner{margin-bottom:0.95rem!important;padding:0.85rem 0.8rem!important;} #notes-quiz .notes-stage-banner__chips{gap:0.45rem!important;margin-top:0.6rem!important;} #nq-topic-name{font-size:0.95rem!important;} #nq-question-card{padding:1rem!important;margin-bottom:0.9rem!important;min-height:104px;} #nq-question{font-size:1.3rem!important;line-height:1.42!important;} #nq-options{gap:0.7rem!important;grid-template-columns:minmax(0,1fr)!important;} #nq-options button{padding:0.9rem 0.95rem!important;font-size:0.98rem!important;line-height:1.42!important;border-radius:1rem!important;min-width:0!important;white-space:normal!important;overflow:visible!important;word-break:break-word!important;} #nq-options button span:first-child{width:1.75rem!important;height:1.75rem!important;line-height:1.75rem!important;margin-right:0.55rem!important;} #nq-points-hint{margin-top:0.7rem!important;font-size:0.8rem!important;line-height:1.35!important;} }
+        /* 修正：KaTeX 分數在選項按鈕中垂直對齊 */
+        #options button, #dc-options button, #nq-options button {
+            display: flex !important;
+            align-items: center !important;
+            flex-wrap: nowrap !important;
+        }
+        #options button span:first-child, #dc-options button span:first-child, #nq-options button span:first-child {
+            flex-shrink: 0;
+        }
+        #options button .opt-text, #dc-options button .opt-text, #nq-options button .opt-text {
+            flex: 1;
+            min-width: 0;
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .matching-dnd-board {
+            position: relative;
+        }
+        .matching-dnd-instructions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .matching-dnd-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.7rem;
+            border-radius: 999px;
+            background: rgba(241, 245, 249, 0.95);
+            border: 1px solid rgba(203, 213, 225, 0.95);
+            color: #475569;
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+        .matching-dnd-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            min-height: 5rem;
+            padding: 0.9rem;
+            border-radius: 1.4rem;
+            border: 2px dashed rgba(99, 102, 241, 0.24);
+            background: linear-gradient(180deg, rgba(248, 250, 252, 0.96) 0%, rgba(238, 242, 255, 0.9) 100%);
+            transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+        }
+        .matching-dnd-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 0.85rem;
+            align-items: stretch;
+        }
+        .matching-dnd-left {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            padding: 0.95rem 1rem;
+            border-radius: 1.3rem;
+            border: 1px solid rgba(203, 213, 225, 0.9);
+            background: rgba(248, 250, 252, 0.96);
+            color: #334155;
+            font-weight: 800;
+        }
+        .matching-dnd-left__badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.9rem;
+            height: 1.9rem;
+            border-radius: 999px;
+            background: rgba(226, 232, 240, 0.95);
+            color: #475569;
+            font-size: 0.8rem;
+            margin-right: 0.7rem;
+            flex-shrink: 0;
+        }
+        .matching-dnd-left__content {
+            min-width: 0;
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .matching-dnd-slot {
+            position: relative;
+            display: flex;
+            align-items: center;
+            min-height: 4.4rem;
+            padding: 0.6rem;
+            border-radius: 1.3rem;
+            border: 2px dashed rgba(148, 163, 184, 0.55);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(248, 250, 252, 0.9) 100%);
+            transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+        }
+        .matching-dnd-slot.has-value {
+            border-style: solid;
+            border-color: rgba(129, 140, 248, 0.4);
+            background: linear-gradient(180deg, rgba(238, 242, 255, 0.95) 0%, rgba(224, 231, 255, 0.9) 100%);
+        }
+        .matching-dnd-slot__placeholder {
+            color: #94a3b8;
+            font-size: 0.88rem;
+            font-weight: 700;
+            padding-left: 0.2rem;
+        }
+        .matching-dnd-pool.is-drop-target,
+        .matching-dnd-slot.is-drop-target {
+            border-color: rgba(79, 70, 229, 0.78);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+            background: linear-gradient(180deg, rgba(238, 242, 255, 0.98) 0%, rgba(224, 231, 255, 0.94) 100%);
+        }
+        .matching-dnd-token {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            max-width: 100%;
+            min-height: 3rem;
+            padding: 0.8rem 0.95rem;
+            border-radius: 1.15rem;
+            border: 1px solid rgba(99, 102, 241, 0.16);
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(238,242,255,0.92) 100%);
+            box-shadow: 0 10px 24px rgba(79, 70, 229, 0.1);
+            color: #312e81;
+            font-size: 0.98rem;
+            font-weight: 800;
+            text-align: left;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, opacity 0.16s ease;
+        }
+        .matching-dnd-token:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 26px rgba(79, 70, 229, 0.14);
+        }
+        .matching-dnd-token:active {
+            cursor: grabbing;
+        }
+        .matching-dnd-token--selected {
+            border-color: rgba(79, 70, 229, 0.72);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12), 0 12px 28px rgba(79, 70, 229, 0.16);
+            transform: translateY(-1px);
+        }
+        .matching-dnd-token--origin-hidden {
+            opacity: 0.22;
+        }
+        .matching-dnd-token--ghost {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 9999;
+            margin: 0;
+            pointer-events: none;
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.2);
+            transform: translate3d(0, 0, 0);
+        }
+        .matching-dnd-token__grip {
+            flex-shrink: 0;
+            color: rgba(99, 102, 241, 0.65);
+            font-size: 1rem;
+            letter-spacing: -0.1em;
+        }
+        .matching-dnd-token__content {
+            min-width: 0;
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .matching-dnd-board.is-disabled .matching-dnd-token,
+        .matching-dnd-board.is-disabled .matching-dnd-slot,
+        .matching-dnd-board.is-disabled .matching-dnd-pool {
+            cursor: default;
+            opacity: 0.8;
+        }
+        /* 手機/觸控裝置停用 hover 位移，防止跳動 */
+        @media (hover: none) {
+            .btn-neon:hover { transform: none !important; }
+            .btn-neon-opt--indigo:hover, .btn-neon-opt--emerald:hover, .btn-neon-opt--purple:hover { transform: none !important; }
+            .btn-neon-card:hover { transform: none !important; }
+            .matching-dnd-token:hover { transform: none; }
+        }
+        @media (max-width: 640px) {
+            .matching-dnd-row {
+                grid-template-columns: 1fr;
+            }
+            .matching-dnd-pool,
+            .matching-dnd-slot,
+            .matching-dnd-left {
+                border-radius: 1.15rem;
+            }
+            .matching-dnd-token {
+                width: 100%;
+                justify-content: flex-start;
+                font-size: 0.94rem;
+            }
+        }
+        @media(max-width:640px){ .mini-lb-panel{width:150px;top:0.5rem;right:0.5rem;padding:0.55rem 0.65rem;} .mini-lb-row{font-size:0.7rem;} .game-stage{padding:1rem 0.9rem 1.2rem!important;margin-top:0.6rem!important;overflow:visible!important;} .game-stage-topbar{margin-bottom:0.95rem!important;padding:0.85rem!important;align-items:stretch;gap:0.65rem;flex-wrap:wrap;} .game-stage-topbar > :first-child{width:100%;} .game-stage-topbar > :nth-child(2){order:3;width:100%;margin:0!important;height:0.8rem;} .game-stage-topbar > :last-child{margin-left:auto;} .game-stage-question{padding:1.1rem!important;margin-bottom:0.95rem!important;min-height:120px;} #question{font-size:1.55rem!important;line-height:1.35!important;} #options{gap:0.7rem!important;grid-template-columns:minmax(0,1fr)!important;} #options button{padding:0.95rem 1rem!important;font-size:1rem!important;line-height:1.4!important;border-radius:1.1rem!important;min-width:0!important;white-space:normal!important;overflow:visible!important;word-break:break-word!important;} #options button span:first-child{width:1.85rem!important;height:1.85rem!important;line-height:1.85rem!important;margin-right:0.6rem!important;} #combo-display{padding:0.55rem 0.75rem!important;} #dc-options{gap:0.7rem!important;grid-template-columns:minmax(0,1fr)!important;} #dc-options button{padding:0.95rem 1rem!important;font-size:1rem!important;line-height:1.4!important;border-radius:1.1rem!important;min-width:0!important;white-space:normal!important;overflow:visible!important;word-break:break-word!important;} #dc-options button span:first-child{width:1.85rem!important;height:1.85rem!important;line-height:1.85rem!important;margin-right:0.6rem!important;} #notes-quiz{padding:1rem 0.9rem 1.25rem!important;margin-top:0.7rem!important;overflow:visible!important;} #notes-quiz .notes-stage-banner{margin-bottom:0.95rem!important;padding:0.85rem 0.8rem!important;} #notes-quiz .notes-stage-banner__chips{gap:0.45rem!important;margin-top:0.6rem!important;} #nq-topic-name{font-size:0.95rem!important;} #nq-question-card{padding:1rem!important;margin-bottom:0.9rem!important;min-height:104px;} #nq-question{font-size:1.3rem!important;line-height:1.42!important;} #nq-options{gap:0.7rem!important;grid-template-columns:minmax(0,1fr)!important;} #nq-options button{padding:0.9rem 0.95rem!important;font-size:0.98rem!important;line-height:1.42!important;border-radius:1rem!important;min-width:0!important;white-space:normal!important;overflow:visible!important;word-break:break-word!important;} #nq-options button span:first-child{width:1.75rem!important;height:1.75rem!important;line-height:1.75rem!important;margin-right:0.55rem!important;} #nq-points-hint{margin-top:0.7rem!important;font-size:0.8rem!important;line-height:1.35!important;} }
         @media(prefers-reduced-motion:reduce){ .concert-beam--a,.concert-beam--b,.concert-beam--c,.question-card-refresh,.question-option-enter,.glass-panel::before,.glass-panel::after{animation:none!important;opacity:1;} .glass-panel::before{opacity:0.76;filter:saturate(1.04) brightness(1.02);background-position:50% 50%;} .glass-panel::after{opacity:0.3;filter:blur(11px);background-position:50% 50%;} }
 
         /* 筆記閱讀器 */
@@ -893,6 +1234,17 @@
             position: relative;
             z-index: 1;
             max-width: 15rem;
+        }
+        @media (max-width: 640px) {
+            .theme-showcase-orbit {
+                position: static;
+                justify-content: flex-start;
+                max-width: none;
+                margin-top: 0.9rem;
+            }
+            .theme-showcase-card__headline {
+                font-size: 1.2rem;
+            }
         }
         #student-profile-modal-content .profile-kpi-card__medal {
             position: relative;
@@ -2342,16 +2694,22 @@
         }
         .mascot-wrap.mascot-hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
         .mascot-char {
-            font-size: 4.5rem;
+            position: relative;
+            width: 5.3rem;
+            height: 5.9rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
             line-height: 1;
             filter: drop-shadow(0 4px 12px rgba(0,0,0,0.18));
             cursor: pointer;
             transition: transform 0.3s;
+            transform-origin: 50% 85%;
         }
-        .mascot-idle { animation: mascotFloat 3s ease-in-out infinite; }
+        .mascot-idle { animation: mascotFloat 3.4s ease-in-out infinite; }
         @keyframes mascotFloat {
             0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-8px) scale(1.03); }
+            50% { transform: translateY(-7px) scale(1.03); }
         }
         .mascot-celebrate { animation: mascotJump 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 3; }
         @keyframes mascotJump {
@@ -2372,6 +2730,565 @@
             0%, 100% { transform: translateY(0) rotate(0deg); }
             30% { transform: translateY(-5px) rotate(-4deg); }
             70% { transform: translateY(-5px) rotate(4deg); }
+        }
+        .mascot-evolution {
+            --mascot-body-start: #86efac;
+            --mascot-body-end: #22c55e;
+            --mascot-accent: #14532d;
+            --mascot-accent-soft: rgba(20, 83, 45, 0.18);
+            --mascot-aura: rgba(134, 239, 172, 0.48);
+            --mascot-aura-secondary: rgba(255, 255, 255, 0.18);
+            --mascot-badge-bg: rgba(255, 255, 255, 0.92);
+            --mascot-badge-color: #166534;
+            --mascot-body-size: 3.15rem;
+            --mascot-wing-opacity: 0;
+            --mascot-star-opacity: 0;
+            --mascot-horn-opacity: 0;
+            --mascot-aura-duration: 4.2s;
+            --mascot-aura-secondary-duration: 5.8s;
+            --mascot-aura-scale: 1.08;
+            --mascot-aura-secondary-scale: 1.16;
+            --mascot-orbit-duration: 12s;
+            --mascot-tail-duration: 2.8s;
+            --mascot-tail-angle-start: 18deg;
+            --mascot-tail-angle-peak: 28deg;
+            --mascot-tail-angle-swing: 6deg;
+            --mascot-ear-duration: 4.2s;
+            --mascot-breath-duration: 4.8s;
+            --mascot-eye-width: 0.34rem;
+            --mascot-eye-height: 0.72rem;
+            --mascot-eye-radius: 999px;
+            --mascot-eye-tilt-left: 0deg;
+            --mascot-eye-tilt-right: 0deg;
+            --mascot-brow-width: 0.5rem;
+            --mascot-brow-tilt-left: -10deg;
+            --mascot-brow-tilt-right: 10deg;
+            --mascot-brow-offset-y: -0.28rem;
+            --mascot-brow-opacity: 0.24;
+            --mascot-mouth-width: 0.68rem;
+            --mascot-mouth-height: 0.34rem;
+            --mascot-mouth-thickness: 3px;
+            --mascot-mouth-radius: 0 0 999px 999px;
+            --mascot-mouth-offset-y: 0rem;
+            --mascot-mouth-rotate: 0deg;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            pointer-events: none;
+        }
+        .mascot-stage--sprout {
+            --mascot-body-start: #bbf7d0;
+            --mascot-body-end: #4ade80;
+            --mascot-accent: #166534;
+            --mascot-accent-soft: rgba(22, 101, 52, 0.2);
+            --mascot-aura: rgba(187, 247, 208, 0.56);
+            --mascot-aura-secondary: rgba(236, 253, 245, 0.22);
+            --mascot-badge-color: #166534;
+            --mascot-body-size: 3rem;
+            --mascot-aura-duration: 4.4s;
+            --mascot-aura-secondary-duration: 6.2s;
+            --mascot-tail-duration: 2.95s;
+            --mascot-tail-angle-peak: 25deg;
+            --mascot-tail-angle-swing: 10deg;
+            --mascot-ear-duration: 4.8s;
+            --mascot-orbit-opacity: 0.72;
+            --mascot-star-speed: 2.9s;
+            --mascot-eye-width: 0.36rem;
+            --mascot-eye-height: 0.78rem;
+            --mascot-eye-radius: 999px;
+            --mascot-brow-opacity: 0.16;
+            --mascot-mouth-width: 0.62rem;
+            --mascot-mouth-height: 0.36rem;
+        }
+        .mascot-stage--bloom {
+            --mascot-body-start: #a7f3d0;
+            --mascot-body-end: #14b8a6;
+            --mascot-accent: #115e59;
+            --mascot-accent-soft: rgba(17, 94, 89, 0.18);
+            --mascot-aura: rgba(94, 234, 212, 0.48);
+            --mascot-aura-secondary: rgba(204, 251, 241, 0.26);
+            --mascot-badge-color: #0f766e;
+            --mascot-body-size: 3.22rem;
+            --mascot-wing-opacity: 0.38;
+            --mascot-aura-duration: 3.9s;
+            --mascot-aura-secondary-duration: 5.2s;
+            --mascot-aura-scale: 1.11;
+            --mascot-tail-duration: 2.45s;
+            --mascot-tail-angle-peak: 31deg;
+            --mascot-tail-angle-swing: 3deg;
+            --mascot-ear-duration: 4s;
+            --mascot-orbit-duration: 10.5s;
+            --mascot-orbit-opacity: 0.82;
+            --mascot-star-speed: 2.4s;
+            --mascot-eye-width: 0.42rem;
+            --mascot-eye-height: 0.48rem;
+            --mascot-eye-radius: 999px 999px 0.6rem 0.6rem;
+            --mascot-eye-tilt-left: -6deg;
+            --mascot-eye-tilt-right: 6deg;
+            --mascot-brow-tilt-left: -14deg;
+            --mascot-brow-tilt-right: 14deg;
+            --mascot-brow-opacity: 0.22;
+            --mascot-mouth-width: 0.74rem;
+            --mascot-mouth-height: 0.3rem;
+        }
+        .mascot-stage--comet {
+            --mascot-body-start: #bfdbfe;
+            --mascot-body-end: #60a5fa;
+            --mascot-accent: #1d4ed8;
+            --mascot-accent-soft: rgba(29, 78, 216, 0.2);
+            --mascot-aura: rgba(147, 197, 253, 0.52);
+            --mascot-aura-secondary: rgba(219, 234, 254, 0.3);
+            --mascot-badge-color: #1d4ed8;
+            --mascot-body-size: 3.38rem;
+            --mascot-wing-opacity: 0.74;
+            --mascot-star-opacity: 0.75;
+            --mascot-aura-duration: 3.3s;
+            --mascot-aura-secondary-duration: 4.5s;
+            --mascot-aura-scale: 1.15;
+            --mascot-aura-secondary-scale: 1.22;
+            --mascot-tail-duration: 2.05s;
+            --mascot-tail-angle-start: 20deg;
+            --mascot-tail-angle-peak: 35deg;
+            --mascot-tail-angle-swing: 1deg;
+            --mascot-ear-duration: 3.4s;
+            --mascot-orbit-duration: 9s;
+            --mascot-breath-duration: 4.2s;
+            --mascot-orbit-opacity: 0.92;
+            --mascot-ear-tilt-left: -18deg;
+            --mascot-ear-tilt-right: 18deg;
+            --mascot-star-speed: 2s;
+            --mascot-eye-width: 0.44rem;
+            --mascot-eye-height: 0.32rem;
+            --mascot-eye-radius: 999px 999px 0.4rem 0.4rem;
+            --mascot-eye-tilt-left: -12deg;
+            --mascot-eye-tilt-right: 12deg;
+            --mascot-brow-width: 0.56rem;
+            --mascot-brow-tilt-left: -20deg;
+            --mascot-brow-tilt-right: 20deg;
+            --mascot-brow-offset-y: -0.34rem;
+            --mascot-brow-opacity: 0.34;
+            --mascot-mouth-width: 0.8rem;
+            --mascot-mouth-height: 0.26rem;
+            --mascot-mouth-rotate: -4deg;
+        }
+        .mascot-stage--mythic {
+            --mascot-body-start: #fde68a;
+            --mascot-body-end: #f59e0b;
+            --mascot-accent: #92400e;
+            --mascot-accent-soft: rgba(146, 64, 14, 0.2);
+            --mascot-aura: rgba(253, 230, 138, 0.6);
+            --mascot-aura-secondary: rgba(255, 251, 235, 0.34);
+            --mascot-badge-color: #b45309;
+            --mascot-body-size: 3.56rem;
+            --mascot-wing-opacity: 0.92;
+            --mascot-star-opacity: 1;
+            --mascot-horn-opacity: 1;
+            --mascot-aura-duration: 2.8s;
+            --mascot-aura-secondary-duration: 3.8s;
+            --mascot-aura-scale: 1.2;
+            --mascot-aura-secondary-scale: 1.28;
+            --mascot-tail-duration: 1.65s;
+            --mascot-tail-angle-start: 22deg;
+            --mascot-tail-angle-peak: 38deg;
+            --mascot-tail-angle-swing: -2deg;
+            --mascot-ear-duration: 2.8s;
+            --mascot-orbit-duration: 7.2s;
+            --mascot-breath-duration: 3.8s;
+            --mascot-orbit-opacity: 1;
+            --mascot-ear-tilt-left: -20deg;
+            --mascot-ear-tilt-right: 20deg;
+            --mascot-star-speed: 1.55s;
+            --mascot-eye-width: 0.48rem;
+            --mascot-eye-height: 0.24rem;
+            --mascot-eye-radius: 999px;
+            --mascot-eye-tilt-left: -16deg;
+            --mascot-eye-tilt-right: 16deg;
+            --mascot-brow-width: 0.62rem;
+            --mascot-brow-tilt-left: -26deg;
+            --mascot-brow-tilt-right: 26deg;
+            --mascot-brow-offset-y: -0.38rem;
+            --mascot-brow-opacity: 0.48;
+            --mascot-mouth-width: 0.82rem;
+            --mascot-mouth-height: 0.2rem;
+            --mascot-mouth-thickness: 4px;
+            --mascot-mouth-radius: 0 0 0.6rem 999px;
+            --mascot-mouth-offset-y: -0.02rem;
+            --mascot-mouth-rotate: -10deg;
+        }
+        .mascot-aura {
+            position: absolute;
+            bottom: 0.4rem;
+            width: 4.4rem;
+            height: 4.4rem;
+            border-radius: 999px;
+            background: radial-gradient(circle, var(--mascot-aura) 0%, rgba(255,255,255,0) 70%);
+            animation: mascotAuraPulse var(--mascot-aura-duration) ease-in-out infinite;
+        }
+        .mascot-aura--secondary {
+            width: 5.2rem;
+            height: 5.2rem;
+            bottom: 0.05rem;
+            background: radial-gradient(circle, var(--mascot-aura-secondary) 0%, rgba(255,255,255,0) 72%);
+            filter: blur(4px);
+            animation: mascotAuraPulseSecondary var(--mascot-aura-secondary-duration) ease-in-out infinite;
+        }
+        .mascot-orbit {
+            position: absolute;
+            inset: 0.2rem 0 0;
+            animation: mascotOrbitSpin var(--mascot-orbit-duration) linear infinite;
+            opacity: var(--mascot-orbit-opacity);
+        }
+        .mascot-orbit-dot {
+            position: absolute;
+            width: 0.42rem;
+            height: 0.42rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.92);
+            box-shadow: 0 0 10px rgba(255,255,255,0.8);
+        }
+        .mascot-orbit-dot:nth-child(1) { top: 0.55rem; left: 0.9rem; }
+        .mascot-orbit-dot:nth-child(2) { top: 1rem; right: 0.65rem; width: 0.34rem; height: 0.34rem; }
+        .mascot-orbit-dot:nth-child(3) { top: 2.2rem; left: 0.45rem; width: 0.3rem; height: 0.3rem; }
+        .mascot-stage-badge {
+            position: absolute;
+            top: 0.1rem;
+            right: -0.1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.22rem 0.48rem;
+            border-radius: 999px;
+            background: var(--mascot-badge-bg);
+            border: 1px solid rgba(255,255,255,0.85);
+            color: var(--mascot-badge-color);
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+            box-shadow: 0 8px 16px rgba(15,23,42,0.14);
+        }
+        .mascot-stage-icon {
+            font-size: 0.76rem;
+            line-height: 1;
+        }
+        .mascot-body {
+            position: absolute;
+            bottom: 0.35rem;
+            width: var(--mascot-body-size);
+            height: calc(var(--mascot-body-size) * 0.96);
+            border-radius: 44% 44% 40% 40% / 48% 48% 42% 42%;
+            background: linear-gradient(180deg, var(--mascot-body-start) 0%, var(--mascot-body-end) 100%);
+            border: 3px solid rgba(255,255,255,0.6);
+            box-shadow: 0 14px 24px var(--mascot-accent-soft);
+            animation: mascotBodyBob 4.2s ease-in-out infinite;
+        }
+        .mascot-idle .mascot-body {
+            animation-name: mascotIdleBreath;
+            animation-duration: var(--mascot-breath-duration);
+        }
+        .mascot-body::before {
+            content: '';
+            position: absolute;
+            top: 0.45rem;
+            left: 0.48rem;
+            width: 1rem;
+            height: 0.75rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.34);
+            transform: rotate(-18deg);
+        }
+        .mascot-belly {
+            position: absolute;
+            left: 50%;
+            bottom: 0.38rem;
+            width: 1.55rem;
+            height: 1.15rem;
+            transform: translateX(-50%);
+            border-radius: 999px 999px 0.95rem 0.95rem;
+            background: rgba(255,255,255,0.22);
+        }
+        .mascot-tail {
+            position: absolute;
+            right: -0.42rem;
+            bottom: 0.45rem;
+            width: 1.5rem;
+            height: 0.72rem;
+            border-radius: 999px 999px 999px 0.9rem;
+            border: 0.18rem solid rgba(255,255,255,0.56);
+            border-left: none;
+            background: linear-gradient(90deg, var(--mascot-body-end) 0%, var(--mascot-body-start) 100%);
+            box-shadow: 0 8px 14px var(--mascot-accent-soft);
+            transform-origin: 0.2rem 50%;
+            z-index: -1;
+        }
+        .mascot-tail::after {
+            content: '';
+            position: absolute;
+            top: 0.16rem;
+            right: 0.08rem;
+            width: 0.42rem;
+            height: 0.42rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.28);
+        }
+        .mascot-idle .mascot-tail {
+            animation: mascotTailWag var(--mascot-tail-duration) ease-in-out infinite;
+        }
+        .mascot-crown-leaf {
+            position: absolute;
+            left: 50%;
+            top: -0.78rem;
+            width: 0.95rem;
+            height: 1.2rem;
+            transform: translateX(-50%) rotate(-8deg);
+            border-radius: 100% 0 100% 0;
+            background: linear-gradient(180deg, #dcfce7 0%, #22c55e 100%);
+            box-shadow: 0 3px 10px rgba(34,197,94,0.24);
+        }
+        .mascot-stage--mythic .mascot-crown-leaf {
+            background: linear-gradient(180deg, #fef3c7 0%, #f59e0b 100%);
+            box-shadow: 0 4px 12px rgba(245,158,11,0.28);
+        }
+        .mascot-ear {
+            position: absolute;
+            top: -0.18rem;
+            width: 0.92rem;
+            height: 1.22rem;
+            border-radius: 65% 65% 45% 45%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.72) 0%, var(--mascot-body-start) 100%);
+            border: 2px solid rgba(255,255,255,0.5);
+            box-shadow: 0 6px 12px var(--mascot-accent-soft);
+            transform-origin: 50% 100%;
+        }
+        .mascot-ear::after {
+            content: '';
+            position: absolute;
+            inset: 0.22rem 0.2rem 0.26rem;
+            border-radius: 65% 65% 45% 45%;
+            background: rgba(255,255,255,0.3);
+        }
+        .mascot-ear--left { left: 0.25rem; transform: rotate(var(--mascot-ear-tilt-left)); }
+        .mascot-ear--right { right: 0.25rem; transform: rotate(var(--mascot-ear-tilt-right)); }
+        .mascot-idle .mascot-ear--left { animation: mascotEarTwitchLeft var(--mascot-ear-duration) ease-in-out infinite; }
+        .mascot-idle .mascot-ear--right { animation: mascotEarTwitchRight var(--mascot-ear-duration) ease-in-out infinite 0.24s; }
+        .mascot-burst .mascot-tail {
+            animation: mascotTailBoost 0.42s cubic-bezier(0.22, 1, 0.36, 1) 2;
+        }
+        .mascot-burst .mascot-ear--left {
+            animation: mascotEarPerkLeft 0.36s cubic-bezier(0.22, 1, 0.36, 1) 2;
+        }
+        .mascot-burst .mascot-ear--right {
+            animation: mascotEarPerkRight 0.36s cubic-bezier(0.22, 1, 0.36, 1) 2;
+        }
+        .mascot-burst .mascot-aura {
+            animation: mascotAuraBurst 0.48s ease-out 1;
+        }
+        .mascot-burst .mascot-aura--secondary {
+            animation: mascotAuraBurstSecondary 0.56s ease-out 1;
+        }
+        .mascot-stage--comet.mascot-burst .mascot-tail,
+        .mascot-stage--mythic.mascot-burst .mascot-tail {
+            animation-duration: 0.34s;
+        }
+        .mascot-stage--comet.mascot-burst .mascot-ear--left,
+        .mascot-stage--comet.mascot-burst .mascot-ear--right,
+        .mascot-stage--mythic.mascot-burst .mascot-ear--left,
+        .mascot-stage--mythic.mascot-burst .mascot-ear--right {
+            animation-duration: 0.3s;
+        }
+        .mascot-horn {
+            position: absolute;
+            top: -0.42rem;
+            width: 0.82rem;
+            height: 1rem;
+            border-radius: 999px 999px 0.5rem 0.5rem;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(253,230,138,0.95) 100%);
+            opacity: var(--mascot-horn-opacity);
+        }
+        .mascot-horn--left { left: 0.42rem; transform: rotate(-28deg); }
+        .mascot-horn--right { right: 0.42rem; transform: rotate(28deg); }
+        .mascot-wing {
+            position: absolute;
+            top: 1rem;
+            width: 1rem;
+            height: 1.45rem;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(191,219,254,0.76) 100%);
+            border: 2px solid rgba(255,255,255,0.55);
+            opacity: var(--mascot-wing-opacity);
+            box-shadow: 0 8px 14px rgba(255,255,255,0.16);
+        }
+        .mascot-wing--left { left: -0.46rem; transform: rotate(-30deg); }
+        .mascot-wing--right { right: -0.46rem; transform: rotate(30deg); }
+        .mascot-face {
+            position: absolute;
+            left: 50%;
+            top: 1rem;
+            width: 1.9rem;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+        }
+        .mascot-brow {
+            position: absolute;
+            top: var(--mascot-brow-offset-y);
+            width: var(--mascot-brow-width);
+            height: 0.14rem;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--mascot-accent) 82%, white 18%);
+            opacity: var(--mascot-brow-opacity);
+            transform-origin: center;
+        }
+        .mascot-brow--left {
+            left: 0.06rem;
+            transform: rotate(var(--mascot-brow-tilt-left));
+        }
+        .mascot-brow--right {
+            right: 0.06rem;
+            transform: rotate(var(--mascot-brow-tilt-right));
+        }
+        .mascot-eye {
+            width: var(--mascot-eye-width);
+            height: var(--mascot-eye-height);
+            border-radius: var(--mascot-eye-radius);
+            background: var(--mascot-accent);
+            animation: mascotBlinkLeft 5.8s infinite;
+            transform-origin: center 55%;
+        }
+        .mascot-eye--left { transform: rotate(var(--mascot-eye-tilt-left)); }
+        .mascot-eye--right {
+            transform: rotate(var(--mascot-eye-tilt-right));
+            animation-name: mascotBlinkRight;
+            animation-delay: 0.2s;
+        }
+        .mascot-mouth {
+            position: absolute;
+            left: 50%;
+            top: calc(0.86rem + var(--mascot-mouth-offset-y));
+            width: var(--mascot-mouth-width);
+            height: var(--mascot-mouth-height);
+            transform: translateX(-50%) rotate(var(--mascot-mouth-rotate));
+            border-bottom: var(--mascot-mouth-thickness) solid var(--mascot-accent);
+            border-radius: var(--mascot-mouth-radius);
+        }
+        .mascot-cheek {
+            position: absolute;
+            top: 1.75rem;
+            width: 0.42rem;
+            height: 0.28rem;
+            border-radius: 999px;
+            background: rgba(251,146,60,0.26);
+        }
+        .mascot-cheek--left { left: 0.52rem; }
+        .mascot-cheek--right { right: 0.52rem; }
+        .mascot-star {
+            position: absolute;
+            right: -0.2rem;
+            top: 0.2rem;
+            font-size: 0.95rem;
+            line-height: 1;
+            opacity: var(--mascot-star-opacity);
+            transform: rotate(18deg);
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.72));
+            animation: mascotStarTwinkle var(--mascot-star-speed) ease-in-out infinite;
+        }
+        @keyframes mascotAuraPulse {
+            0%, 100% { transform: scale(0.92); opacity: 0.78; }
+            50% { transform: scale(var(--mascot-aura-scale)); opacity: 1; }
+        }
+        @keyframes mascotAuraPulseSecondary {
+            0%, 100% { transform: scale(0.88); opacity: 0.38; }
+            50% { transform: scale(var(--mascot-aura-secondary-scale)); opacity: 0.72; }
+        }
+        @keyframes mascotIdleBreath {
+            0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 14px 24px var(--mascot-accent-soft); }
+            50% { transform: translateY(-1px) scale(1.025, 0.985); box-shadow: 0 16px 28px var(--mascot-accent-soft); }
+        }
+        @keyframes mascotOrbitSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes mascotBodyBob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-2px); }
+        }
+        @keyframes mascotTailWag {
+            0%, 100% { transform: rotate(var(--mascot-tail-angle-start)) translateY(0); }
+            25% { transform: rotate(var(--mascot-tail-angle-peak)) translateY(-1px); }
+            60% { transform: rotate(var(--mascot-tail-angle-swing)) translateY(1px); }
+        }
+        @keyframes mascotTailBoost {
+            0%, 100% { transform: rotate(18deg) translateY(0); }
+            35% { transform: rotate(44deg) translateY(-2px); }
+            70% { transform: rotate(-6deg) translateY(1px); }
+        }
+        @keyframes mascotEarTwitchLeft {
+            0%, 100% { transform: rotate(var(--mascot-ear-tilt-left)); }
+            10% { transform: rotate(calc(var(--mascot-ear-tilt-left) - 5deg)) translateY(-1px); }
+            14% { transform: rotate(calc(var(--mascot-ear-tilt-left) + 7deg)); }
+            18% { transform: rotate(var(--mascot-ear-tilt-left)); }
+        }
+        @keyframes mascotEarTwitchRight {
+            0%, 100% { transform: rotate(var(--mascot-ear-tilt-right)); }
+            12% { transform: rotate(calc(var(--mascot-ear-tilt-right) + 5deg)) translateY(-1px); }
+            16% { transform: rotate(calc(var(--mascot-ear-tilt-right) - 7deg)); }
+            20% { transform: rotate(var(--mascot-ear-tilt-right)); }
+        }
+        @keyframes mascotEarPerkLeft {
+            0%, 100% { transform: rotate(var(--mascot-ear-tilt-left)); }
+            45% { transform: rotate(calc(var(--mascot-ear-tilt-left) + 14deg)) translateY(-2px); }
+            70% { transform: rotate(calc(var(--mascot-ear-tilt-left) + 6deg)); }
+        }
+        @keyframes mascotEarPerkRight {
+            0%, 100% { transform: rotate(var(--mascot-ear-tilt-right)); }
+            45% { transform: rotate(calc(var(--mascot-ear-tilt-right) - 14deg)) translateY(-2px); }
+            70% { transform: rotate(calc(var(--mascot-ear-tilt-right) - 6deg)); }
+        }
+        @keyframes mascotBlinkLeft {
+            0%, 44%, 48%, 100% { transform: rotate(var(--mascot-eye-tilt-left)) scaleY(1); }
+            46% { transform: rotate(var(--mascot-eye-tilt-left)) scaleY(0.12); }
+        }
+        @keyframes mascotBlinkRight {
+            0%, 44%, 48%, 100% { transform: rotate(var(--mascot-eye-tilt-right)) scaleY(1); }
+            46% { transform: rotate(var(--mascot-eye-tilt-right)) scaleY(0.12); }
+        }
+        @keyframes mascotStarTwinkle {
+            0%, 100% { transform: rotate(18deg) scale(0.92); opacity: var(--mascot-star-opacity); }
+            50% { transform: rotate(8deg) scale(1.08); opacity: calc(var(--mascot-star-opacity) * 0.72); }
+        }
+        @keyframes mascotAuraBurst {
+            0% { transform: scale(0.95); opacity: 0.9; }
+            100% { transform: scale(1.32); opacity: 0; }
+        }
+        @keyframes mascotAuraBurstSecondary {
+            0% { transform: scale(0.92); opacity: 0.56; }
+            100% { transform: scale(1.42); opacity: 0; }
+        }
+        .mascot-evolution-burst {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            width: 0;
+            height: 0;
+        }
+        .mascot-evolution-particle {
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--mep-color, #fbbf24);
+            font-size: var(--mep-size, 0.95rem);
+            line-height: 1;
+            text-shadow: 0 0 10px rgba(255,255,255,0.8);
+            animation: mascotEvolutionParticlePop var(--mep-duration, 0.8s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        @keyframes mascotEvolutionParticlePop {
+            0% { transform: translate(0, 0) scale(0.5) rotate(0deg); opacity: 0; }
+            12% { opacity: 1; }
+            100% { transform: translate(var(--mep-x, 0px), var(--mep-y, -38px)) scale(1.15) rotate(var(--mep-rotate, 120deg)); opacity: 0; }
         }
         .mascot-bubble {
             background: rgba(255,255,255,0.92);
@@ -2402,8 +3319,9 @@
         .mascot-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
         @media(max-width:640px) {
             .mascot-wrap { bottom: 0.8rem; right: 0.8rem; }
-            .mascot-char { font-size: 3.2rem; }
-            .avatar-visual--mascot { width: 3.2rem; height: 3.2rem; font-size: 1.7rem; }
+            .mascot-char { width: 4.1rem; height: 4.9rem; }
+            .mascot-stage-badge { top: 0.2rem; right: -0.15rem; font-size: 0.56rem; padding: 0.18rem 0.38rem; }
+            .mascot-body { border-width: 2px; }
             .mascot-bubble { max-width: 140px; font-size: 0.72rem; padding: 0.4rem 0.7rem; }
         }
 
@@ -2428,6 +3346,49 @@
         border: 4px solid #fcd34d;
         border-radius: 2.5rem;
         box-shadow: 0 20px 25px -5px rgb(234 179 8 / 0.2);
+        }
+
+        /* ── iPad / 觸控裝置效能優化 ── */
+        /* 隱藏的 section 不佔 layout / paint 成本 */
+        section.hidden {
+            content-visibility: auto;
+            contain-intrinsic-size: 0 500px;
+        }
+
+        /* 觸控裝置降低 GPU 重度效果 */
+        @media (pointer: coarse) {
+            .glass-panel {
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+            }
+            .glass-panel::before {
+                animation-duration: 18s;
+                filter: none;
+            }
+            .glass-panel::after {
+                animation: none;
+                opacity: 0.3;
+                filter: blur(8px);
+            }
+            .nature-scene__bird,
+            .nature-scene__butterfly,
+            .nature-scene__leaf {
+                animation-play-state: paused;
+            }
+            .math-symbol {
+                will-change: auto;
+            }
+            body::before, body::after {
+                filter: blur(10px);
+                opacity: 0.5;
+            }
+        }
+
+        /* nature-scene 登入時暫停，登入後才啟動 */
+        body:not(.logged-in) .nature-scene__bird,
+        body:not(.logged-in) .nature-scene__butterfly,
+        body:not(.logged-in) .nature-scene__leaf {
+            animation-play-state: paused;
         }
     </style>
 </head>
@@ -2537,6 +3498,10 @@
             <span class="text-base leading-none" aria-hidden="true">🛍️</span>
             <span>商店</span>
         </button>
+        <button id="home-visual-theme-toggle" type="button" onclick="cycleVisualTheme()" class="home-visual-theme-toggle absolute top-16 right-4 sm:top-[4.6rem] sm:right-5 text-sm font-black whitespace-nowrap btn-sweep">
+            <span id="home-visual-theme-toggle-emoji" class="text-base leading-none" aria-hidden="true">🌿</span>
+            <span id="home-visual-theme-toggle-label">快速換景</span>
+        </button>
         <div class="mb-8">
             <span id="home-avatar" class="text-7xl avatar-idle avatar-host"></span>
             <h2 class="text-2xl font-black text-indigo-800 mt-3">歡迎回來，<span id="home-name"></span>！</h2>
@@ -2557,6 +3522,20 @@
                 <div class="nature-chip">🔥 連續學習 <strong id="home-chip-streak">0 天</strong></div>
                 <div class="nature-chip">🌤️ 今日任務 <strong id="home-chip-daily">0/3 完成</strong></div>
                 <div class="nature-chip">⭐ 今日積分 <strong id="home-chip-points">0/120</strong></div>
+            </div>
+        </div>
+        <div id="home-theme-showcase" class="theme-showcase-card mb-6 text-left">
+            <div class="theme-showcase-orbit" id="home-theme-showcase-orbit" aria-hidden="true"></div>
+            <div class="theme-showcase-card__content">
+                <div id="home-theme-showcase-eyebrow" class="theme-showcase-card__eyebrow">Theme Atmosphere</div>
+                <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mt-2">
+                    <div class="max-w-2xl">
+                        <h3 id="home-theme-showcase-title" class="theme-showcase-card__headline">預設草地的晨光節奏</h3>
+                        <p id="home-theme-showcase-desc" class="theme-showcase-card__desc mt-2">保持清新的學習節奏，先做任務，再進挑戰。</p>
+                    </div>
+                    <div id="home-theme-showcase-action" class="theme-showcase-action">🌿 保持穩定節奏</div>
+                </div>
+                <div id="home-theme-showcase-elements" class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4"></div>
             </div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-[1.35fr_0.95fr] gap-4 text-left mb-6">
@@ -3325,21 +4304,33 @@
             { id:'doraemon', emoji:'🤖', name:'哆啦 A 夢', price:5000, starter:false, imageUrl:'https://drive.google.com/file/d/1ds78YN0uuM4QWgooWTeu49FcKwQFlQhB/view?usp=drive_link' },
             { id:'adai', emoji:'😶', name:'阿呆', price:5000, starter:false, imageUrl:'https://drive.google.com/file/d/1u2wNODn9rwsgnH72BtuvMaBgkAR6Asxg/view?usp=drive_link' },
             { id:'dodocat', emoji:'😺', name:'哆哆貓', price:5500, starter:false, imageUrl:'https://drive.google.com/file/d/16AXCWrSiDUs9W0D_9c3Xjz6xn-ta-e8i/view?usp=drive_link' },
+            { id:'tom_and_jerry', emoji:'🐭', name:'Tom and Jerry', price:5500, starter:false, imageUrl:'https://drive.google.com/file/d/1wf-0h683D2-jw3uftjaiJUUvLCd4nwLN/view?usp=drive_link' },
+            { id:'cheer_bear', emoji:'🧸', name:'Cheer Bear', price:5900, starter:false, imageUrl:'https://drive.google.com/file/d/1HIJGb8sZN20qqswVGH1sUZeE2jFBZpK6/view?usp=drive_link' },
+            { id:'grumpy_bear', emoji:'🐻', name:'Grumpy Bear', price:5900, starter:false, imageUrl:'https://drive.google.com/file/d/19LdwslQFgTiRuWov6eao6D9dU9lfa14Z/view?usp=drive_link' },
             { id:'sharkcat', emoji:'🦈', name:'鯊魚貓', price:6000, starter:false, imageUrl:'https://drive.google.com/file/d/1UXYx84XUXF18tJ-rPhxo42sGBMS-08Il/view?usp=drive_link' },
             { id:'penguin', emoji:'🐧', name:'小企鵝', price:6000, starter:false, imageUrl:'https://drive.google.com/file/d/1cnVpA5qTNkc9qtFLNpt0IXdQWifGmLdS/view?usp=drive_link' },
             { id:'dino_boy', emoji:'🦖', name:'恐龍仔', price:6000, starter:false, imageUrl:'https://drive.google.com/file/d/1kZpKdVM2PExUhFywwZ0z6V5_Yvtfq88f/view?usp=drive_link' },
+            { id:'buzz_lightyear', emoji:'🚀', name:'巴斯光年', price:6000, starter:false, imageUrl:'https://drive.google.com/file/d/1m7aBbqYVd3uaGJ5KbiHAf3IrFWjFn_lh/view?usp=drive_link' },
+            { id:'winnie_the_pooh', emoji:'🍯', name:'小熊維尼', price:6100, starter:false, imageUrl:'https://drive.google.com/file/d/1ZyV9LF2MFnpgwWgbYrsRNbUQKzaNoiwB/view?usp=drive_link' },
             { id:'pompompurin', emoji:'🍮', name:'布丁狗', price:6300, starter:false, imageUrl:'https://drive.google.com/file/d/1yovB4Hsc9zE1XewEyidhHTpAAUvkE08c/view?usp=drive_link' },
+            { id:'hulk', emoji:'💚', name:'Hulk', price:6300, starter:false, imageUrl:'https://drive.google.com/file/d/1VJ5vLWw5HUeQ4unJ2u3RFiJc5kvOvN9C/view?usp=drive_link' },
             { id:'dixi', emoji:'🧸', name:'迪西', price:6400, starter:false, imageUrl:'https://drive.google.com/file/d/1e418ySLxBEtWEn-6ZTQZycrHBNAHZ_2P/view?usp=drive_link  ' },
             { id:'star_glow_mon', emoji:'👾', name:'星際閃亮怪', price:6500, starter:false, imageUrl:'https://drive.google.com/file/d/1GPZW4O91G7Da0eQCbz4gfoyy6JhmRTx6/view?usp=drive_link' },
             { id:'tutu', emoji:'🐰', name:'兔兔', price:6500, starter:false, imageUrl:'https://drive.google.com/file/d/1S2RNbUHCUSR8PYy40nTEFqv-qWUahETW/view?usp=drive_link' },
             { id:'chiikawa', emoji:'✨', name:'吉伊卡哇', price:6500, starter:false, imageUrl:'https://drive.google.com/file/d/1RjJY_oY4rZcgUFt3QUfihfMaTJX3cjbi/view?usp=drive_link' },
+            { id:'iron_man', emoji:'🦾', name:'Iron Man', price:6600, starter:false, imageUrl:'https://drive.google.com/file/d/1wcbgCtiu06xUhgdd-LyeDTyM0OCXP8zE/view?usp=drive_link' },
             { id:'kuromi', emoji:'🖤', name:'酷洛米', price:6700, starter:false, imageUrl:'https://drive.google.com/file/d/1QIWmiRj7k_a6wML4ux2umn6L0RjSFxtM/view?usp=drive_link' },
             { id:'sparkle_spikemaru', emoji:'🌟', name:'閃亮刺球丸', price:6800, starter:false, imageUrl:'https://drive.google.com/file/d/1u-geEcGNis4N1vVqefQnFYoGLCyR4K8L/view?usp=drive_link' },
             { id:'wink_king', emoji:'😉', name:'眨眼王', price:6800, starter:false, imageUrl:'https://drive.google.com/file/d/1g_Kd8NxGA4l_4NvWmETTCOetEUuBvAlC/view?usp=drive_link' },
             { id:'keroro', emoji:'🐸', name:'Keroro', price:6800, starter:false, imageUrl:'https://drive.google.com/file/d/1wyajIioNZLgdig0lwFSNAgq37Fp46__e/view?usp=drive_link' },
             { id:'tamama', emoji:'🐸', name:'Tamama', price:6800, starter:false, imageUrl:'https://drive.google.com/file/d/1wcOxfPBcDpV9G69r7_CzVsBzBH_jKh-2/view?usp=drive_link' },
+            { id:'spiderman', emoji:'🕷️', name:'Spiderman', price:6800, starter:false, imageUrl:'https://drive.google.com/file/d/1c10YfuofW-tddVs5mpksshJOtH17shN4/view?usp=drive_link' },
+            { id:'captain_american', emoji:'🛡️', name:'Captain American', price:6800, starter:false, imageUrl:'https://drive.google.com/file/d/182YxIRpFBtieTVmVsX28et_2uBw9C330/view?usp=drive_link' },
             { id:'hachineko', emoji:'🐱', name:'小八貓', price:7000, starter:false, imageUrl:'https://drive.google.com/file/d/1tYMfbtRnP4DgBB6K4qFcrP-Q_LGfAr19/view?usp=drive_link' },
             { id:'inosuke', emoji:'🐗', name:'伊之助', price:7000, starter:false, imageUrl:'https://drive.google.com/file/d/11ctHpxNqY6Opd5gV-VYUJmx9d4xy9qEU/view?usp=drive_link' },
+            { id:'killua', emoji:'⚡', name:'奇犽', price:7000, starter:false, imageUrl:'https://drive.google.com/file/d/1lzeVZMDj9BaxldZ8pk6C07K7Byng5BWI/view?usp=drive_link' },
+            { id:'gon', emoji:'🎣', name:'小傑', price:7000, starter:false, imageUrl:'https://drive.google.com/file/d/1D5YI6pNLfhyj-p3XyHWrJdMEDM9SeoW0/view?usp=drive_link' },
+            { id:'sung_jinwoo', emoji:'🗡️', name:'成振宇', price:7200, starter:false, imageUrl:'https://drive.google.com/file/d/13qbkpFhHDZg3kjiOJ6Hf0j4GsFOFjbo3/view?usp=drive_link' },
             { id:'bakugo', emoji:'💥', name:'爆豪', price:7300, starter:false, imageUrl:'https://drive.google.com/file/d/1sFz9XbkxDqpVZBsbUT5escx46sKMggM_/view?usp=drive_link' },
             { id:'itadori_yuji', emoji:'🥊', name:'虎杖悠仁', price:7300, starter:false, imageUrl:'https://drive.google.com/file/d/1Tnz4iKmk8KAJYy7jayfeivUQA1cDpGfX/view?usp=drive_link' },
             { id:'akaza', emoji:'💥', name:'猗窩座', price:7300, starter:false, imageUrl:'https://drive.google.com/file/d/1lf45n-XtHUaItfkP8jxgD3ymwp71_aXC/view?usp=drive_link' },
@@ -3424,8 +4415,168 @@
         var roomListenerCallback = null;
         var isFocusMode = false;
         var FOCUS_MODE_STORAGE_KEY = 'mathGameFocusMode';
+        var VISUAL_THEME_STORAGE_KEY = 'mathGameVisualTheme';
         var ambientMusicEnabled = true;
         var AMBIENT_MUSIC_STORAGE_KEY = 'mathGameAmbientMusic';
+        var visualThemeCatalog = [
+            {
+                id: 'default',
+                emoji: '🌿',
+                label: '預設草地',
+                description: '清新的草地晨光，適合一般學習節奏。',
+                previewColor: '#34d399',
+                homeScene: {
+                    eyebrow: 'Garden Study Flow',
+                    title: '預設草地的晨光節奏',
+                    description: '葉影、微風和柔和光感讓首頁維持清爽學習氛圍，適合一般課堂與日常練習。',
+                    actionLabel: '🌿 保持穩定節奏',
+                    orbitTokens: ['🌼','🍃','☁️','⭐'],
+                    elements: [
+                        { emoji:'🌤️', title:'晨光網格', desc:'保留清楚的閱讀層次，題目與面板最穩定。' },
+                        { emoji:'🍀', title:'舒緩粒子', desc:'背景數學符號維持淡色，不會搶走題目焦點。' },
+                        { emoji:'🧭', title:'日常節奏', desc:'適合學生快速登入後直接進入任務與挑戰。' }
+                    ]
+                },
+                cssVars: {
+                    '--theme-body-bg': '#eef9ef',
+                    '--theme-body-image': 'radial-gradient(circle at 12% 14%, rgba(255, 249, 196, 0.95) 0%, rgba(255, 249, 196, 0) 18%), radial-gradient(circle at 84% 12%, rgba(191, 219, 254, 0.55) 0%, rgba(191, 219, 254, 0) 20%), radial-gradient(circle at 50% 120%, rgba(110, 231, 183, 0.22) 0%, rgba(110, 231, 183, 0) 38%), linear-gradient(rgba(110, 231, 183, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(110, 231, 183, 0.05) 1px, transparent 1px), linear-gradient(180deg, #effcf6 0%, #dff7ec 44%, #d4efe0 100%)',
+                    '--theme-body-size': 'auto, auto, auto, 48px 48px, 48px 48px, auto',
+                    '--theme-body-before': 'radial-gradient(circle, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%)',
+                    '--theme-body-after': 'radial-gradient(circle, rgba(167,243,208,0.5) 0%, rgba(167,243,208,0) 68%)',
+                    '--theme-panel-bg': 'linear-gradient(180deg, rgba(255,255,255,0.84) 0%, rgba(248,255,250,0.78) 100%)',
+                    '--theme-panel-shadow': '0 18px 46px 0 rgba(35, 84, 55, 0.12), 0 0 0 1px rgba(255,255,255,0.42) inset, 0 0 24px rgba(52, 211, 153, 0.16), 0 0 42px rgba(59, 130, 246, 0.12)',
+                    '--theme-panel-border-gradient': 'linear-gradient(115deg, rgba(34, 211, 238, 0.18) 0%, rgba(110, 231, 183, 0.34) 14%, rgba(56, 189, 248, 0.78) 30%, rgba(129, 140, 248, 0.5) 46%, rgba(255, 209, 102, 0.42) 60%, rgba(45, 212, 191, 0.66) 76%, rgba(125, 211, 252, 0.82) 88%, rgba(34, 211, 238, 0.18) 100%)',
+                    '--theme-panel-glow-gradient': 'linear-gradient(135deg, rgba(34, 211, 238, 0.06) 0%, rgba(96, 165, 250, 0.2) 22%, rgba(129, 140, 248, 0.14) 40%, rgba(253, 224, 71, 0.1) 56%, rgba(45, 212, 191, 0.24) 74%, rgba(125, 211, 252, 0.14) 100%)',
+                    '--theme-panel-glow-shadow': '0 0 24px rgba(34, 211, 238, 0.18), 0 0 36px rgba(59, 130, 246, 0.16), 0 0 52px rgba(45, 212, 191, 0.14)',
+                    '--theme-math-color': 'rgba(255,255,255,0.3)',
+                    '--theme-math-shadow': '0 0 14px rgba(255,255,255,0.18)',
+                    '--theme-math-font': "'Times New Roman', Times, serif",
+                    '--theme-math-weight': '700'
+                },
+                mathSymbols: ['+','-','×','÷','=','∞','π','∑','√','∫','≈','≠','%','θ','x','y','z','❄','❅','❆'],
+                mathColors: ['rgba(255,255,255,0.28)','rgba(209,250,229,0.3)','rgba(191,219,254,0.28)','rgba(254,240,138,0.28)'],
+                sparkleColors: ['#fbbf24','#f59e0b','#34d399','#60a5fa','#f472b6'],
+                particleColors: ['#34d399','#60a5fa','#fbbf24','#2dd4bf','#a78bfa']
+            },
+            {
+                id: 'space',
+                emoji: '🚀',
+                label: '太空',
+                description: '深藍星雲與冷光粒子，切到宇宙探索模式。',
+                previewColor: '#8b5cf6',
+                homeScene: {
+                    eyebrow: 'Space Exploration Mode',
+                    title: '把首頁切成宇宙任務艙',
+                    description: '星塵光點、冷色面板與軌道符號會把介面帶進探索模式，適合營造闖關感。',
+                    actionLabel: '🚀 啟動星圖挑戰',
+                    orbitTokens: ['🪐','✨','☄️','🌌'],
+                    elements: [
+                        { emoji:'🪐', title:'軌道視覺', desc:'首頁會有行星與星雲感的浮動元素，場景更像任務艙。' },
+                        { emoji:'✨', title:'銀河粒子', desc:'背景符號與閃耀效果改為冷光藍紫色盤。' },
+                        { emoji:'🛰️', title:'探索氛圍', desc:'適合把挑戰模式包裝成宇宙探險關卡。' }
+                    ]
+                },
+                cssVars: {
+                    '--theme-body-bg': '#050816',
+                    '--theme-body-image': 'radial-gradient(circle at 14% 18%, rgba(56, 189, 248, 0.16) 0%, rgba(56, 189, 248, 0) 18%), radial-gradient(circle at 82% 14%, rgba(168, 85, 247, 0.24) 0%, rgba(168, 85, 247, 0) 24%), radial-gradient(circle at 56% 82%, rgba(244, 114, 182, 0.16) 0%, rgba(244, 114, 182, 0) 24%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 1.6%), linear-gradient(rgba(148,163,184,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.06) 1px, transparent 1px), linear-gradient(180deg, #060816 0%, #0b1026 48%, #0f1a3e 100%)',
+                    '--theme-body-size': 'auto, auto, auto, 140px 140px, 60px 60px, 60px 60px, auto',
+                    '--theme-body-before': 'radial-gradient(circle, rgba(125,211,252,0.28) 0%, rgba(125,211,252,0) 72%)',
+                    '--theme-body-after': 'radial-gradient(circle, rgba(196,181,253,0.28) 0%, rgba(196,181,253,0) 72%)',
+                    '--theme-panel-bg': 'linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(241,245,255,0.74) 100%)',
+                    '--theme-panel-shadow': '0 20px 48px rgba(5, 8, 22, 0.38), 0 0 0 1px rgba(255,255,255,0.48) inset, 0 0 24px rgba(96,165,250,0.18), 0 0 56px rgba(139,92,246,0.16)',
+                    '--theme-panel-border-gradient': 'linear-gradient(115deg, rgba(255,255,255,0.2) 0%, rgba(125,211,252,0.52) 16%, rgba(99,102,241,0.6) 34%, rgba(168,85,247,0.58) 56%, rgba(244,114,182,0.36) 74%, rgba(191,219,254,0.66) 100%)',
+                    '--theme-panel-glow-gradient': 'linear-gradient(135deg, rgba(14,165,233,0.08) 0%, rgba(59,130,246,0.22) 24%, rgba(76,29,149,0.18) 52%, rgba(236,72,153,0.16) 74%, rgba(191,219,254,0.16) 100%)',
+                    '--theme-panel-glow-shadow': '0 0 24px rgba(59,130,246,0.22), 0 0 40px rgba(139,92,246,0.22), 0 0 56px rgba(244,114,182,0.14)',
+                    '--theme-math-color': 'rgba(224,231,255,0.42)',
+                    '--theme-math-shadow': '0 0 18px rgba(125,211,252,0.28)',
+                    '--theme-math-font': "'Times New Roman', Times, serif",
+                    '--theme-math-weight': '700'
+                },
+                mathSymbols: ['✦','✧','⋆','★','☄','∞','π','∑','√','∫','≈','≠'],
+                mathColors: ['rgba(224,231,255,0.34)','rgba(125,211,252,0.34)','rgba(196,181,253,0.34)','rgba(244,114,182,0.28)'],
+                sparkleColors: ['#60a5fa','#8b5cf6','#f472b6','#e0e7ff','#38bdf8'],
+                particleColors: ['#60a5fa','#8b5cf6','#c084fc','#38bdf8','#f472b6']
+            },
+            {
+                id: 'steampunk',
+                emoji: '⚙️',
+                label: '蒸汽龐克',
+                description: '銅色蒸汽與齒輪暖光，氛圍更有機械感。',
+                previewColor: '#c2410c',
+                homeScene: {
+                    eyebrow: 'Steam Workshop',
+                    title: '首頁變成銅光齒輪工坊',
+                    description: '暖銅面板、齒輪圖示與蒸汽感粒子讓任務區像一座正在運轉的數學工場。',
+                    actionLabel: '⚙️ 啟動工坊模式',
+                    orbitTokens: ['⚙️','🧭','🪙','🔥'],
+                    elements: [
+                        { emoji:'⚙️', title:'工坊裝置', desc:'首頁展示卡會加入齒輪與儀表感元素，視覺更厚重。' },
+                        { emoji:'🪙', title:'銅金色盤', desc:'粒子與高光改為暖金、琥珀、銅棕，層次更鮮明。' },
+                        { emoji:'🛠️', title:'任務加工感', desc:'適合把每日任務包裝成一站一站的解題工序。' }
+                    ]
+                },
+                cssVars: {
+                    '--theme-body-bg': '#221814',
+                    '--theme-body-image': 'radial-gradient(circle at 16% 18%, rgba(251,191,36,0.16) 0%, rgba(251,191,36,0) 18%), radial-gradient(circle at 84% 18%, rgba(217,119,6,0.18) 0%, rgba(217,119,6,0) 22%), radial-gradient(circle at 52% 88%, rgba(180,83,9,0.2) 0%, rgba(180,83,9,0) 28%), linear-gradient(rgba(120,53,15,0.09) 1px, transparent 1px), linear-gradient(90deg, rgba(146,64,14,0.1) 1px, transparent 1px), linear-gradient(180deg, #2d211b 0%, #3a2a20 46%, #5b3a24 100%)',
+                    '--theme-body-size': 'auto, auto, auto, 58px 58px, 58px 58px, auto',
+                    '--theme-body-before': 'radial-gradient(circle, rgba(254,215,170,0.28) 0%, rgba(254,215,170,0) 70%)',
+                    '--theme-body-after': 'radial-gradient(circle, rgba(180,83,9,0.36) 0%, rgba(180,83,9,0) 72%)',
+                    '--theme-panel-bg': 'linear-gradient(180deg, rgba(255,248,240,0.88) 0%, rgba(245,232,214,0.8) 100%)',
+                    '--theme-panel-shadow': '0 20px 44px rgba(45, 33, 23, 0.34), 0 0 0 1px rgba(255,255,255,0.4) inset, 0 0 24px rgba(251,191,36,0.14), 0 0 48px rgba(217,119,6,0.16)',
+                    '--theme-panel-border-gradient': 'linear-gradient(115deg, rgba(255,251,235,0.28) 0%, rgba(251,191,36,0.4) 18%, rgba(217,119,6,0.56) 36%, rgba(120,53,15,0.52) 54%, rgba(254,215,170,0.44) 74%, rgba(245,158,11,0.4) 100%)',
+                    '--theme-panel-glow-gradient': 'linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(245,158,11,0.18) 28%, rgba(146,64,14,0.18) 58%, rgba(251,146,60,0.16) 80%, rgba(255,237,213,0.12) 100%)',
+                    '--theme-panel-glow-shadow': '0 0 24px rgba(251,191,36,0.18), 0 0 36px rgba(245,158,11,0.18), 0 0 52px rgba(146,64,14,0.18)',
+                    '--theme-math-color': 'rgba(255,237,213,0.42)',
+                    '--theme-math-shadow': '0 0 18px rgba(251,191,36,0.2)',
+                    '--theme-math-font': "'Times New Roman', Times, serif",
+                    '--theme-math-weight': '700'
+                },
+                mathSymbols: ['⚙','✶','✷','∞','π','∑','√','∫','÷','×','+','≈'],
+                mathColors: ['rgba(254,215,170,0.36)','rgba(251,191,36,0.3)','rgba(249,115,22,0.34)','rgba(217,119,6,0.28)'],
+                sparkleColors: ['#fbbf24','#f59e0b','#fb923c','#fed7aa','#b45309'],
+                particleColors: ['#fbbf24','#f59e0b','#d97706','#fb923c','#fdba74']
+            },
+            {
+                id: 'hong-kong-night',
+                emoji: '🌃',
+                label: '香港夜景',
+                description: '霓虹招牌與天際線光帶，粒子帶有夜色反光。',
+                previewColor: '#ec4899',
+                homeScene: {
+                    eyebrow: 'Hong Kong Neon Skyline',
+                    title: '首頁切進霓虹天際線夜景',
+                    description: '粉藍霓虹、夜色反光與都市節奏會讓整個學習入口更有城市闖關感。',
+                    actionLabel: '🌃 點亮夜景節奏',
+                    orbitTokens: ['🏙️','💡','🌈','🚕'],
+                    elements: [
+                        { emoji:'🏙️', title:'城市天際線', desc:'展示卡會以夜景與招牌感元素強化首頁主題辨識度。' },
+                        { emoji:'💡', title:'霓虹粒子', desc:'sparkles 與 confetti 轉成粉藍綠霓虹色，節奏更活。' },
+                        { emoji:'🚕', title:'都市衝刺感', desc:'適合多人對戰或快速暖機，整體氛圍更有速度感。' }
+                    ]
+                },
+                cssVars: {
+                    '--theme-body-bg': '#071321',
+                    '--theme-body-image': 'radial-gradient(circle at 18% 18%, rgba(244,114,182,0.2) 0%, rgba(244,114,182,0) 18%), radial-gradient(circle at 84% 16%, rgba(56,189,248,0.2) 0%, rgba(56,189,248,0) 20%), radial-gradient(circle at 50% 70%, rgba(34,197,94,0.12) 0%, rgba(34,197,94,0) 26%), linear-gradient(rgba(30,41,59,0.0) 64%, rgba(15,23,42,0.58) 64%, rgba(15,23,42,0.58) 100%), linear-gradient(90deg, rgba(244,114,182,0.06) 1px, transparent 1px), linear-gradient(rgba(56,189,248,0.06) 1px, transparent 1px), linear-gradient(180deg, #071321 0%, #0c1830 44%, #111b33 100%)',
+                    '--theme-body-size': 'auto, auto, auto, auto, 52px 52px, 52px 52px, auto',
+                    '--theme-body-before': 'radial-gradient(circle, rgba(244,114,182,0.24) 0%, rgba(244,114,182,0) 72%)',
+                    '--theme-body-after': 'radial-gradient(circle, rgba(56,189,248,0.28) 0%, rgba(56,189,248,0) 72%)',
+                    '--theme-panel-bg': 'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(240,249,255,0.78) 100%)',
+                    '--theme-panel-shadow': '0 22px 48px rgba(7, 19, 33, 0.4), 0 0 0 1px rgba(255,255,255,0.46) inset, 0 0 26px rgba(244,114,182,0.16), 0 0 48px rgba(56,189,248,0.16)',
+                    '--theme-panel-border-gradient': 'linear-gradient(115deg, rgba(255,255,255,0.22) 0%, rgba(244,114,182,0.44) 16%, rgba(125,211,252,0.56) 34%, rgba(34,197,94,0.34) 50%, rgba(250,204,21,0.32) 68%, rgba(244,114,182,0.5) 86%, rgba(255,255,255,0.24) 100%)',
+                    '--theme-panel-glow-gradient': 'linear-gradient(135deg, rgba(244,114,182,0.08) 0%, rgba(56,189,248,0.2) 28%, rgba(34,197,94,0.14) 52%, rgba(250,204,21,0.12) 76%, rgba(191,219,254,0.12) 100%)',
+                    '--theme-panel-glow-shadow': '0 0 24px rgba(244,114,182,0.18), 0 0 38px rgba(56,189,248,0.18), 0 0 56px rgba(34,197,94,0.12)',
+                    '--theme-math-color': 'rgba(224,231,255,0.38)',
+                    '--theme-math-shadow': '0 0 16px rgba(244,114,182,0.2)',
+                    '--theme-math-font': "'Times New Roman', Times, serif",
+                    '--theme-math-weight': '700'
+                },
+                mathSymbols: ['✦','✧','◇','◈','∞','π','∑','√','∫','≈','≠','%'],
+                mathColors: ['rgba(244,114,182,0.34)','rgba(56,189,248,0.34)','rgba(34,197,94,0.24)','rgba(250,204,21,0.24)'],
+                sparkleColors: ['#f472b6','#38bdf8','#22c55e','#facc15','#e0e7ff'],
+                particleColors: ['#f472b6','#38bdf8','#22c55e','#facc15','#c084fc']
+            }
+        ];
+        var activeVisualTheme = 'default';
         var ambientMusicStarted = false;
         var ambientMusicMasterGain = null;
         var ambientForestGain = null;
@@ -3513,11 +4664,21 @@
         function ttsStop() { if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel(); }
         function ttsAutoSpeak(text) { if (ttsEnabled) ttsSpeak(text); }
         function ttsBuildQuestionText(qHtml, options, idx, total) {
+            var question = (qHtml && typeof qHtml === 'object' && !Array.isArray(qHtml)) ? qHtml : { question: qHtml, options: options };
             var parts = [];
             if (typeof idx === 'number' && typeof total === 'number') parts.push('第' + (idx + 1) + '題，共' + total + '題。');
-            parts.push(getPlainTextFromHtml(qHtml));
-            if (Array.isArray(options)) {
-                options.forEach(function(opt, i) {
+            parts.push(getPlainTextFromHtml(question.question || ''));
+            if (getQuestionType_(question) === 'fillBlank') {
+                parts.push('請輸入答案。');
+            } else if (getQuestionType_(question) === 'matching') {
+                var pairs = normalizeMatchingPairs_(question.matchingPairs);
+                if (pairs.length) {
+                    parts.push('請把左右兩邊的內容正確配對。');
+                    parts.push('左邊項目：' + pairs.map(function(pair) { return getPlainTextFromHtml(pair.left); }).join('、'));
+                    parts.push('右邊選項：' + pairs.map(function(pair) { return getPlainTextFromHtml(pair.right); }).join('、'));
+                }
+            } else if (Array.isArray(question.options)) {
+                question.options.forEach(function(opt, i) {
                     parts.push('選項' + String.fromCharCode(65 + i) + '：' + getPlainTextFromHtml(opt));
                 });
             }
@@ -3863,9 +5024,104 @@
     </script>
     <?!= include('js_avatar_notifications'); ?>
     <script>
+        function normalizeQuestionType_(rawType) {
+            var value = String(rawType || '').toLowerCase().normalize('NFKC').replace(/[\s_\.\-:：]+/g, '');
+            if (!value) return 'multipleChoice';
+            if (['fillblank', 'fillintheblank', 'blank', 'input', 'textinput', '填充題', '填空題', '填充', '填空'].indexOf(value) !== -1) return 'fillBlank';
+            if (['matching', 'match', 'pairing', 'pairmatch', '配對題', '配對'].indexOf(value) !== -1) return 'matching';
+            return 'multipleChoice';
+        }
+        function normalizeMatchingPairs_(pairs) {
+            var arr = Array.isArray(pairs) ? pairs : (pairs ? Object.values(pairs) : []);
+            return arr.map(function(pair) {
+                return {
+                    left: pair && pair.left ? String(pair.left) : '',
+                    right: pair && pair.right ? String(pair.right) : ''
+                };
+            }).filter(function(pair) {
+                return pair.left !== '' || pair.right !== '';
+            });
+        }
         function normalizeQuestions(raw) {
             var arr = Array.isArray(raw) ? raw : (raw ? Object.values(raw) : []);
-            return arr.map(function(q){ return { question:q.question||'', options:Array.isArray(q.options)?q.options:(q.options?Object.values(q.options):[]), answer:q.answer||'', explanation:q.explanation||'', points:q.points||0, imageUrl:q.imageUrl||'' }; });
+            return arr.map(function(q) {
+                var acceptedAnswers = Array.isArray(q.acceptedAnswers)
+                    ? q.acceptedAnswers.map(function(answer) { return String(answer || ''); }).filter(function(answer) { return answer !== ''; })
+                    : [];
+                var normalizedAnswer = String(q.answer || '');
+                if (!acceptedAnswers.length && normalizedAnswer) acceptedAnswers.push(normalizedAnswer);
+                return {
+                    question: q.question || '',
+                    questionType: normalizeQuestionType_(q.questionType || q.type || ''),
+                    options: Array.isArray(q.options) ? q.options : (q.options ? Object.values(q.options) : []),
+                    answer: normalizedAnswer,
+                    acceptedAnswers: acceptedAnswers,
+                    matchingPairs: normalizeMatchingPairs_(q.matchingPairs),
+                    explanation: q.explanation || '',
+                    points: q.points || 0,
+                    imageUrl: q.imageUrl || ''
+                };
+            });
+        }
+        function getQuestionType_(q) {
+            return normalizeQuestionType_(q && (q.questionType || q.type) || '');
+        }
+        function getAcceptedAnswers_(q) {
+            var acceptedAnswers = q && Array.isArray(q.acceptedAnswers) ? q.acceptedAnswers.slice() : [];
+            if (!acceptedAnswers.length && q && q.answer) acceptedAnswers.push(q.answer);
+            return acceptedAnswers;
+        }
+        function shuffleArrayCopy_(items) {
+            var arr = Array.isArray(items) ? items.slice() : [];
+            for (var i = arr.length - 1; i > 0; i--) {
+                var swapIndex = Math.floor(Math.random() * (i + 1));
+                var temp = arr[i];
+                arr[i] = arr[swapIndex];
+                arr[swapIndex] = temp;
+            }
+            return arr;
+        }
+        function normalizeAnswerText_(s) {
+            return String(s || '').replace(/\s+/g, '').replace(/\\,/g, '').toLowerCase();
+        }
+        function answersMatch_(a, b) {
+            return normalizeAnswerText_(a) === normalizeAnswerText_(b);
+        }
+        function getQuestionCorrectAnswerText_(q) {
+            var questionType = getQuestionType_(q);
+            if (questionType === 'matching') {
+                return normalizeMatchingPairs_(q && q.matchingPairs).map(function(pair) {
+                    return pair.left + ' -> ' + pair.right;
+                }).join(' | ');
+            }
+            return getAcceptedAnswers_(q).join(' / ');
+        }
+        function isQuestionAnswerCorrect_(q, response) {
+            var questionType = getQuestionType_(q);
+            if (questionType === 'matching') {
+                var responseMap = response && typeof response === 'object' ? response : {};
+                var pairs = normalizeMatchingPairs_(q && q.matchingPairs);
+                return !!pairs.length && pairs.every(function(pair) {
+                    return answersMatch_(responseMap[pair.left], pair.right);
+                });
+            }
+            return getAcceptedAnswers_(q).some(function(answer) {
+                return answersMatch_(response, answer);
+            });
+        }
+        function formatMatchingAnswerText_(response, pairs) {
+            var responseMap = response && typeof response === 'object' ? response : {};
+            var pairList = normalizeMatchingPairs_(pairs);
+            return pairList.map(function(pair) {
+                var selected = responseMap[pair.left] || '';
+                return pair.left + ' -> ' + selected;
+            }).join(' | ');
+        }
+        function formatSubmittedAnswerForStorage_(q, selected, isTimeout) {
+            if (isTimeout) return '超時未作答';
+            var questionType = getQuestionType_(q);
+            if (questionType === 'matching') return formatMatchingAnswerText_(selected, q && q.matchingPairs);
+            return String(selected || '');
         }
         function detachRoomListener() { if(roomListenerRef&&roomListenerCallback){roomListenerRef.off('value',roomListenerCallback);} roomListenerRef=null; roomListenerCallback=null; }
         function clamp01(value) {
@@ -4406,6 +5662,94 @@
                 if (shopCatalog.effects[i].id === effectId) return shopCatalog.effects[i];
             }
             return null;
+        }
+        function getVisualThemeConfigById_(themeId) {
+            for (var i = 0; i < visualThemeCatalog.length; i++) {
+                if (visualThemeCatalog[i].id === themeId) return visualThemeCatalog[i];
+            }
+            return visualThemeCatalog[0];
+        }
+        function getActiveVisualThemeConfig_() {
+            return getVisualThemeConfigById_(activeVisualTheme);
+        }
+        function getActiveThemeParticlePalette_() {
+            var cfg = getActiveVisualThemeConfig_();
+            return (cfg && cfg.particleColors && cfg.particleColors.length) ? cfg.particleColors.slice() : ['#34d399','#60a5fa','#fbbf24','#2dd4bf','#a78bfa'];
+        }
+        function getActiveThemeSparkleColors_() {
+            var cfg = getActiveVisualThemeConfig_();
+            if (cfg && cfg.sparkleColors && cfg.sparkleColors.length) return cfg.sparkleColors.slice();
+            return getActiveThemeParticlePalette_();
+        }
+        function readVisualThemePref_() {
+            try {
+                return localStorage.getItem(VISUAL_THEME_STORAGE_KEY) || 'default';
+            } catch (e) {
+                return 'default';
+            }
+        }
+        function syncVisualThemeControls_() {
+            var cfg = getActiveVisualThemeConfig_();
+            var homeToggleEmoji = document.getElementById('home-visual-theme-toggle-emoji');
+            var homeToggleLabel = document.getElementById('home-visual-theme-toggle-label');
+            if (homeToggleEmoji) homeToggleEmoji.innerText = cfg.emoji || '🎨';
+            if (homeToggleLabel) homeToggleLabel.innerText = (cfg.label || '預設草地') + ' · 快速換景';
+            renderHomeThemeShowcase_();
+        }
+        function renderHomeThemeShowcase_() {
+            var cfg = getActiveVisualThemeConfig_();
+            var scene = (cfg && cfg.homeScene) || null;
+            if (!scene) return;
+            var eyebrow = document.getElementById('home-theme-showcase-eyebrow');
+            var title = document.getElementById('home-theme-showcase-title');
+            var desc = document.getElementById('home-theme-showcase-desc');
+            var action = document.getElementById('home-theme-showcase-action');
+            var orbit = document.getElementById('home-theme-showcase-orbit');
+            var elements = document.getElementById('home-theme-showcase-elements');
+            if (eyebrow) eyebrow.innerText = scene.eyebrow || 'Theme Atmosphere';
+            if (title) title.innerText = scene.title || (cfg.label || '預設草地');
+            if (desc) desc.innerText = scene.description || (cfg.description || '');
+            if (action) action.innerText = scene.actionLabel || ((cfg.emoji || '🎨') + ' ' + (cfg.label || '背景主題'));
+            if (orbit) {
+                orbit.innerHTML = (scene.orbitTokens || []).map(function(token) {
+                    return '<span class="theme-showcase-orbit__token">' + token + '</span>';
+                }).join('');
+            }
+            if (elements) {
+                elements.innerHTML = (scene.elements || []).map(function(item) {
+                    return '<div class="theme-showcase-card__element">' +
+                        '<span class="theme-showcase-card__element-emoji">' + (item.emoji || '✨') + '</span>' +
+                        '<div><div class="theme-showcase-card__element-title">' + escapeHtml(item.title || '') + '</div>' +
+                        '<div class="theme-showcase-card__element-desc">' + escapeHtml(item.desc || '') + '</div></div>' +
+                    '</div>';
+                }).join('');
+            }
+        }
+        function renderVisualThemeOptions_() {
+            syncVisualThemeControls_();
+        }
+        function applyVisualTheme(themeId, opts) {
+            var options = opts || {};
+            var cfg = getVisualThemeConfigById_(themeId);
+            activeVisualTheme = cfg.id;
+            if (document.body) document.body.setAttribute('data-visual-theme', activeVisualTheme);
+            var root = document.documentElement;
+            var vars = cfg.cssVars || {};
+            Object.keys(vars).forEach(function(key) {
+                root.style.setProperty(key, vars[key]);
+            });
+            syncVisualThemeControls_();
+            if (options.persist !== false) {
+                try { localStorage.setItem(VISUAL_THEME_STORAGE_KEY, activeVisualTheme); } catch (e) {}
+            }
+            if (options.regenerateParticles !== false && _initialLoadDone) createMathParticles();
+        }
+        function cycleVisualTheme() {
+            var idx = 0;
+            for (var i = 0; i < visualThemeCatalog.length; i++) {
+                if (visualThemeCatalog[i].id === activeVisualTheme) { idx = i; break; }
+            }
+            applyVisualTheme(visualThemeCatalog[(idx + 1) % visualThemeCatalog.length].id, { persist:true, regenerateParticles:true });
         }
         function localizeStudentProfileText_(text) {
             var localized = String(text || '');
@@ -5996,16 +7340,7 @@
         function hideAllSections() { ALL_SECTIONS.forEach(function(id){ var el=document.getElementById(id); el.classList.add('hidden'); el.classList.remove('section-enter','section-enter-challenge','section-enter-game','section-enter-notes'); }); }
         function scrollSectionIntoView_(el) {
             if (!el || typeof window === 'undefined' || typeof window.scrollTo !== 'function') return;
-            window.requestAnimationFrame(function() {
-                var rect = el.getBoundingClientRect();
-                var offsetTop = rect.top + (window.pageYOffset || document.documentElement.scrollTop || 0);
-                var targetTop = Math.max(0, offsetTop - 12);
-                try {
-                    window.scrollTo({ top: targetTop, behavior: 'smooth' });
-                } catch (err) {
-                    window.scrollTo(0, targetTop);
-                }
-            });
+            try { window.scrollTo(0, 0); } catch (e) {}
         }
         function showSection(id) {
             ttsStop();
@@ -6013,6 +7348,7 @@
                 stopMathHelperVoiceInput_(true);
             }
             hideAllSections();
+            window.scrollTo(0, 0);
             var el = document.getElementById(id);
             el.classList.remove('hidden');
             void el.offsetWidth;
@@ -6076,6 +7412,7 @@
             var el3 = document.getElementById('home-game-points'); if(el3) el3.innerText = g;
             var el4 = document.getElementById('home-study-points'); if(el4) el4.innerText = s;
             renderHomeDashboard();
+            if (typeof refreshMascotEvolution_ === 'function') refreshMascotEvolution_({ announce: true });
         }
 
         async function addGamePoints(pts) {
@@ -6142,11 +7479,13 @@
             btn.setAttribute('aria-pressed', isFocusMode ? 'true' : 'false');
             btn.innerHTML = '<span class="text-base leading-none" aria-hidden="true">🎯</span><span>' + txt + '</span>';
         }
+        var _initialLoadDone = false;
         function applyFocusMode(enabled) {
             isFocusMode = !!enabled;
             if (document.body) document.body.classList.toggle('focus-mode', isFocusMode);
             updateFocusModeToggleLabel_();
-            createMathParticles();
+            // 初始載入時延遲粒子廿果，避免阻塞登入畫面渲染
+            if (_initialLoadDone) createMathParticles();
         }
         function toggleFocusMode() {
             applyFocusMode(!isFocusMode);
@@ -6154,12 +7493,22 @@
         }
         window.onload = function() {
             isFocusMode = readFocusModePref_();
+            activeVisualTheme = readVisualThemePref_();
             ambientMusicEnabled = readAmbientMusicPref_();
+            renderVisualThemeOptions_();
+            applyVisualTheme(activeVisualTheme, { persist:false, regenerateParticles:false });
             applyFocusMode(isFocusMode);
             updateAmbientMusicToggleLabel_();
-            ttsInit_();
+            // 核心登入 UI 優先渲染
             renderAvatarSelection();
-            ensureMathHelperWelcome_();
+            // 非關鍵初始化延遲執行，讓登入畫面更快可互動
+            var _deferInit = (typeof requestIdleCallback === 'function') ? requestIdleCallback : function(cb){ setTimeout(cb, 80); };
+            _deferInit(function() {
+                ttsInit_();
+                ensureMathHelperWelcome_();
+                createMathParticles();
+                _initialLoadDone = true;
+            });
             // 全域按鈕點擊聲：套用於大多數按鈕（起始介面、商店、模組入口等）
             document.addEventListener('click', function(e) {
                 var btn = e.target.closest('button, [role="button"], .ghost-btn, .ghost-card');
@@ -6259,7 +7608,7 @@
                 grid.appendChild(btn);
             });
         }
-        function createMathParticles(){var c=document.getElementById('math-particles-container');if(!c)return;c.innerHTML='';var sym=['+','-','×','÷','=','∞','π','∑','√','∫','≈','≠','%','θ','x','y','z','❄','❅','❆'];var count=isFocusMode?8:25;for(var i=0;i<count;i++){var el=document.createElement('div');el.innerText=sym[Math.floor(Math.random()*sym.length)];el.className='math-symbol';el.style.left=Math.random()*100+'vw';el.style.animationDuration=(Math.random()*15+10)+'s';el.style.animationDelay=(Math.random()*5)+'s';el.style.fontSize=(Math.random()*2+1.5)+'rem';if(isFocusMode){el.style.top=(Math.random()*95)+'vh';}c.appendChild(el);}}
+        function createMathParticles(){var c=document.getElementById('math-particles-container');if(!c)return;var cfg=getActiveVisualThemeConfig_();var sym=(cfg&&cfg.mathSymbols&&cfg.mathSymbols.length)?cfg.mathSymbols:['+','-','×','÷','=','∞','π','∑','√','∫','≈','≠','%','θ','x','y','z','❄','❅','❆'];var colors=(cfg&&cfg.mathColors&&cfg.mathColors.length)?cfg.mathColors:['rgba(255,255,255,0.28)','rgba(209,250,229,0.3)','rgba(191,219,254,0.28)','rgba(254,240,138,0.28)'];c.innerHTML='';var count=isFocusMode?8:25;for(var i=0;i<count;i++){var el=document.createElement('div');var particleColor=colors[Math.floor(Math.random()*colors.length)];el.innerText=sym[Math.floor(Math.random()*sym.length)];el.className='math-symbol';el.style.left=Math.random()*100+'vw';el.style.animationDuration=(Math.random()*15+10)+'s';el.style.animationDelay=(Math.random()*5)+'s';el.style.fontSize=(Math.random()*2+1.5)+'rem';el.style.color=particleColor;el.style.textShadow='0 0 12px '+particleColor;if(isFocusMode){el.style.top=(Math.random()*95)+'vh';}c.appendChild(el);}}
         function renderAvatarSelection(){var g=document.getElementById('avatar-grid');g.innerHTML='';avatars.forEach(function(av){var b=document.createElement('button');b.className='flex flex-col items-center p-3 rounded-xl border-2 border-transparent hover:bg-white/50 transition-all group';b.onclick=function(){selectAvatar(av.id,b);};b.innerHTML=buildAvatarMarkup_(av,'avatar-visual--lg','avatar-idle group-hover:scale-110 transition-transform duration-300')+'<div class="text-sm font-bold mt-2 text-indigo-700 opacity-80 group-hover:opacity-100">'+av.name+'</div>';g.appendChild(b);});}
         function selectAvatar(avatarId,btn){var avatarConfig=getAvatarConfigById_(avatarId);if(!avatarConfig)return;syncPlayerAvatarFromConfig_(avatarConfig);document.querySelectorAll('#avatar-grid button').forEach(function(b){b.classList.remove('bg-indigo-100','border-indigo-300');b.classList.add('border-transparent');});btn.classList.remove('border-transparent');btn.classList.add('bg-indigo-100','border-indigo-300');document.getElementById('selected-avatar-msg').innerText='已選擇：'+avatarConfig.name+' '+avatarConfig.emoji;}
 
@@ -6276,6 +7625,9 @@
 
             var rocket = document.getElementById('lobby-rocket');
             if (rocket) { rocket.classList.remove('rocket-fly-right'); void rocket.offsetWidth; rocket.classList.add('rocket-fly-right'); }
+
+            // 啟動 nature-scene 動畫（登入前暫停以節省 GPU）
+            document.body.classList.add('logged-in');
 
             var loginReward = await loadStudentData();
             dailyMissionRenderState = null;
@@ -6538,10 +7890,12 @@
 
         function showExplanationModal(q, selected, isTimeout) {
             var modal = document.getElementById('explanation-modal');
+            var selectedText = isTimeout ? '超時未作答' : String(selected || '');
+            var correctText = getQuestionCorrectAnswerText_(q);
             document.getElementById('exp-emoji').innerText = isTimeout ? '⏰' : '😢';
             document.getElementById('exp-question-text').innerHTML = q.question || '';
-            document.getElementById('exp-selected').innerHTML = isTimeout ? '超時未作答' : (selected || '');
-            document.getElementById('exp-correct').innerHTML = q.answer || '';
+            document.getElementById('exp-selected').innerHTML = selectedText;
+            document.getElementById('exp-correct').innerHTML = correctText;
 
             var expArea = document.getElementById('exp-explanation-area');
             var expText = document.getElementById('exp-explanation-text');
@@ -6556,7 +7910,7 @@
             modal.classList.remove('hidden');
             setBodyScrollLocked_('explanation-modal', true);
             renderMathInElement(modal, { delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
-            ttsAutoSpeak('題目：' + getPlainTextFromHtml(q.question || '') + '。你的答案：' + getPlainTextFromHtml(isTimeout ? '超時未作答' : (selected || '')) + '。正確答案：' + getPlainTextFromHtml(q.answer || '') + '。' + (explanation && explanation !== '無詳解' ? '詳解：' + getPlainTextFromHtml(explanation) : ''));
+            ttsAutoSpeak('題目：' + getPlainTextFromHtml(q.question || '') + '。你的答案：' + getPlainTextFromHtml(selectedText) + '。正確答案：' + getPlainTextFromHtml(correctText) + '。' + (explanation && explanation !== '無詳解' ? '詳解：' + getPlainTextFromHtml(explanation) : ''));
         }
         function ttsReadExplanation() {
             var qText = getPlainTextFromHtml(document.getElementById('exp-question-text').innerHTML || '');
@@ -6743,11 +8097,14 @@
             var key = simpleHash(q.question || '');
             var data = {
                 question: q.question || '',
+                questionType: getQuestionType_(q),
                 options: q.options || [],
-                answer: q.answer || '',
+                answer: getQuestionCorrectAnswerText_(q),
+                acceptedAnswers: getAcceptedAnswers_(q),
+                matchingPairs: normalizeMatchingPairs_(q.matchingPairs),
                 explanation: q.explanation || '',
                 imageUrl: q.imageUrl || '',
-                selected: isTimeout ? '超時未作答' : (selected || ''),
+                selected: formatSubmittedAnswerForStorage_(q, selected, isTimeout),
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             };
             if (source === 'notes') {
@@ -7087,7 +8444,255 @@
         function startGameUI(){clearRoomStaleTimer();showSection('game-section');document.getElementById('game-score-area').classList.remove('hidden');currentQIndex=0;score=0;correctCount=0;combo=0;maxCombo=0;comboMilestonesShown={};wrongQuestions=[];reviewQuestions=[];reviewFilter='wrong';gameFinished=false;resetComboDisplay();updateScoreBoard();loadQuestion();saveChallengeSession_();startSessionAutosave_(saveChallengeSession_);}
         function animateQuestionTransition_(cardId,buttons){var card=document.getElementById(cardId||'');if(card){card.classList.remove('question-card-refresh');void card.offsetWidth;card.classList.add('question-card-refresh');}Array.prototype.forEach.call(buttons||[],function(button,index){var revealDelay=index*55;button.style.setProperty('--option-enter-delay',revealDelay+'ms');button.classList.remove('question-option-enter');button.style.opacity='1';button.style.transform='translateY(0) scale(1)';void button.offsetWidth;button.classList.add('question-option-enter');setTimeout(function(){if(!button||!button.isConnected)return;button.classList.remove('question-option-enter');button.style.opacity='1';button.style.transform='translateY(0) scale(1)';},revealDelay+420);});}
         function pulseFeedbackCard_(id, stateClass){var card=document.getElementById(id);if(!card||!stateClass)return;card.classList.remove('question-card-success','question-card-fail');void card.offsetWidth;card.classList.add(stateClass);setTimeout(function(){card.classList.remove(stateClass);},520);}
-        function loadQuestion(){if(currentQIndex>=questions.length){endGame();return;}var q=questions[currentQIndex];var qd=document.getElementById('question');qd.innerHTML=q.question;renderMathInElement(qd,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});document.getElementById('question-image-area').innerHTML=buildQuestionImageHtml(q.imageUrl);var od=document.getElementById('options');od.innerHTML='';q.options.forEach(function(opt,i){var b=document.createElement('button');b.className="w-full p-5 bg-white border-2 border-indigo-100 rounded-2xl text-xl font-bold text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all text-left relative overflow-hidden btn-neon btn-neon-opt--indigo btn-sweep";b.innerHTML='<span class="inline-block bg-indigo-100 text-indigo-800 w-8 h-8 rounded-full text-center leading-8 mr-3 text-sm">'+String.fromCharCode(65+i)+'</span> '+opt;b.dataset.opt=opt;b.onclick=function(){playClickSound();checkAnswer(opt,false,b);};od.appendChild(b);});renderMathInElement(od,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});animateQuestionTransition_('question-card',od.querySelectorAll('button'));document.getElementById('progress-text').innerText='題數: '+(currentQIndex+1)+'/'+questions.length;document.getElementById('progress-bar').style.width=((currentQIndex)/questions.length*100)+'%';document.getElementById('top-avatar').className='text-3xl avatar-idle avatar-host';hideTopAvatarSpeech_();if(restoringTimeLeft_!==null){timeLeft=restoringTimeLeft_;restoringTimeLeft_=null;}else{timeLeft=gameTimeLimit;}document.getElementById('timer').innerText=timeLeft;document.getElementById('timer').style.color='#ef4444';updateTimeProgressBar();if(timer)clearInterval(timer);timer=setInterval(function(){timeLeft--;document.getElementById('timer').innerText=timeLeft;updateTimeProgressBar();if(timeLeft<=5)document.getElementById('timer').classList.add('animate-ping');else document.getElementById('timer').classList.remove('animate-ping');if(timeLeft<=0){clearInterval(timer);checkAnswer(null,true,null);}},1000);if(gameMode==='multi'&&currentRoomId){db.ref('rooms/'+currentRoomId+'/players/'+playerKey()).update({score:score,progress:currentQIndex+1}).catch(function(){});}saveChallengeSession_();ttsAutoSpeak(ttsBuildQuestionText(q.question,q.options,currentQIndex,questions.length));}
+        function buildQuestionUiPalette_(mode){if(mode==='notes')return{optionClass:"w-full p-4 bg-white border-2 border-emerald-100 rounded-2xl text-lg font-bold text-gray-700 hover:bg-emerald-50 hover:border-emerald-300 transition-all text-left overflow-hidden btn-neon btn-neon-opt--emerald btn-sweep",badgeClass:"inline-block bg-emerald-100 text-emerald-800 w-7 h-7 rounded-full text-center leading-7 mr-3 text-sm",panelClass:"md:col-span-2 bg-white/88 border-2 border-emerald-100 rounded-2xl p-5 shadow-sm",inputClass:"w-full px-4 py-3 rounded-2xl border-2 border-emerald-200 bg-white text-lg font-bold text-gray-700 focus:outline-none focus:border-emerald-400",selectClass:"w-full px-4 py-3 rounded-2xl border-2 border-emerald-200 bg-white text-base font-bold text-gray-700 focus:outline-none focus:border-emerald-400",submitClass:"ghost-btn ghost-emerald py-3 px-6 font-bold"};return{optionClass:"w-full p-5 bg-white border-2 border-indigo-100 rounded-2xl text-xl font-bold text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all text-left relative overflow-hidden btn-neon btn-neon-opt--indigo btn-sweep",badgeClass:"inline-block bg-indigo-100 text-indigo-800 w-8 h-8 rounded-full text-center leading-8 mr-3 text-sm",panelClass:"md:col-span-2 bg-white/90 border-2 border-indigo-100 rounded-2xl p-5 shadow-sm",inputClass:"w-full px-4 py-3 rounded-2xl border-2 border-indigo-200 bg-white text-lg font-bold text-gray-700 focus:outline-none focus:border-indigo-400",selectClass:"w-full px-4 py-3 rounded-2xl border-2 border-indigo-200 bg-white text-base font-bold text-gray-700 focus:outline-none focus:border-indigo-400",submitClass:"ghost-btn ghost-blue py-3 px-6 font-bold"};}
+        function renderMultipleChoiceInteraction_(container,q,palette,onSubmit){(q.options||[]).forEach(function(opt,i){var btn=document.createElement('button');btn.type='button';btn.className=palette.optionClass;btn.innerHTML='<span class="'+palette.badgeClass+'">'+String.fromCharCode(65+i)+'</span><span class="opt-text">'+opt+'</span>';btn.dataset.opt=opt;btn.onclick=function(){playClickSound();onSubmit(opt,btn);};container.appendChild(btn);});}
+        function renderFillBlankInteraction_(container,q,palette,onSubmit){var wrap=document.createElement('div');wrap.className=palette.panelClass;var prompt=document.createElement('div');prompt.className='text-sm font-bold text-gray-500 mb-3';prompt.innerText='請輸入答案後提交';var input=document.createElement('input');input.type='text';input.className=palette.inputClass;input.placeholder='在這裡輸入答案';input.autocomplete='off';input.spellcheck=false;var actions=document.createElement('div');actions.className='mt-4 flex justify-end';var submitBtn=document.createElement('button');submitBtn.type='button';submitBtn.className=palette.submitClass;submitBtn.innerText='提交答案';submitBtn.disabled=true;var handleSubmit=function(){var value=String(input.value||'').trim();if(!value){showToast('請先輸入答案。','warning','未完成作答');return;}playClickSound();onSubmit(value,submitBtn);};input.addEventListener('input',function(){submitBtn.disabled=!String(input.value||'').trim();});input.addEventListener('keydown',function(event){if(event.key==='Enter'){event.preventDefault();handleSubmit();}});submitBtn.onclick=handleSubmit;actions.appendChild(submitBtn);wrap.appendChild(prompt);wrap.appendChild(input);wrap.appendChild(actions);container.appendChild(wrap);setTimeout(function(){try{input.focus();}catch(e){}},0);}
+        function renderMatchingInteraction_(container,q,palette,onSubmit){
+            var pairs=normalizeMatchingPairs_(q.matchingPairs);
+            var rightOptions=shuffleArrayCopy_(pairs.map(function(pair){return pair.right;}));
+            var wrap=document.createElement('div');
+            wrap.className=palette.panelClass+' matching-dnd-board';
+            wrap.dataset.disabled='0';
+
+            var intro=document.createElement('div');
+            intro.className='text-sm font-bold text-gray-500';
+            intro.innerText='把右邊答案拖到對應位置；如使用平板，也可以點一下答案，再點空格放置。';
+            wrap.appendChild(intro);
+
+            var tips=document.createElement('div');
+            tips.className='matching-dnd-instructions';
+            tips.innerHTML='<span class="matching-dnd-chip">拖放配對</span><span class="matching-dnd-chip">點擊也可放置</span><span class="matching-dnd-chip">拖回答案區可取消</span>';
+            wrap.appendChild(tips);
+
+            var pool=document.createElement('div');
+            pool.className='matching-dnd-pool';
+            pool.setAttribute('aria-label','配對答案區');
+            wrap.appendChild(pool);
+
+            var rows=document.createElement('div');
+            rows.className='space-y-3 mt-4';
+            wrap.appendChild(rows);
+
+            var actions=document.createElement('div');
+            actions.className='mt-4 flex justify-end';
+            var submitBtn=document.createElement('button');
+            submitBtn.type='button';
+            submitBtn.className=palette.submitClass;
+            submitBtn.innerText='提交配對';
+            submitBtn.disabled=true;
+            actions.appendChild(submitBtn);
+            wrap.appendChild(actions);
+
+            var selectedToken=null;
+            var activeDropZone=null;
+            var dragState=null;
+
+            function isDisabled(){
+                return wrap.dataset.disabled==='1';
+            }
+            function setSelectedToken(token){
+                if(selectedToken&&selectedToken!==token) selectedToken.classList.remove('matching-dnd-token--selected');
+                selectedToken=token||null;
+                if(selectedToken) selectedToken.classList.add('matching-dnd-token--selected');
+            }
+            function clearSelectedToken(){
+                if(selectedToken) selectedToken.classList.remove('matching-dnd-token--selected');
+                selectedToken=null;
+            }
+            function setDropZone(zone){
+                if(activeDropZone===zone) return;
+                if(activeDropZone) activeDropZone.classList.remove('is-drop-target');
+                activeDropZone=zone||null;
+                if(activeDropZone) activeDropZone.classList.add('is-drop-target');
+            }
+            function syncSlotState(slot){
+                if(!slot) return;
+                var hasToken=!!slot.querySelector('.matching-dnd-token');
+                slot.classList.toggle('has-value',hasToken);
+                var placeholder=slot.querySelector('.matching-dnd-slot__placeholder');
+                if(placeholder) placeholder.classList.toggle('hidden',hasToken);
+            }
+            function updateSubmitState(){
+                var slots=rows.querySelectorAll('.matching-dnd-slot');
+                submitBtn.disabled=!Array.prototype.every.call(slots,function(slot){
+                    return !!slot.querySelector('.matching-dnd-token');
+                });
+            }
+            function returnTokenToPool(token){
+                if(!token) return;
+                var previousSlot=token.closest('.matching-dnd-slot');
+                pool.appendChild(token);
+                token.classList.remove('matching-dnd-token--origin-hidden');
+                if(previousSlot) syncSlotState(previousSlot);
+                if(selectedToken===token) clearSelectedToken();
+                updateSubmitState();
+            }
+            function placeTokenInSlot(token,slot){
+                if(!token||!slot) return;
+                if(token.closest('.matching-dnd-slot')===slot){
+                    token.classList.remove('matching-dnd-token--origin-hidden');
+                    syncSlotState(slot);
+                    clearSelectedToken();
+                    updateSubmitState();
+                    return;
+                }
+                var occupied=slot.querySelector('.matching-dnd-token');
+                if(occupied&&occupied!==token) returnTokenToPool(occupied);
+                var previousSlot=token.closest('.matching-dnd-slot');
+                slot.appendChild(token);
+                token.classList.remove('matching-dnd-token--origin-hidden');
+                if(previousSlot&&previousSlot!==slot) syncSlotState(previousSlot);
+                syncSlotState(slot);
+                clearSelectedToken();
+                updateSubmitState();
+            }
+            function findDropZoneAtPoint(x,y){
+                var target=document.elementFromPoint(x,y);
+                if(!target) return null;
+                var zone=target.closest('.matching-dnd-slot, .matching-dnd-pool');
+                if(!zone||!wrap.contains(zone)) return null;
+                return zone;
+            }
+            function cleanupDrag(){
+                document.removeEventListener('pointermove',handlePointerMove,true);
+                document.removeEventListener('pointerup',handlePointerUp,true);
+                document.removeEventListener('pointercancel',handlePointerUp,true);
+                if(activeDropZone) activeDropZone.classList.remove('is-drop-target');
+                activeDropZone=null;
+                if(dragState&&dragState.ghost&&dragState.ghost.parentNode) dragState.ghost.parentNode.removeChild(dragState.ghost);
+                if(dragState&&dragState.token) dragState.token.classList.remove('matching-dnd-token--origin-hidden');
+                dragState=null;
+            }
+            function ensureDragGhost(){
+                if(!dragState||dragState.ghost) return;
+                var rect=dragState.token.getBoundingClientRect();
+                var ghost=dragState.token.cloneNode(true);
+                ghost.classList.add('matching-dnd-token--ghost');
+                ghost.classList.remove('matching-dnd-token--selected');
+                ghost.style.width=rect.width+'px';
+                ghost.style.height=rect.height+'px';
+                document.body.appendChild(ghost);
+                dragState.ghost=ghost;
+                dragState.token.classList.add('matching-dnd-token--origin-hidden');
+            }
+            function updateGhostPosition(clientX,clientY){
+                if(!dragState||!dragState.ghost) return;
+                dragState.ghost.style.transform='translate3d('+(clientX-dragState.offsetX)+'px,'+(clientY-dragState.offsetY)+'px,0)';
+            }
+            function handlePointerMove(event){
+                if(!dragState||event.pointerId!==dragState.pointerId) return;
+                if(!dragState.started){
+                    var dx=Math.abs(event.clientX-dragState.startX);
+                    var dy=Math.abs(event.clientY-dragState.startY);
+                    if(dx<6&&dy<6) return;
+                    dragState.started=true;
+                    ensureDragGhost();
+                }
+                updateGhostPosition(event.clientX,event.clientY);
+                setDropZone(findDropZoneAtPoint(event.clientX,event.clientY));
+                event.preventDefault();
+            }
+            function handlePointerUp(event){
+                if(!dragState||event.pointerId!==dragState.pointerId) return;
+                var state=dragState;
+                var zone=state.started?(findDropZoneAtPoint(event.clientX,event.clientY)||activeDropZone):null;
+                if(state.started){
+                    state.token.dataset.skipClick='1';
+                    setTimeout(function(){
+                        if(state.token) delete state.token.dataset.skipClick;
+                    },0);
+                    if(zone&&zone.classList.contains('matching-dnd-slot')) placeTokenInSlot(state.token,zone);
+                    else if(zone===pool) returnTokenToPool(state.token);
+                    else if(state.originSlot) placeTokenInSlot(state.token,state.originSlot);
+                    else returnTokenToPool(state.token);
+                }
+                cleanupDrag();
+                event.preventDefault();
+            }
+            function createToken(option,index){
+                var token=document.createElement('button');
+                token.type='button';
+                token.className='matching-dnd-token';
+                token.dataset.matchValue=option;
+                token.setAttribute('aria-label','配對答案 '+(index+1));
+                token.innerHTML='<span class="matching-dnd-token__grip">⋮⋮</span><span class="matching-dnd-token__content">'+option+'</span>';
+                token.addEventListener('pointerdown',function(event){
+                    if(isDisabled()) return;
+                    if(typeof event.button==='number'&&event.button!==0) return;
+                    var rect=token.getBoundingClientRect();
+                    dragState={token:token,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,offsetX:event.clientX-rect.left,offsetY:event.clientY-rect.top,originSlot:token.closest('.matching-dnd-slot'),started:false,ghost:null};
+                    setSelectedToken(token);
+                    document.addEventListener('pointermove',handlePointerMove,true);
+                    document.addEventListener('pointerup',handlePointerUp,true);
+                    document.addEventListener('pointercancel',handlePointerUp,true);
+                    event.preventDefault();
+                },{passive:false});
+                token.addEventListener('click',function(){
+                    if(isDisabled()) return;
+                    if(token.dataset.skipClick==='1') return;
+                    if(selectedToken===token){
+                        if(token.closest('.matching-dnd-slot')) returnTokenToPool(token);
+                        else clearSelectedToken();
+                        return;
+                    }
+                    setSelectedToken(token);
+                });
+                return token;
+            }
+
+            pool.addEventListener('click',function(){
+                if(isDisabled()) return;
+                if(selectedToken&&selectedToken.closest('.matching-dnd-slot')) returnTokenToPool(selectedToken);
+            });
+
+            pairs.forEach(function(pair,index){
+                var row=document.createElement('div');
+                row.className='matching-dnd-row';
+                var left=document.createElement('div');
+                left.className='matching-dnd-left';
+                left.innerHTML='<span class="matching-dnd-left__badge">'+(index+1)+'</span><span class="matching-dnd-left__content">'+pair.left+'</span>';
+                var slot=document.createElement('div');
+                slot.className='matching-dnd-slot';
+                slot.dataset.matchLeft=pair.left;
+                slot.innerHTML='<span class="matching-dnd-slot__placeholder">把答案拖到這裡</span>';
+                slot.addEventListener('click',function(){
+                    if(isDisabled()) return;
+                    if(selectedToken) placeTokenInSlot(selectedToken,slot);
+                });
+                row.appendChild(left);
+                row.appendChild(slot);
+                rows.appendChild(row);
+                syncSlotState(slot);
+            });
+
+            rightOptions.forEach(function(option,index){
+                pool.appendChild(createToken(option,index));
+            });
+
+            submitBtn.onclick=function(){
+                var response={};
+                var slots=rows.querySelectorAll('.matching-dnd-slot');
+                var incomplete=false;
+                Array.prototype.forEach.call(slots,function(slot){
+                    var token=slot.querySelector('.matching-dnd-token');
+                    var leftKey=slot.dataset.matchLeft||'';
+                    var value=token?String(token.dataset.matchValue||'').trim():'';
+                    if(!value) incomplete=true;
+                    response[leftKey]=value;
+                });
+                if(incomplete){
+                    showToast('請先完成所有配對。','warning','未完成作答');
+                    return;
+                }
+                playClickSound();
+                onSubmit(response,submitBtn);
+            };
+
+            container.appendChild(wrap);
+        }
+        function renderQuestionInteraction_(container,q,mode,onSubmit){var palette=buildQuestionUiPalette_(mode);container.innerHTML='';var questionType=getQuestionType_(q);if(questionType==='fillBlank'){renderFillBlankInteraction_(container,q,palette,onSubmit);}else if(questionType==='matching'){renderMatchingInteraction_(container,q,palette,onSubmit);}else{renderMultipleChoiceInteraction_(container,q,palette,onSubmit);}renderMathInElement(container,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});return container.querySelectorAll('button');}
+        function disableQuestionControls_(container){if(!container)return;Array.prototype.forEach.call(container.querySelectorAll('button,input,select,textarea'),function(control){control.disabled=true;});Array.prototype.forEach.call(container.querySelectorAll('.matching-dnd-board'),function(board){board.dataset.disabled='1';board.classList.add('is-disabled');});}
+        function loadQuestion(){if(currentQIndex>=questions.length){endGame();return;}var q=questions[currentQIndex];var qd=document.getElementById('question');qd.innerHTML=q.question;renderMathInElement(qd,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});document.getElementById('question-image-area').innerHTML=buildQuestionImageHtml(q.imageUrl);var od=document.getElementById('options');var actionButtons=renderQuestionInteraction_(od,q,'challenge',function(answer,triggerEl){checkAnswer(answer,false,triggerEl);});animateQuestionTransition_('question-card',actionButtons);document.getElementById('progress-text').innerText='題數: '+(currentQIndex+1)+'/'+questions.length;document.getElementById('progress-bar').style.width=((currentQIndex)/questions.length*100)+'%';document.getElementById('top-avatar').className='text-3xl avatar-idle avatar-host';hideTopAvatarSpeech_();if(restoringTimeLeft_!==null){timeLeft=restoringTimeLeft_;restoringTimeLeft_=null;}else{timeLeft=gameTimeLimit;}document.getElementById('timer').innerText=timeLeft;document.getElementById('timer').style.color='#ef4444';updateTimeProgressBar();if(timer)clearInterval(timer);timer=setInterval(function(){timeLeft--;document.getElementById('timer').innerText=timeLeft;updateTimeProgressBar();if(timeLeft<=5)document.getElementById('timer').classList.add('animate-ping');else document.getElementById('timer').classList.remove('animate-ping');if(timeLeft<=0){clearInterval(timer);checkAnswer(null,true,null);}},1000);if(gameMode==='multi'&&currentRoomId){db.ref('rooms/'+currentRoomId+'/players/'+playerKey()).update({score:score,progress:currentQIndex+1}).catch(function(){});}saveChallengeSession_();ttsAutoSpeak(ttsBuildQuestionText(q,null,currentQIndex,questions.length));}
         function updateTimeProgressBar(){var b=document.getElementById('time-progress-bar');if(!b)return;var t=Math.max(1,Number(gameTimeLimit)||20);var r=Math.max(0,Math.min(1,timeLeft/t));b.style.width=(r*100)+'%';if(timeLeft<=5)b.className='h-3 bg-red-500 transition-all duration-300';else if(timeLeft<=t/2)b.className='h-3 bg-yellow-500 transition-all duration-300';else b.className='h-3 bg-green-500 transition-all duration-300';}
         function getComboScoreMultiplier(){return combo>=COMBO_MULTIPLIER_THRESHOLD?COMBO_SCORE_MULTIPLIER:1;}
         function resetComboDisplay(){var display=document.getElementById('combo-display');var flame=document.getElementById('combo-flame');var bonus=document.getElementById('combo-bonus');var banner=document.getElementById('combo-milestone-banner');if(display)display.classList.add('hidden');if(flame){flame.innerText='🔥';flame.className='flame-lv1';}if(bonus)bonus.classList.add('hidden');if(comboMilestoneTimer){clearTimeout(comboMilestoneTimer);comboMilestoneTimer=null;}if(banner){banner.classList.add('hidden');banner.innerHTML='';}}
@@ -7210,7 +8815,7 @@
             return{accuracyPct:accuracyPct,wrongCount:wrongCount,rank:rank,summaryTitle:summaryTitle,summaryDesc:summaryDesc,nextTitle:nextTitle,nextDesc:nextDesc,primary:primary,secondary:secondary};
         }
         function renderResultExperience(boardData){var summary=getResultSummaryData(boardData);var titleEl=document.getElementById('result-summary-title');var descEl=document.getElementById('result-summary-desc');var statsEl=document.getElementById('result-stats-grid');var rankEl=document.getElementById('result-rank-pill');var nextTitleEl=document.getElementById('result-next-step-title');var nextDescEl=document.getElementById('result-next-step-desc');var primaryBtn=document.getElementById('result-primary-btn');var secondaryBtn=document.getElementById('result-secondary-btn');if(titleEl)titleEl.innerText=summary.summaryTitle;if(descEl)descEl.innerText=summary.summaryDesc;if(rankEl){if(summary.rank){rankEl.classList.remove('hidden');rankEl.innerText='🏅 第 '+summary.rank+' 名';}else{rankEl.classList.add('hidden');rankEl.innerText='';}}if(statsEl){var totalQ=(questions&&questions.length)?questions.length:0;var comboNote=maxCombo>=COMBO_MULTIPLIER_THRESHOLD?'已觸發積分加成':(totalQ>0?'再多幾題就能起火':'等待下一場挑戰');var statCards=[{label:'答對率',value:summary.accuracyPct+'%',note:'答對 '+correctCount+' / '+totalQ+' 題'},{label:'最高連擊',value:maxCombo+'x',note:comboNote},{label:'待補強題',value:summary.wrongCount+' 題',note:summary.wrongCount===0?'本次沒有錯題':'可到題目回顧立即整理'}];statsEl.innerHTML=statCards.map(function(card){return '<div class="result-stat-card"><div class="result-stat-card__label">'+card.label+'</div><div class="result-stat-card__value">'+card.value+'</div><div class="result-stat-card__note">'+card.note+'</div></div>';}).join('');}if(nextTitleEl)nextTitleEl.innerText=summary.nextTitle;if(nextDescEl)nextDescEl.innerText=summary.nextDesc;if(primaryBtn){primaryBtn.innerText=summary.primary.label;primaryBtn.onclick=summary.primary.action;}if(secondaryBtn){secondaryBtn.innerText=summary.secondary.label;secondaryBtn.onclick=summary.secondary.action;}}
-        function checkAnswer(sel,isTimeout,btn){ttsStop();clearInterval(timer);document.getElementById('timer').classList.remove('animate-ping');var btns=document.getElementById('options').querySelectorAll('button');btns.forEach(function(b){b.disabled=true;});var q=questions[currentQIndex];var selectedValue=isTimeout?'超時未作答':sel;var ok=!isTimeout&&(sel===q.answer);reviewQuestions.push({question:q.question||'',options:Array.isArray(q.options)?q.options.slice():[],answer:q.answer||'',selected:selectedValue||'',explanation:q.explanation||'無詳解',isCorrect:ok,imageUrl:q.imageUrl||''});if(isTimeout)playTimeoutSound();else if(ok)playCorrectSound(combo+1);else playWrongSound();triggerPlayerAvatarReaction_(ok);if(ok){pulseFeedbackCard_('question-card','question-card-success');combo++;if(combo>maxCombo)maxCombo=combo;correctCount++;var pts=BASE_QUESTION_POINTS+Math.floor(timeLeft/2);if(combo>=2)pts+=5*combo;pts=Math.round(pts*getComboScoreMultiplier());score+=pts;if(btn){btn.classList.add('flash-correct');var r=btn.getBoundingClientRect();launchSparkles(r.left+r.width/2,r.top+r.height/2);if(shouldLaunchGameMiniConfetti_(combo,timeLeft)){launchMiniConfettiBurst(ensureElementAnchorId_(btn,'game-answer'));}}setMascotState('challengeCorrect');updateComboDisplay();if(combo>=COMBO_MULTIPLIER_THRESHOLD)triggerStreakFlash();showComboMilestone(combo);popScoreElement('score');}else{pulseFeedbackCard_('question-card','question-card-fail');combo=0;resetComboDisplay();if(btn)btn.classList.add('flash-wrong');btns.forEach(function(b){if(b.dataset&&b.dataset.opt===q.answer)b.classList.add('bg-green-100','border-green-400');});if(isTimeout){setMascotState('wrong','這題時間到了，下一題我們再搶快一點！⏱️');}else{setMascotState('wrong');}wrongQuestions.push({q:q.question,selected:selectedValue,correct:q.answer,explanation:q.explanation||'無詳解'});saveWrongQuestion('game',q,sel,isTimeout);}updateScoreBoard();saveChallengeSession_();if(ok){setTimeout(function(){currentQIndex++;loadQuestion();},1500);}else{setTimeout(function(){showExplanationModal(q,sel,isTimeout);explanationModalCallback=function(){currentQIndex++;loadQuestion();};},800);}}
+        function checkAnswer(sel,isTimeout,btn){ttsStop();clearInterval(timer);document.getElementById('timer').classList.remove('animate-ping');var optionArea=document.getElementById('options');disableQuestionControls_(optionArea);var btns=optionArea.querySelectorAll('button');var q=questions[currentQIndex];var questionType=getQuestionType_(q);var selectedValue=formatSubmittedAnswerForStorage_(q,sel,isTimeout);var correctAnswerText=getQuestionCorrectAnswerText_(q);var ok=!isTimeout&&isQuestionAnswerCorrect_(q,sel);reviewQuestions.push({question:q.question||'',questionType:questionType,options:Array.isArray(q.options)?q.options.slice():[],answer:correctAnswerText,acceptedAnswers:getAcceptedAnswers_(q),matchingPairs:normalizeMatchingPairs_(q.matchingPairs),selected:selectedValue||'',explanation:q.explanation||'無詳解',isCorrect:ok,imageUrl:q.imageUrl||''});if(isTimeout)playTimeoutSound();else if(ok)playCorrectSound(combo+1);else playWrongSound();triggerPlayerAvatarReaction_(ok);if(ok){pulseFeedbackCard_('question-card','question-card-success');combo++;if(combo>maxCombo)maxCombo=combo;correctCount++;var pts=BASE_QUESTION_POINTS+Math.floor(timeLeft/2);if(combo>=2)pts+=5*combo;pts=Math.round(pts*getComboScoreMultiplier());score+=pts;if(btn){btn.classList.add('flash-correct');var r=btn.getBoundingClientRect();launchSparkles(r.left+r.width/2,r.top+r.height/2);if(shouldLaunchGameMiniConfetti_(combo,timeLeft)){launchMiniConfettiBurst(ensureElementAnchorId_(btn,'game-answer'));}}setMascotState('challengeCorrect');updateComboDisplay();if(combo>=COMBO_MULTIPLIER_THRESHOLD)triggerStreakFlash();showComboMilestone(combo);popScoreElement('score');}else{pulseFeedbackCard_('question-card','question-card-fail');combo=0;resetComboDisplay();if(btn)btn.classList.add('flash-wrong');if(questionType==='multipleChoice'){btns.forEach(function(b){if(b.dataset&&answersMatch_(b.dataset.opt,q.answer))b.classList.add('bg-green-100','border-green-400');});}if(isTimeout){setMascotState('wrong','這題時間到了，下一題我們再搶快一點！⏱️');}else{setMascotState('wrong');}wrongQuestions.push({q:q.question,selected:selectedValue,correct:correctAnswerText,explanation:q.explanation||'無詳解'});saveWrongQuestion('game',q,sel,isTimeout);}updateScoreBoard();saveChallengeSession_();if(ok){setTimeout(function(){currentQIndex++;loadQuestion();},1500);}else{setTimeout(function(){showExplanationModal(q,selectedValue,isTimeout);explanationModalCallback=function(){currentQIndex++;loadQuestion();};},800);}}
         function updateScoreBoard(){document.getElementById('score').innerText=score;}
         function updateMiniLeaderboard(po){var panel=document.getElementById('mini-leaderboard');if(!panel)return;if(gameMode!=='multi'||!currentRoomId){panel.classList.add('hidden');return;}var gs=document.getElementById('game-section');if(!gs||gs.classList.contains('hidden')){panel.classList.add('hidden');return;}panel.classList.remove('hidden');var players=po?Object.values(po):[];var sorted=players.map(function(p){return{name:p.class+'-'+p.number,avatar:p.avatar||'👤',avatarName:p.avatarName||'',avatarId:p.avatarId||'',score:Number(p.score||0)};}).sort(function(a,b){return b.score-a.score;});var sk=playerInfo.class+'-'+playerInfo.number;var medals=['🥇','🥈','🥉'];var le=document.getElementById('mini-lb-list');le.innerHTML='';sorted.slice(0,3).forEach(function(p,i){var isSelf=p.name===sk;var r=document.createElement('li');r.className='mini-lb-row'+(isSelf?' is-self':'');r.innerHTML='<span class="mini-lb-medal">'+medals[i]+'</span><span class="mini-lb-name">'+buildAvatarMarkup_(getAvatarConfigByPlayer_(p),'avatar-visual--xs','')+'<span>'+escapeHtml(p.name)+'</span></span><span class="mini-lb-score">'+p.score+'</span>';le.appendChild(r);});var sd=document.getElementById('mini-lb-self');var sr=-1;for(var i=0;i<sorted.length;i++){if(sorted[i].name===sk){sr=i;break;}}if(sr>=3){sd.classList.remove('hidden');sd.className='mini-lb-row is-self mt-2 pt-2 border-t border-white/10';var d=sorted[sr];sd.innerHTML='<span class="mini-lb-medal" style="font-size:0.7rem;color:rgba(255,255,255,0.5);">'+(sr+1)+'</span><span class="mini-lb-name">'+buildAvatarMarkup_(getAvatarConfigByPlayer_(d),'avatar-visual--xs','')+'<span>'+escapeHtml(d.name)+'</span></span><span class="mini-lb-score">'+d.score+'</span>';}else{sd.classList.add('hidden');sd.innerHTML='';}}
 
@@ -7258,7 +8863,7 @@
         function backToResults(){showSection('final-leaderboard-section');}
         function getReviewQuestionsByFilter_(){if(reviewFilter==='correct')return reviewQuestions.filter(function(item){return item.isCorrect;});if(reviewFilter==='wrong')return reviewQuestions.filter(function(item){return !item.isCorrect;});return reviewQuestions.slice();}
         function updateReviewFilterUi_(){var correctItems=reviewQuestions.filter(function(item){return item.isCorrect;});var wrongItems=reviewQuestions.filter(function(item){return !item.isCorrect;});var correctBtn=document.getElementById('review-filter-correct');var wrongBtn=document.getElementById('review-filter-wrong');var correctCount=document.getElementById('review-correct-count');var wrongCount=document.getElementById('review-wrong-count');var caption=document.getElementById('review-filter-caption');if(correctCount)correctCount.innerText=String(correctItems.length);if(wrongCount)wrongCount.innerText=String(wrongItems.length);if(correctBtn){correctBtn.classList.toggle('ring-2',reviewFilter==='correct');correctBtn.classList.toggle('ring-emerald-300',reviewFilter==='correct');correctBtn.classList.toggle('scale-[1.01]',reviewFilter==='correct');}if(wrongBtn){wrongBtn.classList.toggle('ring-2',reviewFilter==='wrong');wrongBtn.classList.toggle('ring-rose-300',reviewFilter==='wrong');wrongBtn.classList.toggle('scale-[1.01]',reviewFilter==='wrong');}if(caption){caption.innerText=reviewFilter==='correct'?'目前顯示：全部答對的題目':'目前顯示：全部答錯的題目';}}
-        function renderReviewList_(){var rl=document.getElementById('review-list');if(!rl)return;rl.innerHTML='';if(!reviewQuestions.length){rl.innerHTML='<div class="text-center p-12 text-2xl font-bold text-indigo-500 bg-indigo-50 rounded-3xl border-2 border-indigo-100">目前還沒有可回顧的題目。</div>';return;}var items=getReviewQuestionsByFilter_();if(!items.length){rl.innerHTML=reviewFilter==='correct'?'<div class="text-center p-10 text-xl font-bold text-emerald-600 bg-emerald-50 rounded-3xl border-2 border-emerald-100">這一場目前沒有答對題目可顯示。</div>':'<div class="text-center p-10 text-xl font-bold text-rose-600 bg-rose-50 rounded-3xl border-2 border-rose-100">這一場目前沒有答錯題目可顯示。</div>';return;}items.forEach(function(item,index){var div=document.createElement('div');var correctOptions=(item.options||[]).filter(function(opt){return opt===item.answer;});var statusClass=item.isCorrect?'border-emerald-100':'border-red-100';var statusBadge=item.isCorrect?'<span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-sm font-black text-emerald-700">✅ 答對</span>':'<span class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-sm font-black text-rose-700">❌ 答錯</span>';var yourAnswerClass=item.isCorrect?'bg-emerald-50/80 border-emerald-100':'bg-amber-50/80 border-amber-100';div.className='bg-white/90 p-4 sm:p-6 rounded-2xl shadow-md border '+statusClass+' relative mt-6 w-full max-w-full box-border';var reviewImageHtml=item.imageUrl?buildQuestionImageHtml(item.imageUrl):'';div.innerHTML='<div class="absolute -top-4 left-2 sm:left-4 w-10 h-10 bg-gradient-to-br from-indigo-500 to-sky-500 text-white font-black text-lg rounded-full flex items-center justify-center shadow-lg border-2 border-white">'+(index+1)+'</div><div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-5 mt-2 sm:mt-0 pl-2 sm:pl-4"><div class="text-lg sm:text-xl font-bold text-gray-800 break-words overflow-x-auto max-w-full">'+escapeHtml(item.question||'')+'</div>'+statusBadge+'</div>'+reviewImageHtml+'<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-full"><div class="'+yourAnswerClass+' p-4 sm:p-5 rounded-xl border overflow-x-auto max-w-full min-w-0"><div class="text-sm font-black text-slate-600 mb-2">🧠 你的作答</div><div class="text-gray-800 font-bold text-base sm:text-lg break-words">'+escapeHtml(item.selected||'未作答')+'</div></div><div class="bg-green-50/80 p-4 sm:p-5 rounded-xl border border-green-100 overflow-x-auto max-w-full min-w-0"><div class="text-sm font-black text-green-600 mb-2">✅ 正確選項</div><div class="space-y-2">'+(correctOptions.length?correctOptions.map(function(opt){return '<div class="rounded-lg bg-white/80 px-3 py-2 font-bold text-gray-800 break-words">'+escapeHtml(opt)+'</div>';}).join(''):'<div class="text-gray-400">沒有資料</div>')+'</div></div></div>'+(item.explanation&&item.explanation!=='無詳解'?'<div class="mt-4 bg-blue-50/80 p-4 sm:p-5 rounded-xl border border-blue-100 overflow-x-auto max-w-full min-w-0"><div class="text-sm font-black text-blue-600 mb-2">💡 詳解</div><div class="text-gray-800 leading-relaxed break-words">'+item.explanation+'</div></div>':'')+'<div class="mt-4 text-right"><button class="tts-review-btn inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-700 font-bold py-2 px-4 rounded-xl text-sm hover:bg-amber-100 transition-colors" data-review-idx="'+index+'">🔊 朗讀本題</button></div>';rl.appendChild(div);});rl.addEventListener('click',function(e){var btn=e.target.closest('.tts-review-btn');if(!btn)return;var idx=Number(btn.dataset.reviewIdx);var items=getReviewQuestionsByFilter_();var it=items[idx];if(!it)return;var text='題目：'+getPlainTextFromHtml(it.question||'')+'。你的答案：'+getPlainTextFromHtml(it.selected||'未作答')+'。正確答案：'+getPlainTextFromHtml(it.answer||'')+(it.explanation&&it.explanation!=='無詳解'?'。詳解：'+getPlainTextFromHtml(it.explanation):'');ttsSpeak(text);});renderMathInElement(document.getElementById('review-list'),{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});}
+        function renderReviewList_(){var rl=document.getElementById('review-list');if(!rl)return;rl.innerHTML='';if(!reviewQuestions.length){rl.innerHTML='<div class="text-center p-12 text-2xl font-bold text-indigo-500 bg-indigo-50 rounded-3xl border-2 border-indigo-100">目前還沒有可回顧的題目。</div>';return;}var items=getReviewQuestionsByFilter_();if(!items.length){rl.innerHTML=reviewFilter==='correct'?'<div class="text-center p-10 text-xl font-bold text-emerald-600 bg-emerald-50 rounded-3xl border-2 border-emerald-100">這一場目前沒有答對題目可顯示。</div>':'<div class="text-center p-10 text-xl font-bold text-rose-600 bg-rose-50 rounded-3xl border-2 border-rose-100">這一場目前沒有答錯題目可顯示。</div>';return;}items.forEach(function(item,index){var div=document.createElement('div');var questionType=normalizeQuestionType_(item.questionType||'');var answerEntries=[];if(questionType==='multipleChoice'){answerEntries=(item.options||[]).filter(function(opt){return opt===item.answer;});}else if(questionType==='matching'){answerEntries=String(item.answer||'').split(/\s*\|\s*/).filter(function(entry){return entry!=='';});}else if(Array.isArray(item.acceptedAnswers)&&item.acceptedAnswers.length){answerEntries=item.acceptedAnswers.slice();}else if(item.answer){answerEntries=[item.answer];}var answerLabel=questionType==='multipleChoice'?'✅ 正確選項':(questionType==='matching'?'✅ 正確配對':'✅ 正確答案');var statusClass=item.isCorrect?'border-emerald-100':'border-red-100';var statusBadge=item.isCorrect?'<span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-sm font-black text-emerald-700">✅ 答對</span>':'<span class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-sm font-black text-rose-700">❌ 答錯</span>';var yourAnswerClass=item.isCorrect?'bg-emerald-50/80 border-emerald-100':'bg-amber-50/80 border-amber-100';div.className='bg-white/90 p-4 sm:p-6 rounded-2xl shadow-md border '+statusClass+' relative mt-6 w-full max-w-full box-border';var reviewImageHtml=item.imageUrl?buildQuestionImageHtml(item.imageUrl):'';div.innerHTML='<div class="absolute -top-4 left-2 sm:left-4 w-10 h-10 bg-gradient-to-br from-indigo-500 to-sky-500 text-white font-black text-lg rounded-full flex items-center justify-center shadow-lg border-2 border-white">'+(index+1)+'</div><div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-5 mt-2 sm:mt-0 pl-2 sm:pl-4"><div class="text-lg sm:text-xl font-bold text-gray-800 break-words overflow-x-auto max-w-full">'+escapeHtml(item.question||'')+'</div>'+statusBadge+'</div>'+reviewImageHtml+'<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-full"><div class="'+yourAnswerClass+' p-4 sm:p-5 rounded-xl border overflow-x-auto max-w-full min-w-0"><div class="text-sm font-black text-slate-600 mb-2">🧠 你的作答</div><div class="text-gray-800 font-bold text-base sm:text-lg break-words">'+escapeHtml(item.selected||'未作答')+'</div></div><div class="bg-green-50/80 p-4 sm:p-5 rounded-xl border border-green-100 overflow-x-auto max-w-full min-w-0"><div class="text-sm font-black text-green-600 mb-2">'+answerLabel+'</div><div class="space-y-2">'+(answerEntries.length?answerEntries.map(function(opt){return '<div class="rounded-lg bg-white/80 px-3 py-2 font-bold text-gray-800 break-words">'+escapeHtml(opt)+'</div>';}).join(''):'<div class="text-gray-400">沒有資料</div>')+'</div></div></div>'+(item.explanation&&item.explanation!=='無詳解'?'<div class="mt-4 bg-blue-50/80 p-4 sm:p-5 rounded-xl border border-blue-100 overflow-x-auto max-w-full min-w-0"><div class="text-sm font-black text-blue-600 mb-2">💡 詳解</div><div class="text-gray-800 leading-relaxed break-words">'+item.explanation+'</div></div>':'')+'<div class="mt-4 text-right"><button class="tts-review-btn inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-700 font-bold py-2 px-4 rounded-xl text-sm hover:bg-amber-100 transition-colors" data-review-idx="'+index+'">🔊 朗讀本題</button></div>';rl.appendChild(div);});rl.addEventListener('click',function(e){var btn=e.target.closest('.tts-review-btn');if(!btn)return;var idx=Number(btn.dataset.reviewIdx);var items=getReviewQuestionsByFilter_();var it=items[idx];if(!it)return;var text='題目：'+getPlainTextFromHtml(it.question||'')+'。你的答案：'+getPlainTextFromHtml(it.selected||'未作答')+'。正確答案：'+getPlainTextFromHtml(it.answer||'')+(it.explanation&&it.explanation!=='無詳解'?'。詳解：'+getPlainTextFromHtml(it.explanation):'');ttsSpeak(text);});renderMathInElement(document.getElementById('review-list'),{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}]});}
         function setReviewFilter(filter){reviewFilter=filter==='correct'?'correct':'wrong';updateReviewFilterUi_();renderReviewList_();}
         function showReview(){showSection('review-section');if(!reviewQuestions.length){reviewFilter='wrong';}else{var hasWrong=reviewQuestions.some(function(item){return !item.isCorrect;});reviewFilter=hasWrong?'wrong':'correct';}updateReviewFilterUi_();renderReviewList_();}
 
@@ -7399,7 +9004,7 @@
             q.options.forEach(function(opt, i) {
                 var btn = document.createElement('button');
                 btn.className = "w-full p-5 bg-white border-2 border-purple-100 rounded-2xl text-xl font-bold text-gray-700 hover:bg-purple-50 hover:border-purple-300 transition-all text-left relative overflow-hidden btn-neon btn-neon-opt--purple btn-sweep";
-                btn.innerHTML = '<span class="inline-block bg-purple-100 text-purple-800 w-8 h-8 rounded-full text-center leading-8 mr-3 text-sm">' + String.fromCharCode(65 + i) + '</span> ' + opt;
+                btn.innerHTML = '<span class="inline-block bg-purple-100 text-purple-800 w-8 h-8 rounded-full text-center leading-8 mr-3 text-sm">' + String.fromCharCode(65 + i) + '</span><span class="opt-text">' + opt + '</span>';
                 btn.dataset.opt = opt;
                 btn.onclick = function() { playClickSound(); checkDcAnswer_(opt, btn); };
                 od.appendChild(btn);
@@ -7414,7 +9019,7 @@
             var btns = document.getElementById('dc-options').querySelectorAll('button');
             btns.forEach(function(b) { b.disabled = true; });
             var q = dcQuestions[dcIndex];
-            var ok = (sel === q.answer);
+            var ok = answersMatch_(sel, q.answer);
             dcReviewData.push({ question: q.question, options: q.options.slice(), answer: q.answer, selected: sel, explanation: q.explanation || '', isCorrect: ok, imageUrl: q.imageUrl || '' });
             if (ok) {
                 pulseFeedbackCard_('dc-question-card', 'question-card-success');
@@ -7431,7 +9036,7 @@
                 pulseFeedbackCard_('dc-question-card', 'question-card-fail');
                 playWrongSound();
                 if (btnEl) btnEl.classList.add('flash-wrong');
-                btns.forEach(function(b) { if (b.dataset && b.dataset.opt === q.answer) b.classList.add('bg-green-100', 'border-green-400'); });
+                btns.forEach(function(b) { if (b.dataset && answersMatch_(b.dataset.opt, q.answer)) b.classList.add('bg-green-100', 'border-green-400'); });
                 setMascotState('wrong');
                 setTimeout(function() {
                     showExplanationModal(q, sel, false);
@@ -7775,26 +9380,20 @@
             renderMathInElement(qEl, { delimiters: [{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
             document.getElementById('nq-question-image-area').innerHTML = buildQuestionImageHtml(q.imageUrl);
             var od = document.getElementById('nq-options');
-            od.innerHTML = '';
-            q.options.forEach(function(opt, i) {
-                var btn = document.createElement('button');
-                btn.className = "w-full p-4 bg-white border-2 border-emerald-100 rounded-2xl text-lg font-bold text-gray-700 hover:bg-emerald-50 hover:border-emerald-300 transition-all text-left overflow-hidden btn-neon btn-neon-opt--emerald btn-sweep";
-                btn.innerHTML = '<span class="inline-block bg-emerald-100 text-emerald-800 w-7 h-7 rounded-full text-center leading-7 mr-3 text-sm">' + String.fromCharCode(65 + i) + '</span> ' + opt;
-                btn.dataset.opt = opt;
-                btn.onclick = function() { playClickSound(); checkNQAnswer(opt, btn); };
-                od.appendChild(btn);
-            });
-            renderMathInElement(od, { delimiters: [{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
-            animateQuestionTransition_('nq-question-card', od.querySelectorAll('button'));
-            ttsAutoSpeak(ttsBuildQuestionText(q.question, q.options, nqIndex, notesQuizQuestions.length));
+            var actionButtons = renderQuestionInteraction_(od, q, 'notes', function(answer, triggerEl) { checkNQAnswer(answer, triggerEl); });
+            animateQuestionTransition_('nq-question-card', actionButtons);
+            ttsAutoSpeak(ttsBuildQuestionText(q, null, nqIndex, notesQuizQuestions.length));
         }
 
         function checkNQAnswer(sel, btnEl) {
             ttsStop();
-            var btns = document.getElementById('nq-options').querySelectorAll('button');
-            btns.forEach(function(b) { b.disabled = true; });
+            var optionArea = document.getElementById('nq-options');
+            disableQuestionControls_(optionArea);
+            var btns = optionArea.querySelectorAll('button');
             var q = notesQuizQuestions[nqIndex];
-            var ok = (sel === q.answer);
+            var questionType = getQuestionType_(q);
+            var selectedValue = formatSubmittedAnswerForStorage_(q, sel, false);
+            var ok = isQuestionAnswerCorrect_(q, sel);
             if (ok) {
                 pulseFeedbackCard_('nq-question-card', 'question-card-success');
                 playCorrectSound(1);
@@ -7811,7 +9410,7 @@
                 pulseFeedbackCard_('nq-question-card', 'question-card-fail');
                 playWrongSound();
                 if (btnEl) btnEl.classList.add('flash-wrong');
-                btns.forEach(function(b) { if (b.dataset && b.dataset.opt === q.answer) b.classList.add('bg-green-100', 'border-green-400'); });
+                if (questionType === 'multipleChoice') btns.forEach(function(b) { if (b.dataset && answersMatch_(b.dataset.opt, q.answer)) b.classList.add('bg-green-100', 'border-green-400'); });
                 setMascotState('wrong');
                 saveWrongQuestion('notes', q, sel, false);
             }
@@ -7820,7 +9419,7 @@
                 setTimeout(function() { nqIndex++; loadNQQuestion(); }, 1200);
             } else {
                 setTimeout(function() {
-                    showExplanationModal(q, sel, false);
+                    showExplanationModal(q, selectedValue, false);
                     explanationModalCallback = function() {
                         nqIndex++;
                         loadNQQuestion();

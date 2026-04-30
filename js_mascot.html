@@ -1,7 +1,15 @@
 <script>
 var mascotTimer = null;
+var mascotBurstTimer_ = null;
+var mascotEvolutionStageId_ = '';
 var notesSections = ['notes-school-level-select','notes-grade-select','notes-topic-list','notes-section-list','notes-reader','notes-quiz','notes-quiz-result','notes-topic-complete'];
 var challengeSections = ['mode-selection','game-section'];
+var mascotEvolutionStages = [
+    { id: 'sprout', minPoints: 0, label: '萌芽', icon: '🌱' },
+    { id: 'bloom', minPoints: 120, label: '綻光', icon: '🌸' },
+    { id: 'comet', minPoints: 360, label: '飛躍', icon: '☄️' },
+    { id: 'mythic', minPoints: 720, label: '星耀', icon: '👑' }
+];
 
 var mascotMessages = {
     idle: [
@@ -87,6 +95,130 @@ function getRandomMsg(type) {
     return msgs[Math.floor(Math.random() * msgs.length)];
 }
 
+function getMascotTotalPoints_() {
+    if (typeof studentData === 'undefined' || !studentData) return 0;
+    return Math.max(0, Number(studentData.totalPoints || 0));
+}
+
+function getMascotEvolutionStage_(points) {
+    var resolved = mascotEvolutionStages[0];
+    for (var i = 0; i < mascotEvolutionStages.length; i++) {
+        if (points >= mascotEvolutionStages[i].minPoints) resolved = mascotEvolutionStages[i];
+        else break;
+    }
+    return resolved;
+}
+
+function buildMascotEvolutionMarkup_(stage) {
+    var safeLabel = escapeHtml(stage.label || '萌芽');
+    var safeIcon = escapeHtml(stage.icon || '🌱');
+    return '' +
+        '<div class="mascot-evolution mascot-stage--' + stage.id + '">' +
+            '<div class="mascot-aura"></div>' +
+            '<div class="mascot-aura mascot-aura--secondary"></div>' +
+            '<div class="mascot-orbit">' +
+                '<span class="mascot-orbit-dot"></span>' +
+                '<span class="mascot-orbit-dot"></span>' +
+                '<span class="mascot-orbit-dot"></span>' +
+            '</div>' +
+            '<div class="mascot-stage-badge"><span class="mascot-stage-icon">' + safeIcon + '</span><span class="mascot-stage-label">' + safeLabel + '</span></div>' +
+            '<div class="mascot-body">' +
+                '<span class="mascot-tail"></span>' +
+                '<span class="mascot-ear mascot-ear--left"></span>' +
+                '<span class="mascot-ear mascot-ear--right"></span>' +
+                '<span class="mascot-wing mascot-wing--left"></span>' +
+                '<span class="mascot-wing mascot-wing--right"></span>' +
+                '<span class="mascot-crown-leaf"></span>' +
+                '<span class="mascot-horn mascot-horn--left"></span>' +
+                '<span class="mascot-horn mascot-horn--right"></span>' +
+                '<span class="mascot-star">✦</span>' +
+                '<span class="mascot-belly"></span>' +
+                '<span class="mascot-cheek mascot-cheek--left"></span>' +
+                '<span class="mascot-cheek mascot-cheek--right"></span>' +
+                '<div class="mascot-face">' +
+                    '<span class="mascot-brow mascot-brow--left"></span>' +
+                    '<span class="mascot-brow mascot-brow--right"></span>' +
+                    '<span class="mascot-eye mascot-eye--left"></span>' +
+                    '<span class="mascot-eye mascot-eye--right"></span>' +
+                '</div>' +
+                '<span class="mascot-mouth"></span>' +
+            '</div>' +
+        '</div>';
+}
+
+function launchMascotEvolutionSparkles_() {
+    var charEl = document.getElementById('mascot-char');
+    if (!charEl || typeof document === 'undefined' || !document.body) return;
+    var rect = charEl.getBoundingClientRect();
+    if (!rect || (!rect.width && !rect.height)) return;
+    var container = document.createElement('div');
+    var palette = ['#fbbf24', '#fde68a', '#ffffff', '#93c5fd', '#f9a8d4'];
+    var glyphs = ['✦', '✧', '★', '✹'];
+    var centerX = rect.left + rect.width / 2;
+    var centerY = rect.top + rect.height / 2;
+    container.className = 'mascot-evolution-burst';
+    container.style.left = centerX + 'px';
+    container.style.top = centerY + 'px';
+    for (var i = 0; i < 12; i++) {
+        var particle = document.createElement('span');
+        var angle = ((Math.PI * 2) / 12) * i + ((Math.random() - 0.5) * 0.28);
+        var distance = 26 + Math.random() * 34;
+        particle.className = 'mascot-evolution-particle';
+        particle.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+        particle.style.setProperty('--mep-color', palette[Math.floor(Math.random() * palette.length)]);
+        particle.style.setProperty('--mep-size', (0.72 + Math.random() * 0.6) + 'rem');
+        particle.style.setProperty('--mep-x', Math.cos(angle) * distance + 'px');
+        particle.style.setProperty('--mep-y', Math.sin(angle) * distance + 'px');
+        particle.style.setProperty('--mep-rotate', (((Math.random() > 0.5 ? 1 : -1) * (90 + Math.random() * 180))) + 'deg');
+        particle.style.setProperty('--mep-duration', (0.62 + Math.random() * 0.24) + 's');
+        particle.style.animationDelay = (Math.random() * 0.08) + 's';
+        container.appendChild(particle);
+    }
+    document.body.appendChild(container);
+    setTimeout(function() {
+        if (container && container.parentNode) container.parentNode.removeChild(container);
+    }, 1100);
+}
+
+function triggerMascotBurst_() {
+    var charEl = document.getElementById('mascot-char');
+    if (!charEl) return;
+    charEl.classList.remove('mascot-burst');
+    void charEl.offsetWidth;
+    charEl.classList.add('mascot-burst');
+    if (mascotBurstTimer_) clearTimeout(mascotBurstTimer_);
+    mascotBurstTimer_ = setTimeout(function() {
+        charEl.classList.remove('mascot-burst');
+    }, 520);
+}
+
+function renderMascotEvolutionVisual_(charEl) {
+    if (!charEl) return null;
+    var points = getMascotTotalPoints_();
+    var stage = getMascotEvolutionStage_(points);
+    charEl.innerHTML = buildMascotEvolutionMarkup_(stage);
+    charEl.setAttribute('title', '吉祥物階段：' + stage.label + '｜總積分：' + points);
+    charEl.setAttribute('aria-label', '吉祥物目前為' + stage.label + '階段，總積分' + points);
+    mascotEvolutionStageId_ = stage.id;
+    return stage;
+}
+
+function refreshMascotEvolution_(options) {
+    var charEl = document.getElementById('mascot-char');
+    if (!charEl) return null;
+    var previousStageId = mascotEvolutionStageId_;
+    var stage = renderMascotEvolutionVisual_(charEl);
+    if (options && options.announce && previousStageId && previousStageId !== stage.id) {
+        var wrap = document.getElementById('teacher-mascot');
+        if (wrap && !wrap.classList.contains('mascot-hidden')) {
+            setMascotState('idle', '總積分提升到 ' + getMascotTotalPoints_() + '，吉祥物進化成「' + stage.label + '」！');
+            triggerMascotBurst_();
+            launchMascotEvolutionSparkles_();
+        }
+    }
+    return stage;
+}
+
 function updateMascotVisibility(sectionId) {
     var wrap = document.getElementById('teacher-mascot');
     if (!wrap) return;
@@ -119,6 +251,7 @@ function setMascotState(state, customMsg) {
     if (!charEl || !bubbleEl) return;
 
     charEl.className = 'mascot-char';
+    renderMascotEvolutionVisual_(charEl);
     void charEl.offsetWidth;
 
     switch(state) {
@@ -134,7 +267,10 @@ function setMascotState(state, customMsg) {
         case 'notesSectionComplete': charEl.classList.add('mascot-celebrate'); break;
         case 'notesTopicComplete': charEl.classList.add('mascot-celebrate'); break;
     }
-    applyAvatarVisualToElement_(charEl, getCurrentAvatarConfig_(), 'avatar-visual--mascot', '');
+
+    if (state === 'celebrate' || state === 'challengeCorrect' || state === 'notesCorrect' || state === 'notesSectionComplete' || state === 'notesTopicComplete') {
+        triggerMascotBurst_();
+    }
 
     var msg = customMsg || getRandomMsg(state);
     bubbleEl.innerText = msg;

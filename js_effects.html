@@ -1,6 +1,6 @@
 <script>
 function launchConfetti(customColors) {
-    var colors = customColors || getEquippedEffectColors();
+    var colors = customColors || (typeof getActiveThemeParticlePalette_ === 'function' ? getActiveThemeParticlePalette_() : null) || getEquippedEffectColors();
     if (!colors) return;
     for (var i = 0; i < 50; i++) {
         var piece = document.createElement('div');
@@ -20,7 +20,7 @@ function launchConfetti(customColors) {
 
 function launchMiniConfettiBurst(anchorId, customColors) {
     var anchor = document.getElementById(anchorId);
-    var colors = customColors || getEquippedEffectColors() || ['#10b981', '#34d399', '#fbbf24', '#60a5fa'];
+    var colors = customColors || (typeof getActiveThemeParticlePalette_ === 'function' ? getActiveThemeParticlePalette_() : null) || getEquippedEffectColors() || ['#10b981', '#34d399', '#fbbf24', '#60a5fa'];
     if (!anchor || !colors || !colors.length) return;
     var rect = anchor.getBoundingClientRect();
     var centerX = rect.left + rect.width / 2;
@@ -51,7 +51,7 @@ function launchSparkles(x, y) {
     container.className = 'sparkle-burst';
     container.style.left = x + 'px';
     container.style.top = y + 'px';
-    var sparkColors = ['#fbbf24','#f59e0b','#34d399','#60a5fa','#f472b6'];
+    var sparkColors = (typeof getActiveThemeSparkleColors_ === 'function' ? getActiveThemeSparkleColors_() : null) || ['#fbbf24','#f59e0b','#34d399','#60a5fa','#f472b6'];
     for (var i = 0; i < 8; i++) {
         var dot = document.createElement('div');
         dot.className = 'sparkle-dot';

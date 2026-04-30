@@ -64,6 +64,33 @@ function openFirstSheetById_(sheetId, label) {
   return sheets[0];
 }
 
+function openQuestionTypeSheetsById_(sheetId, label) {
+  if (!sheetId) {
+    throw new Error('缺少 ' + label + ' 設定，請檢查 Script Properties。');
+  }
+
+  var ss = SpreadsheetApp.openById(sheetId);
+  var sheetConfigs = [
+    { name: 'multipleChoice', questionType: 'multipleChoice' },
+    { name: 'fillBlank', questionType: 'fillBlank' },
+    { name: 'matching', questionType: 'matching' }
+  ];
+  var sources = sheetConfigs.map(function(config) {
+    var sheet = ss.getSheetByName(config.name);
+    if (!sheet) return null;
+    return { sheet: sheet, questionType: config.questionType };
+  }).filter(function(item) { return !!item; });
+
+  if (sources.length) return sources;
+
+  var fallbackSheets = ss.getSheets();
+  if (!fallbackSheets || !fallbackSheets.length) {
+    throw new Error(label + ' 內沒有可讀取的工作表。');
+  }
+
+  return [{ sheet: fallbackSheets[0], questionType: '' }];
+}
+
 function doGet() {
   return HtmlService.createTemplateFromFile('數學小遊戲')
     .evaluate()
@@ -157,6 +184,195 @@ function findColumnIndex_(headers, possibleNames) {
     if (idx !== -1) return idx;
   }
   return -1;
+}
+
+function shuffleArray_(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+  return arr;
+}
+
+function normalizeQuestionType_(rawType) {
+  var value = String(rawType || '').toLowerCase().normalize('NFKC').replace(/[\s_\.\-:：]+/g, '');
+  if (!value) return 'multipleChoice';
+  if (['fillblank', 'fillintheblank', 'blank', 'input', 'textinput', '填充題', '填空題', '填充', '填空'].indexOf(value) !== -1) {
+    return 'fillBlank';
+  }
+  if (['matching', 'match', 'pairing', 'pairmatch', '配對題', '配對'].indexOf(value) !== -1) {
+    return 'matching';
+  }
+  return 'multipleChoice';
+}
+
+function parseCellList_(value) {
+  return String(value || '')
+    .split(/\r?\n|[\|｜;；]+/)
+    .map(function(item) { return String(item || '').trim(); })
+    .filter(function(item) { return item !== ''; });
+}
+
+function buildAcceptedAnswers_(answerValue, extraValue) {
+  var accepted = [];
+  var pushUnique = function(item) {
+    var normalized = String(item || '').trim();
+    if (!normalized || accepted.indexOf(normalized) !== -1) return;
+    accepted.push(normalized);
+  };
+
+  pushUnique(answerValue);
+  parseCellList_(extraValue).forEach(pushUnique);
+  return accepted;
+}
+
+function extractQuestionOptions_(row, optIndices) {
+  var options = [];
+  (optIndices || []).forEach(function(idx) {
+    if (idx < row.length && String(row[idx]).trim() !== '') {
+      options.push(String(row[idx]).trim());
+    }
+  });
+
+  if (options.length === 1) {
+    var singleOpt = options[0];
+    if (singleOpt.includes(',') || singleOpt.includes('，')) {
+      options = singleOpt.split(/[,，]/).map(function(item) { return item.trim(); }).filter(function(item) { return item !== ''; });
+    } else if (singleOpt.includes('\n')) {
+      options = singleOpt.split('\n').map(function(item) { return item.trim(); }).filter(function(item) { return item !== ''; });
+    } else if (/A[\.\)]/i.test(singleOpt) && /B[\.\)]/i.test(singleOpt)) {
+      var temp = singleOpt
+        .replace(/A[\.\)]/gi, '||A.')
+        .replace(/B[\.\)]/gi, '||B.')
+        .replace(/C[\.\)]/gi, '||C.')
+        .replace(/D[\.\)]/gi, '||D.');
+      options = temp.split('||').map(function(item) { return item.trim(); }).filter(function(item) { return item !== ''; });
+    } else {
+      var spaceSplit = singleOpt.split(/\s+/).map(function(item) { return item.trim(); }).filter(function(item) { return item !== ''; });
+      if (spaceSplit.length > 1) options = spaceSplit;
+    }
+  }
+
+  return options;
+}
+
+function buildMatchingPairs_(leftValue, rightValue) {
+  var leftItems = parseCellList_(leftValue);
+  var rightItems = parseCellList_(rightValue);
+  var count = Math.min(leftItems.length, rightItems.length);
+  var pairs = [];
+
+  for (var i = 0; i < count; i++) {
+    pairs.push({ left: leftItems[i], right: rightItems[i] });
+  }
+
+  return pairs;
+}
+
+function buildQuestionPayload_(row, config) {
+  var questionType = config.forcedQuestionType || normalizeQuestionType_(config.typeIdx !== -1 ? row[config.typeIdx] : '');
+  var answer = String(row[config.ansIdx] || '').trim();
+  var acceptedAnswers = buildAcceptedAnswers_(answer, config.acceptedIdx !== -1 ? row[config.acceptedIdx] : '');
+  var payload = {
+    question: String(row[config.qIdx] || '').trim(),
+    questionType: questionType,
+    answer: answer,
+    acceptedAnswers: acceptedAnswers,
+    explanation: (config.expIdx !== -1 && String(row[config.expIdx]).trim() !== '') ? String(row[config.expIdx]).trim() : (config.defaultExplanation || ''),
+    imageUrl: (config.imgIdx !== -1 && String(row[config.imgIdx] || '').trim() !== '') ? String(row[config.imgIdx]).trim() : ''
+  };
+
+  if (typeof config.pointsValue !== 'undefined') {
+    payload.points = config.pointsValue;
+  }
+
+  if (questionType === 'matching') {
+    payload.matchingPairs = buildMatchingPairs_(
+      config.matchLeftIdx !== -1 ? row[config.matchLeftIdx] : '',
+      config.matchRightIdx !== -1 ? row[config.matchRightIdx] : ''
+    );
+    payload.options = [];
+    if (!payload.matchingPairs.length) return null;
+    return payload;
+  }
+
+  if (questionType === 'fillBlank') {
+    payload.options = [];
+    return payload;
+  }
+
+  payload.options = extractQuestionOptions_(row, config.optIndices);
+  if (payload.options.length === 0) payload.options = ['選項讀取失敗'];
+  shuffleArray_(payload.options);
+  return payload;
+}
+
+function selectQuestionsByComposition_(questions, limit, desiredSpecialCounts) {
+  var maxQuestions = Math.max(0, Number(limit) || 10);
+  var buckets = {
+    multipleChoice: [],
+    fillBlank: [],
+    matching: []
+  };
+  var selected = [];
+  var specialCounts = desiredSpecialCounts || {};
+
+  (questions || []).forEach(function(question) {
+    var questionType = normalizeQuestionType_(question && question.questionType);
+    if (!buckets[questionType]) buckets[questionType] = [];
+    buckets[questionType].push(question);
+  });
+
+  Object.keys(buckets).forEach(function(questionType) {
+    shuffleArray_(buckets[questionType]);
+  });
+
+  Object.keys(specialCounts).forEach(function(questionType) {
+    var bucket = buckets[questionType] || [];
+    var takeCount = Math.min(specialCounts[questionType], bucket.length, Math.max(0, maxQuestions - selected.length));
+    if (takeCount > 0) {
+      selected = selected.concat(bucket.splice(0, takeCount));
+    }
+  });
+
+  var multipleChoiceBucket = buckets.multipleChoice || [];
+  var remainingSlots = Math.max(0, maxQuestions - selected.length);
+  if (remainingSlots > 0 && multipleChoiceBucket.length) {
+    selected = selected.concat(multipleChoiceBucket.splice(0, remainingSlots));
+  }
+
+  remainingSlots = Math.max(0, maxQuestions - selected.length);
+  if (remainingSlots > 0) {
+    var fallbackPool = [];
+    ['fillBlank', 'matching', 'multipleChoice'].forEach(function(questionType) {
+      if (buckets[questionType] && buckets[questionType].length) {
+        fallbackPool = fallbackPool.concat(buckets[questionType]);
+      }
+    });
+    if (fallbackPool.length) {
+      shuffleArray_(fallbackPool);
+      selected = selected.concat(fallbackPool.slice(0, remainingSlots));
+    }
+  }
+
+  shuffleArray_(selected);
+  return selected.slice(0, maxQuestions);
+}
+
+function selectChallengeQuestions_(questions, limit) {
+  return selectQuestionsByComposition_(questions, limit, {
+    fillBlank: 3,
+    matching: 2
+  });
+}
+
+function selectNotesQuizQuestions_(questions, limit) {
+  return selectQuestionsByComposition_(questions, limit, {
+    fillBlank: 1,
+    matching: 1
+  });
 }
 
 function formatResultTime_() {
@@ -328,105 +544,93 @@ function getAvailableThemes(grade) {
 // ==========================================
 function getQuestions(difficulty, theme, grade) {
   try {
-    const sheet = openFirstSheetById_(getQuestionsSheetIdForGrade_(grade), '題庫 Sheet ID');
-    const data = sheet.getDataRange().getValues();
-
-    const headers = normalizeHeaders_(data.shift());
-    const findIdx = function(names) { return findColumnIndex_(headers, names); };
-
-    const themeIdx = findIdx(['theme', '主題', '類型', 'category', 'topic']);
-    const diffIdx  = findIdx(['difficulty', '難度', 'level']);
-    const gradeIdx = findIdx(['級別', 'grade', '年級']);
-    const qIdx     = findIdx(['question', '題目', '問題', 'q']);
-    const ansIdx   = findIdx(['answer', '答案', '解答', 'correctanswer', 'ans']);
-    const expIdx   = findIdx(['explanation', '詳解', '解釋', '說明', '解析', 'exp']);
-
-    const imgIdx   = findIdx(['image', 'imageurl', '圖片', '圖片url', '插圖']);
-
-    const optAIdx  = findIdx(['optiona', '選項a', 'a', 'option1', '選項1', 'choicea', 'choice1', '選擇a', '選擇1', 'opt1', 'opta', '1', '選項', '選擇', 'option', 'options', 'choices']);
-    const optBIdx  = findIdx(['optionb', '選項b', 'b', 'option2', '選項2', 'choiceb', 'choice2', '選擇b', '選擇2', 'opt2', 'optb', '2']);
-    const optCIdx  = findIdx(['optionc', '選項c', 'c', 'option3', '選項3', 'choicec', 'choice3', '選擇c', '選擇3', 'opt3', 'optc', '3']);
-    const optDIdx  = findIdx(['optiond', '選項d', 'd', 'option4', '選項4', 'choiced', 'choice4', '選擇d', '選擇4', 'opt4', 'optd', '4']);
-
-    if (qIdx === -1 || ansIdx === -1) {
-      return { error: '無法讀取題庫：缺少「題目」或「答案」欄位。' };
-    }
-
-    let optIndices = [];
-    if (optAIdx !== -1) optIndices.push(optAIdx);
-    if (optBIdx !== -1 && !optIndices.includes(optBIdx)) optIndices.push(optBIdx);
-    if (optCIdx !== -1 && !optIndices.includes(optCIdx)) optIndices.push(optCIdx);
-    if (optDIdx !== -1 && !optIndices.includes(optDIdx)) optIndices.push(optDIdx);
-
-    if (optIndices.length === 1) {
-      let firstOpt = optIndices[0];
-      for (let i = 1; i <= 3; i++) {
-        let nextIdx = firstOpt + i;
-        if (nextIdx < headers.length && (headers[nextIdx] === "" || headers[nextIdx] === headers[firstOpt])) {
-          if (!optIndices.includes(nextIdx)) optIndices.push(nextIdx);
-        }
-      }
-    }
-
-    if (optIndices.length === 0 && qIdx !== -1 && ansIdx !== -1) {
-      let start = Math.min(qIdx, ansIdx) + 1;
-      let end = Math.max(qIdx, ansIdx);
-      for (let i = start; i < end; i++) optIndices.push(i);
-    }
-
     const difficultyMap = { '簡單': 'easy', '普通': 'medium', '中等': 'medium', '困難': 'hard' };
     const targetDiff = difficultyMap[difficulty] || difficulty;
+    const sources = openQuestionTypeSheetsById_(getQuestionsSheetIdForGrade_(grade), '題庫 Sheet ID');
+    let questions = [];
 
-    let filtered = data.filter(row => {
-      const rowDiff = diffIdx !== -1 ? String(row[diffIdx] || "").trim().toLowerCase() : "";
-      const rowTheme = themeIdx !== -1 ? String(row[themeIdx] || "").trim() : "";
-      const rowGrade = gradeIdx !== -1 ? String(row[gradeIdx] || "").trim() : "";
-      const diffMatch = (!targetDiff || targetDiff === '全部') ? true : (rowDiff === targetDiff);
-      const themeMatch = (!theme || theme === '全部') ? true : (rowTheme.toLowerCase() === String(theme).toLowerCase());
-      const gradeMatch = (!grade || grade === '全部') ? true : (rowGrade === grade);
-      const isNotEmpty = String(row[qIdx]).trim() !== "";
-      return diffMatch && themeMatch && gradeMatch && isNotEmpty;
+    sources.forEach(function(source) {
+      const data = source.sheet.getDataRange().getValues();
+      if (!data || data.length < 2) return;
+
+      const headers = normalizeHeaders_(data.shift());
+      const findIdx = function(names) { return findColumnIndex_(headers, names); };
+      const themeIdx = findIdx(['theme', '主題', '類型', 'category', 'topic']);
+      const diffIdx  = findIdx(['difficulty', '難度', 'level']);
+      const gradeIdx = findIdx(['級別', 'grade', '年級']);
+      const qIdx     = findIdx(['question', '題目', '問題', 'q']);
+      const ansIdx   = findIdx(['answer', '答案', '解答', 'correctanswer', 'ans']);
+      const expIdx   = findIdx(['explanation', '詳解', '解釋', '說明', '解析', 'exp']);
+      const typeIdx  = findIdx(['questiontype', '題型', '題目類型', 'qtype', 'questionkind']);
+      const acceptedIdx = findIdx(['acceptedanswers', 'acceptableanswers', 'altanswers', '可接受答案', '其他答案']);
+      const imgIdx   = findIdx(['image', 'imageurl', '圖片', '圖片url', '插圖']);
+      const matchLeftIdx = findIdx(['matchingleft', 'leftitems', 'leftoptions', 'pairleft', '配對左', '配對左欄', '左欄']);
+      const matchRightIdx = findIdx(['matchingright', 'rightitems', 'rightoptions', 'pairright', '配對右', '配對右欄', '右欄']);
+      const optAIdx  = findIdx(['optiona', '選項a', 'a', 'option1', '選項1', 'choicea', 'choice1', '選擇a', '選擇1', 'opt1', 'opta', '1', '選項', '選擇', 'option', 'options', 'choices']);
+      const optBIdx  = findIdx(['optionb', '選項b', 'b', 'option2', '選項2', 'choiceb', 'choice2', '選擇b', '選擇2', 'opt2', 'optb', '2']);
+      const optCIdx  = findIdx(['optionc', '選項c', 'c', 'option3', '選項3', 'choicec', 'choice3', '選擇c', '選擇3', 'opt3', 'optc', '3']);
+      const optDIdx  = findIdx(['optiond', '選項d', 'd', 'option4', '選項4', 'choiced', 'choice4', '選擇d', '選擇4', 'opt4', 'optd', '4']);
+
+      if (qIdx === -1 || ansIdx === -1) return;
+
+      let optIndices = [];
+      if (optAIdx !== -1) optIndices.push(optAIdx);
+      if (optBIdx !== -1 && !optIndices.includes(optBIdx)) optIndices.push(optBIdx);
+      if (optCIdx !== -1 && !optIndices.includes(optCIdx)) optIndices.push(optCIdx);
+      if (optDIdx !== -1 && !optIndices.includes(optDIdx)) optIndices.push(optDIdx);
+
+      if (optIndices.length === 1) {
+        let firstOpt = optIndices[0];
+        for (let i = 1; i <= 3; i++) {
+          let nextIdx = firstOpt + i;
+          if (nextIdx < headers.length && (headers[nextIdx] === "" || headers[nextIdx] === headers[firstOpt])) {
+            if (!optIndices.includes(nextIdx)) optIndices.push(nextIdx);
+          }
+        }
+      }
+
+      if (optIndices.length === 0 && qIdx !== -1 && ansIdx !== -1) {
+        let start = Math.min(qIdx, ansIdx) + 1;
+        let end = Math.max(qIdx, ansIdx);
+        for (let i = start; i < end; i++) optIndices.push(i);
+      }
+
+      data.forEach(function(row) {
+        const rowDiff = diffIdx !== -1 ? String(row[diffIdx] || "").trim().toLowerCase() : "";
+        const rowTheme = themeIdx !== -1 ? String(row[themeIdx] || "").trim() : "";
+        const rowGrade = gradeIdx !== -1 ? String(row[gradeIdx] || "").trim() : "";
+        const diffMatch = (!targetDiff || targetDiff === '全部') ? true : (rowDiff === targetDiff);
+        const themeMatch = (!theme || theme === '全部') ? true : (rowTheme.toLowerCase() === String(theme).toLowerCase());
+        const gradeMatch = (!grade || grade === '全部') ? true : (rowGrade === grade);
+        const isNotEmpty = String(row[qIdx]).trim() !== "";
+        if (!diffMatch || !themeMatch || !gradeMatch || !isNotEmpty) return;
+
+        const payload = buildQuestionPayload_(row, {
+          qIdx: qIdx,
+          ansIdx: ansIdx,
+          expIdx: expIdx,
+          imgIdx: imgIdx,
+          typeIdx: typeIdx,
+          acceptedIdx: acceptedIdx,
+          matchLeftIdx: matchLeftIdx,
+          matchRightIdx: matchRightIdx,
+          optIndices: optIndices,
+          forcedQuestionType: source.questionType,
+          defaultExplanation: '請留意計算步驟喔！'
+        });
+        if (payload) questions.push(payload);
+      });
     });
 
-    if (filtered.length === 0) {
+    if (questions.length === 0) {
       return { error: '找不到符合條件的題目 (難度: ' + difficulty + ', 主題: ' + theme + ')' };
     }
 
-    filtered.sort(() => Math.random() - 0.5);
-    filtered = filtered.slice(0, 10);
+    questions = selectChallengeQuestions_(questions, 12);
 
-    const questions = filtered.map(row => {
-      let options = [];
-      optIndices.forEach(idx => {
-        if (idx < row.length && String(row[idx]).trim() !== "") {
-          options.push(String(row[idx]).trim());
-        }
-      });
-
-      if (options.length === 1) {
-        let singleOpt = options[0];
-        if (singleOpt.includes(',') || singleOpt.includes('，')) {
-          options = singleOpt.split(/[,，]/).map(s => s.trim()).filter(s => s !== "");
-        } else if (singleOpt.includes('\n')) {
-          options = singleOpt.split('\n').map(s => s.trim()).filter(s => s !== "");
-        } else if (/A[\.\)]/i.test(singleOpt) && /B[\.\)]/i.test(singleOpt)) {
-          let temp = singleOpt.replace(/A[\.\)]/gi, '||A.').replace(/B[\.\)]/gi, '||B.').replace(/C[\.\)]/gi, '||C.').replace(/D[\.\)]/gi, '||D.');
-          options = temp.split('||').map(s => s.trim()).filter(s => s !== "");
-        } else {
-          let spaceSplit = singleOpt.split(/\s+/).map(s => s.trim()).filter(s => s !== "");
-          if (spaceSplit.length > 1) options = spaceSplit;
-        }
-      }
-      if (options.length === 0) options = ["選項讀取失敗"];
-
-      return {
-        question: String(row[qIdx]).trim(),
-        options: options,
-        answer: String(row[ansIdx]).trim(),
-        explanation: (expIdx !== -1 && String(row[expIdx]).trim() !== "") ? String(row[expIdx]).trim() : "請留意計算步驟喔！",
-        imageUrl: (imgIdx !== -1 && String(row[imgIdx] || "").trim() !== "") ? String(row[imgIdx]).trim() : ""
-      };
-    });
+    if (questions.length === 0) {
+      return { error: '符合條件的題目缺少必要欄位，請檢查 questionType 與題型資料。' };
+    }
 
     return questions;
   } catch (e) {
@@ -438,7 +642,7 @@ function getQuestions(difficulty, theme, grade) {
 // 分數合理性驗證
 // ==========================================
 function validateScore_(score, meta) {
-  var maxQuestions = 10;
+  var maxQuestions = 12;
   var basePoints = 10;
   var maxTimeBonus = 60; // timeLeft/2 where max timeLeft = 120
   var maxComboBonus = 5 * maxQuestions; // 5 * combo at max
@@ -1116,86 +1320,90 @@ function getNoteContent(topic, grade, section, schoolLevel) {
 // ==========================================
 function getNotesQuiz(topic, grade, section, schoolLevel) {
   try {
-    var sheet = openFirstSheetById_(getNotesQuizSheetIdForContext_(grade, schoolLevel), '溫習測驗 Sheet ID');
-    var data = sheet.getDataRange().getValues();
-
-    var headers = normalizeHeaders_(data.shift());
-    var findIdx = function(names) { return findColumnIndex_(headers, names); };
-
-    var topicIdx   = findIdx(['課題', 'topic', '主題', 'theme', 'chapter']);
-    var gradeIdx   = findIdx(['級別', 'grade', '年級', 'level', '班級']);
-    var sectionIdx = findIdx(['section', '章節', '單元']);
-    var qIdx       = findIdx(['question', '題目', '問題', 'q']);
-    var ansIdx     = findIdx(['answer', '答案', '解答', 'correctanswer', 'ans']);
-    var expIdx     = findIdx(['explanation', '詳解', '解釋', '說明', '解析', 'exp']);
-    var ptsIdx     = findIdx(['積分', 'points', '分數', 'score', 'reward']);
-    var imgIdx     = findIdx(['image', 'imageurl', '圖片', '圖片url', '插圖']);
-
-    var optAIdx  = findIdx(['optiona', '選項a', 'a', 'option1', '選項1']);
-    var optBIdx  = findIdx(['optionb', '選項b', 'b', 'option2', '選項2']);
-    var optCIdx  = findIdx(['optionc', '選項c', 'c', 'option3', '選項3']);
-    var optDIdx  = findIdx(['optiond', '選項d', 'd', 'option4', '選項4']);
-
-    if (qIdx === -1 || ansIdx === -1) {
-      return { error: '測驗題庫缺少「題目」或「答案」欄位。' };
-    }
-
-    var optIndices = [];
-    if (optAIdx !== -1) optIndices.push(optAIdx);
-    if (optBIdx !== -1 && optIndices.indexOf(optBIdx) === -1) optIndices.push(optBIdx);
-    if (optCIdx !== -1 && optIndices.indexOf(optCIdx) === -1) optIndices.push(optCIdx);
-    if (optDIdx !== -1 && optIndices.indexOf(optDIdx) === -1) optIndices.push(optDIdx);
-
-    if (optIndices.length === 0) {
-      var start = Math.min(qIdx, ansIdx) + 1;
-      var end = Math.max(qIdx, ansIdx);
-      for (var k = start; k < end; k++) optIndices.push(k);
-    }
-
+    var sources = openQuestionTypeSheetsById_(getNotesQuizSheetIdForContext_(grade, schoolLevel), '溫習測驗 Sheet ID');
     var questions = [];
-    for (var i = 0; i < data.length; i++) {
-      var row = data[i];
-      var rowTopic = topicIdx !== -1 ? String(row[topicIdx] || "").trim() : "";
 
-      if (topicIdx !== -1 && rowTopic.toLowerCase() !== String(topic).toLowerCase()) continue;
+    sources.forEach(function(source) {
+      var data = source.sheet.getDataRange().getValues();
+      if (!data || data.length < 2) return;
 
-      if (grade && gradeIdx !== -1) {
-        var rowGrade = String(row[gradeIdx] || "").trim();
-        if (rowGrade !== grade) continue;
+      var headers = normalizeHeaders_(data.shift());
+      var findIdx = function(names) { return findColumnIndex_(headers, names); };
+      var topicIdx   = findIdx(['課題', 'topic', '主題', 'theme', 'chapter']);
+      var gradeIdx   = findIdx(['級別', 'grade', '年級', 'level', '班級']);
+      var sectionIdx = findIdx(['section', '章節', '單元']);
+      var qIdx       = findIdx(['question', '題目', '問題', 'q']);
+      var ansIdx     = findIdx(['answer', '答案', '解答', 'correctanswer', 'ans']);
+      var expIdx     = findIdx(['explanation', '詳解', '解釋', '說明', '解析', 'exp']);
+      var typeIdx    = findIdx(['questiontype', '題型', '題目類型', 'qtype', 'questionkind']);
+      var acceptedIdx = findIdx(['acceptedanswers', 'acceptableanswers', 'altanswers', '可接受答案', '其他答案']);
+      var ptsIdx     = findIdx(['積分', 'points', '分數', 'score', 'reward']);
+      var imgIdx     = findIdx(['image', 'imageurl', '圖片', '圖片url', '插圖']);
+      var matchLeftIdx = findIdx(['matchingleft', 'leftitems', 'leftoptions', 'pairleft', '配對左', '配對左欄', '左欄']);
+      var matchRightIdx = findIdx(['matchingright', 'rightitems', 'rightoptions', 'pairright', '配對右', '配對右欄', '右欄']);
+      var optAIdx  = findIdx(['optiona', '選項a', 'a', 'option1', '選項1']);
+      var optBIdx  = findIdx(['optionb', '選項b', 'b', 'option2', '選項2']);
+      var optCIdx  = findIdx(['optionc', '選項c', 'c', 'option3', '選項3']);
+      var optDIdx  = findIdx(['optiond', '選項d', 'd', 'option4', '選項4']);
+
+      if (qIdx === -1 || ansIdx === -1) return;
+
+      var optIndices = [];
+      if (optAIdx !== -1) optIndices.push(optAIdx);
+      if (optBIdx !== -1 && optIndices.indexOf(optBIdx) === -1) optIndices.push(optBIdx);
+      if (optCIdx !== -1 && optIndices.indexOf(optCIdx) === -1) optIndices.push(optCIdx);
+      if (optDIdx !== -1 && optIndices.indexOf(optDIdx) === -1) optIndices.push(optDIdx);
+
+      if (optIndices.length === 0) {
+        var start = Math.min(qIdx, ansIdx) + 1;
+        var end = Math.max(qIdx, ansIdx);
+        for (var k = start; k < end; k++) optIndices.push(k);
       }
 
-      if (section && sectionIdx !== -1) {
-        var rowSection = String(row[sectionIdx] || "").trim();
-        if (rowSection !== section) continue;
-      }
+      for (var i = 0; i < data.length; i++) {
+        var row = data[i];
+        var rowTopic = topicIdx !== -1 ? String(row[topicIdx] || "").trim() : "";
 
-      if (String(row[qIdx]).trim() === "") continue;
+        if (topicIdx !== -1 && rowTopic.toLowerCase() !== String(topic).toLowerCase()) continue;
 
-      var options = [];
-      optIndices.forEach(function(idx) {
-        if (idx < row.length && String(row[idx]).trim() !== "") {
-          options.push(String(row[idx]).trim());
+        if (grade && gradeIdx !== -1) {
+          var rowGrade = String(row[gradeIdx] || "").trim();
+          if (rowGrade !== grade) continue;
         }
-      });
-      if (options.length === 0) options = ["選項讀取失敗"];
 
-      questions.push({
-        question: String(row[qIdx]).trim(),
-        options: options,
-        answer: String(row[ansIdx]).trim(),
-        explanation: (expIdx !== -1 && String(row[expIdx]).trim() !== "") ? String(row[expIdx]).trim() : "",
-        points: ptsIdx !== -1 ? (Number(row[ptsIdx]) || 10) : 10,
-        imageUrl: (imgIdx !== -1 && String(row[imgIdx] || "").trim() !== "") ? String(row[imgIdx]).trim() : ""
-      });
-    }
+        if (section && sectionIdx !== -1) {
+          var rowSection = String(row[sectionIdx] || "").trim();
+          if (rowSection !== section) continue;
+        }
+
+        if (String(row[qIdx]).trim() === "") continue;
+
+        var payload = buildQuestionPayload_(row, {
+          qIdx: qIdx,
+          ansIdx: ansIdx,
+          expIdx: expIdx,
+          imgIdx: imgIdx,
+          typeIdx: typeIdx,
+          acceptedIdx: acceptedIdx,
+          matchLeftIdx: matchLeftIdx,
+          matchRightIdx: matchRightIdx,
+          optIndices: optIndices,
+          forcedQuestionType: source.questionType,
+          defaultExplanation: '',
+          pointsValue: ptsIdx !== -1 ? (Number(row[ptsIdx]) || 10) : 10
+        });
+        if (payload) questions.push(payload);
+      }
+    });
 
     if (questions.length === 0) {
       return { error: '找不到「' + topic + '」的測驗題目。' };
     }
 
-    questions.sort(function() { return Math.random() - 0.5; });
     if (section) {
-      questions = questions.slice(0, 5);
+      questions = selectNotesQuizQuestions_(questions, 7);
+    } else {
+      questions.sort(function() { return Math.random() - 0.5; });
     }
     return questions;
   } catch (e) {
@@ -1326,51 +1534,65 @@ function resolveWrongBookImageUrls(items) {
     Object.keys(cachedNotes.resolved).forEach(function(key) { result[key] = cachedNotes.resolved[key]; });
 
     if (cachedGame.missing.length) {
-      var gameData = SpreadsheetApp.openById(getQuestionsSheetId_()).getSheets()[0].getDataRange().getValues();
-      var gameHeaders = normalizeHeaders_(gameData.shift());
-      var gameQuestionIdx = findColumnIndex_(gameHeaders, ['question', '題目', '問題', 'q']);
-      var gameAnswerIdx = findColumnIndex_(gameHeaders, ['answer', '答案', '解答', 'correctanswer', 'ans']);
-      var gameImageIdx = findColumnIndex_(gameHeaders, ['image', 'imageurl', '圖片', '圖片url', '插圖']);
-      if (gameQuestionIdx !== -1 && gameImageIdx !== -1) {
-        var gameIndex = buildWrongBookQuestionRowIndex_(gameData, {
+      var gameSources = openQuestionTypeSheetsById_(getQuestionsSheetId_(), '題庫 Sheet ID');
+      var gameIndex = {};
+      gameSources.forEach(function(source) {
+        var gameData = source.sheet.getDataRange().getValues();
+        if (!gameData || gameData.length < 2) return;
+        var gameHeaders = normalizeHeaders_(gameData.shift());
+        var gameQuestionIdx = findColumnIndex_(gameHeaders, ['question', '題目', '問題', 'q']);
+        var gameAnswerIdx = findColumnIndex_(gameHeaders, ['answer', '答案', '解答', 'correctanswer', 'ans']);
+        var gameImageIdx = findColumnIndex_(gameHeaders, ['image', 'imageurl', '圖片', '圖片url', '插圖']);
+        if (gameQuestionIdx === -1 || gameImageIdx === -1) return;
+        var partialIndex = buildWrongBookQuestionRowIndex_(gameData, {
           questionIdx: gameQuestionIdx,
           answerIdx: gameAnswerIdx,
           topicIdx: -1,
           sectionIdx: -1,
           imageIdx: gameImageIdx
         });
-        cachedGame.missing.forEach(function(request) {
-          if (result[request.key]) return;
-          var found = findWrongBookImageFromCandidates_(request, gameIndex[request.question]);
-          if (found) result[request.key] = found;
+        Object.keys(partialIndex).forEach(function(questionKey) {
+          gameIndex[questionKey] = (gameIndex[questionKey] || []).concat(partialIndex[questionKey]);
         });
-        cacheWrongBookImageLookups_('game', result, cachedGame.missing);
-      }
+      });
+      cachedGame.missing.forEach(function(request) {
+        if (result[request.key]) return;
+        var found = findWrongBookImageFromCandidates_(request, gameIndex[request.question]);
+        if (found) result[request.key] = found;
+      });
+      cacheWrongBookImageLookups_('game', result, cachedGame.missing);
     }
 
     if (cachedNotes.missing.length) {
-      var notesData = SpreadsheetApp.openById(getNotesQuizSheetId_()).getSheets()[0].getDataRange().getValues();
-      var notesHeaders = normalizeHeaders_(notesData.shift());
-      var notesQuestionIdx = findColumnIndex_(notesHeaders, ['question', '題目', '問題', 'q']);
-      var notesAnswerIdx = findColumnIndex_(notesHeaders, ['answer', '答案', '解答', 'correctanswer', 'ans']);
-      var notesTopicIdx = findColumnIndex_(notesHeaders, ['課題', 'topic', '主題', 'theme', 'chapter']);
-      var notesSectionIdx = findColumnIndex_(notesHeaders, ['section', '章節', '單元']);
-      var notesImageIdx = findColumnIndex_(notesHeaders, ['image', 'imageurl', '圖片', '圖片url', '插圖']);
-      if (notesQuestionIdx !== -1 && notesImageIdx !== -1) {
-        var notesIndex = buildWrongBookQuestionRowIndex_(notesData, {
+      var noteSources = openQuestionTypeSheetsById_(getNotesQuizSheetId_(), '溫習測驗 Sheet ID');
+      var notesIndex = {};
+      noteSources.forEach(function(source) {
+        var notesData = source.sheet.getDataRange().getValues();
+        if (!notesData || notesData.length < 2) return;
+        var notesHeaders = normalizeHeaders_(notesData.shift());
+        var notesQuestionIdx = findColumnIndex_(notesHeaders, ['question', '題目', '問題', 'q']);
+        var notesAnswerIdx = findColumnIndex_(notesHeaders, ['answer', '答案', '解答', 'correctanswer', 'ans']);
+        var notesTopicIdx = findColumnIndex_(notesHeaders, ['課題', 'topic', '主題', 'theme', 'chapter']);
+        var notesSectionIdx = findColumnIndex_(notesHeaders, ['section', '章節', '單元']);
+        var notesImageIdx = findColumnIndex_(notesHeaders, ['image', 'imageurl', '圖片', '圖片url', '插圖']);
+        if (notesQuestionIdx === -1 || notesImageIdx === -1) return;
+        var partialNotesIndex = buildWrongBookQuestionRowIndex_(notesData, {
           questionIdx: notesQuestionIdx,
           answerIdx: notesAnswerIdx,
           topicIdx: notesTopicIdx,
           sectionIdx: notesSectionIdx,
           imageIdx: notesImageIdx
         });
-        cachedNotes.missing.forEach(function(request) {
-          if (result[request.key]) return;
-          var found = findWrongBookImageFromCandidates_(request, notesIndex[request.question]);
-          if (found) result[request.key] = found;
+        Object.keys(partialNotesIndex).forEach(function(questionKey) {
+          notesIndex[questionKey] = (notesIndex[questionKey] || []).concat(partialNotesIndex[questionKey]);
         });
-        cacheWrongBookImageLookups_('notes', result, cachedNotes.missing);
-      }
+      });
+      cachedNotes.missing.forEach(function(request) {
+        if (result[request.key]) return;
+        var found = findWrongBookImageFromCandidates_(request, notesIndex[request.question]);
+        if (found) result[request.key] = found;
+      });
+      cacheWrongBookImageLookups_('notes', result, cachedNotes.missing);
     }
 
     return result;
