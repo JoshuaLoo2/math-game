@@ -115,10 +115,15 @@ function openQuestionTypeSheetsById_(sheetId, label) {
 }
 
 function doGet() {
-  return HtmlService.createTemplateFromFile('數學小遊戲')
-    .evaluate()
+  var template = HtmlService.createTemplateFromFile('數學小遊戲');
+  template.prebuiltStyleUrl = getPrebuiltStyleUrl_();
+  return template.evaluate()
     .setTitle("數學安多fun - 終極動態版")
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0');
+}
+
+function getPrebuiltStyleUrl_() {
+  return PropertiesService.getScriptProperties().getProperty('PREBUILT_STYLE_URL') || '';
 }
 
 function include(filename) {
@@ -251,6 +256,607 @@ function buildAcceptedAnswers_(answerValue, extraValue) {
   return accepted;
 }
 
+function normalizeGeneratorMode_(rawMode) {
+  var value = String(rawMode || '').toLowerCase().normalize('NFKC').replace(/[\s_\.\-:：]+/g, '');
+  if (!value || value === 'static' || value === 'fixed' || value === 'legacy' || value === '傳統題' || value === '固定題') {
+    return 'static';
+  }
+  if (value === 'pattern' || value === 'dynamic' || value === 'template' || value === '動態題' || value === '模板題') {
+    return 'pattern';
+  }
+  return 'static';
+}
+
+function isPlainObject_(value) {
+  return !!value && Object.prototype.toString.call(value) === '[object Object]';
+}
+
+function parseJsonCell_(value, fallback) {
+  var text = String(value || '').trim();
+  if (!text) return fallback;
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function buildStableHashKey_(value) {
+  var text = String(value || '');
+  var hash = 0;
+  for (var i = 0; i < text.length; i++) {
+    hash = ((hash << 5) - hash) + text.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash).toString(36);
+}
+
+function formatGeneratedValue_(value) {
+  if (typeof value === 'number' && isFinite(value)) {
+    if (Math.abs(value - Math.round(value)) < 1e-9) return String(Math.round(value));
+    var normalized = String(Number(value.toFixed(6)));
+    return normalized;
+  }
+  if (value === null || typeof value === 'undefined') return '';
+  return String(value);
+}
+
+function renderPatternTemplate_(template, variables) {
+  return String(template || '').replace(/\{\{\s*([a-zA-Z_][\w]*)\s*\}\}/g, function(_, key) {
+    return Object.prototype.hasOwnProperty.call(variables || {}, key) ? formatGeneratedValue_(variables[key]) : '';
+  });
+}
+
+function normalizePatternExpression_(expression) {
+  return String(expression || '')
+    .replace(/[×⋅·]/g, '*')
+    .replace(/÷/g, '/')
+    .replace(/π/gi, 'pi')
+    .replace(/\^/g, '**');
+}
+
+function isPatternExpressionCandidate_(value) {
+  var text = String(value || '').trim();
+  if (!text) return false;
+  if (text.charAt(0) === '=') return true;
+  if (/\{\{/.test(text)) return false;
+  if (/^[a-zA-Z_][\w]*$/.test(text)) return false;
+  if (!/[0-9()+\-*/%^<>=!&|.,]/.test(text)) return false;
+  return /^[0-9a-zA-Z_+\-*/%^().,\s<>=!&|]+$/.test(text);
+}
+
+function evaluatePatternExpression_(expression, variables) {
+  var raw = normalizePatternExpression_(expression);
+  var text = String(raw || '').trim();
+  if (!text) return null;
+  if (text.charAt(0) === '=') text = text.slice(1).trim();
+  if (!text) return null;
+  if (!/^[0-9a-zA-Z_+\-*/%^().,\s<>=!&|]+$/.test(text)) {
+    throw new Error('公式含有未允許字元：' + text);
+  }
+
+  var baseScope = {
+    abs: Math.abs,
+    ceil: Math.ceil,
+    floor: Math.floor,
+    round: Math.round,
+    sqrt: Math.sqrt,
+    pow: Math.pow,
+    max: Math.max,
+    min: Math.min,
+    pi: Math.PI
+  };
+  var scope = {};
+  Object.keys(baseScope).forEach(function(key) { scope[key] = baseScope[key]; });
+  Object.keys(variables || {}).forEach(function(key) {
+    if (/^[a-zA-Z_][\w]*$/.test(key)) scope[key] = variables[key];
+  });
+
+  var argNames = Object.keys(scope);
+  var argValues = argNames.map(function(key) { return scope[key]; });
+  var fn = Function.apply(null, argNames.concat('"use strict"; return (' + text + ');'));
+  return fn.apply(null, argValues);
+}
+
+function sampleFromList_(items) {
+  var list = Array.isArray(items) ? items.filter(function(item) { return item !== '' && item !== null && typeof item !== 'undefined'; }) : [];
+  if (!list.length) return '';
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function samplePatternVariableValue_(spec, currentVariables) {
+  if (Array.isArray(spec)) {
+    return sampleFromList_(spec);
+  }
+  if (!isPlainObject_(spec)) {
+    return spec;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(spec, 'formula')) {
+    return evaluatePatternExpression_(spec.formula, currentVariables || {});
+  }
+
+  if (Array.isArray(spec.choices)) {
+    return sampleFromList_(spec.choices);
+  }
+
+  var min = Number(spec.min);
+  var max = Number(spec.max);
+  if (!isFinite(min) || !isFinite(max)) {
+    return Object.prototype.hasOwnProperty.call(spec, 'value') ? spec.value : '';
+  }
+
+  if (max < min) {
+    var swap = min;
+    min = max;
+    max = swap;
+  }
+
+  var step = Number(spec.step);
+  if (!isFinite(step) || step <= 0) step = 1;
+  var precision = Number(spec.precision);
+  var hasPrecision = isFinite(precision) && precision >= 0;
+  var integerMode = typeof spec.integer === 'boolean'
+    ? spec.integer
+    : (!hasPrecision && Math.abs(min - Math.round(min)) < 1e-9 && Math.abs(max - Math.round(max)) < 1e-9 && Math.abs(step - Math.round(step)) < 1e-9);
+
+  var span = max - min;
+  var totalSteps = Math.max(0, Math.floor(span / step));
+  var index = Math.floor(Math.random() * (totalSteps + 1));
+  var value = min + (index * step);
+  if (integerMode) value = Math.round(value);
+  if (hasPrecision) value = Number(value.toFixed(precision));
+  return value;
+}
+
+function validatePatternVariables_(variables, specs) {
+  var definitions = isPlainObject_(specs) ? specs : {};
+  var constraints = Array.isArray(definitions.constraints) ? definitions.constraints : [];
+
+  for (var i = 0; i < constraints.length; i++) {
+    if (!evaluatePatternExpression_(constraints[i], variables)) return false;
+  }
+
+  var names = Object.keys(definitions).filter(function(key) {
+    return key !== 'constraints' && key !== '_constraints';
+  });
+  for (var n = 0; n < names.length; n++) {
+    var name = names[n];
+    var spec = definitions[name];
+    if (!isPlainObject_(spec)) continue;
+
+    if (Array.isArray(spec.exclude) && spec.exclude.indexOf(variables[name]) !== -1) return false;
+
+    var disallow = spec.notEqualTo;
+    var disallowList = Array.isArray(disallow) ? disallow : (typeof disallow === 'undefined' ? [] : [disallow]);
+    for (var d = 0; d < disallowList.length; d++) {
+      var target = disallowList[d];
+      if (typeof target === 'string' && Object.prototype.hasOwnProperty.call(variables, target)) {
+        if (variables[name] === variables[target]) return false;
+      } else if (variables[name] === target) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+function buildPatternVariables_(specValue) {
+  var specs = isPlainObject_(specValue) ? specValue : parseJsonCell_(specValue, {});
+  if (!isPlainObject_(specs)) return null;
+  var names = Object.keys(specs).filter(function(key) {
+    return key !== 'constraints' && key !== '_constraints';
+  });
+  if (!names.length) return null;
+
+  for (var attempt = 0; attempt < 40; attempt++) {
+    var variables = {};
+    var success = true;
+
+    for (var i = 0; i < names.length; i++) {
+      var name = names[i];
+      try {
+        variables[name] = samplePatternVariableValue_(specs[name], variables);
+      } catch (e) {
+        success = false;
+        break;
+      }
+    }
+
+    if (success && validatePatternVariables_(variables, specs)) {
+      return variables;
+    }
+  }
+
+  return null;
+}
+
+function resolvePatternTextValue_(value, variables, preferExpression) {
+  var raw = String(value || '').trim();
+  if (!raw) return '';
+  if (/\{\{/.test(raw)) return renderPatternTemplate_(raw, variables);
+  if (preferExpression) {
+    if (/^[a-zA-Z_][\w]*$/.test(raw) && Object.prototype.hasOwnProperty.call(variables || {}, raw)) {
+      return formatGeneratedValue_(variables[raw]);
+    }
+    if (isPatternExpressionCandidate_(raw)) {
+      try {
+        return formatGeneratedValue_(evaluatePatternExpression_(raw, variables));
+      } catch (e) {
+        return raw;
+      }
+    }
+  }
+  return raw;
+}
+
+function isPatternExpressionCandidateLegacy_(value) {
+  var text = String(value || '').trim();
+  if (!text) return false;
+  if (text.charAt(0) === '=') return true;
+  if (/\{\{/.test(text)) return false;
+  return /^[0-9a-zA-Z_+\-*/%^().,\s<>=!&|]+$/.test(text);
+}
+
+function matchesThemeForDiagnosis_(rowTheme, theme) {
+  var normalizedRowTheme = String(rowTheme || '').trim().toLowerCase();
+  var normalizedTheme = String(theme || '').trim().toLowerCase();
+  if (!normalizedTheme) return true;
+  return normalizedRowTheme === normalizedTheme || normalizedRowTheme.indexOf(normalizedTheme) !== -1;
+}
+
+function diagnosePatternQuestionRows_(grade, theme) {
+  var targetTheme = String(theme || '').trim().toLowerCase();
+  if (!targetTheme) return { error: '請提供課題名稱。' };
+
+  try {
+    var sources = openQuestionTypeSheetsById_(getQuestionsSheetIdForGrade_(grade), '題庫 Sheet ID');
+    var issues = [];
+    var scannedRowCount = 0;
+    var matchedPatternRowCount = 0;
+
+    sources.forEach(function(source) {
+      var data = source.sheet.getDataRange().getValues();
+      if (!data || data.length < 2) return;
+
+      var headers = normalizeHeaders_(data.shift());
+      var findIdx = function(names) { return findColumnIndex_(headers, names); };
+      var themeIdx = findIdx(['theme', '主題', '類型', 'category', 'topic']);
+      var generatorModeIdx = findIdx(['generatormode', 'questionmode', 'templateMode', 'mode', '生成模式', '出題模式']);
+      var patternIdIdx = findIdx(['patternid', 'templateid', 'generatorid', '題型編號', '模板編號']);
+      var questionTemplateIdx = findIdx(['questiontemplate', 'prompttemplate', '題目模板', '問題模板']);
+      var variablesIdx = findIdx(['variablesspec', 'variables', 'variableconfig', '變數規則', '變數設定', '變數']);
+      var answerFormulaIdx = findIdx(['answerformula', 'formula', '答案公式', '計算公式']);
+      var answerTemplateIdx = findIdx(['answertemplate', 'answerformat', '答案模板', '答案格式']);
+      var acceptedTemplateIdx = findIdx(['acceptedanswerstemplate', 'acceptedtemplate', '可接受答案模板', '其他答案模板']);
+      var distractorIdx = findIdx(['distractorspec', 'distractorformula', 'optionformulas', '選項規則', '干擾項規則']);
+
+      data.forEach(function(row, index) {
+        var rowTheme = themeIdx !== -1 ? String(row[themeIdx] || '').trim().toLowerCase() : '';
+        if (!matchesThemeForDiagnosis_(rowTheme, targetTheme)) return;
+        scannedRowCount += 1;
+        if (normalizeGeneratorMode_(generatorModeIdx !== -1 ? row[generatorModeIdx] : '') !== 'pattern') return;
+        matchedPatternRowCount += 1;
+
+        var rowNumber = index + 2;
+        var variables = buildPatternVariables_(variablesIdx !== -1 ? row[variablesIdx] : '');
+        if (!variables) {
+          issues.push({
+            sheetName: source.sheet.getName(),
+            rowNumber: rowNumber,
+            questionType: source.questionType || '',
+            patternId: patternIdIdx !== -1 ? String(row[patternIdIdx] || '').trim() : '',
+            field: 'variablesSpec',
+            value: variablesIdx !== -1 ? String(row[variablesIdx] || '') : '',
+            error: '無法產生 pattern variables'
+          });
+          return;
+        }
+
+        var answerFormula = answerFormulaIdx !== -1 ? String(row[answerFormulaIdx] || '').trim() : '';
+        var rawResult = null;
+        try {
+          rawResult = evaluatePatternExpression_(answerFormula, variables);
+        } catch (e) {
+          issues.push({
+            sheetName: source.sheet.getName(),
+            rowNumber: rowNumber,
+            questionType: source.questionType || '',
+            patternId: patternIdIdx !== -1 ? String(row[patternIdIdx] || '').trim() : '',
+            field: 'answerFormula',
+            value: answerFormula,
+            error: e.message
+          });
+          return;
+        }
+
+        var templateVariables = {};
+        Object.keys(variables).forEach(function(key) { templateVariables[key] = variables[key]; });
+        templateVariables.result = rawResult;
+
+        [
+          { name: 'answerTemplate', value: answerTemplateIdx !== -1 ? row[answerTemplateIdx] : '' },
+          { name: 'acceptedAnswersTemplate', value: acceptedTemplateIdx !== -1 ? row[acceptedTemplateIdx] : '' }
+        ].forEach(function(entry) {
+          var raw = String(entry.value || '').trim();
+          if (!raw || /\{\{/.test(raw) || !isPatternExpressionCandidateLegacy_(raw)) return;
+          try {
+            evaluatePatternExpression_(raw, templateVariables);
+          } catch (e) {
+            issues.push({
+              sheetName: source.sheet.getName(),
+              rowNumber: rowNumber,
+              questionType: source.questionType || '',
+              patternId: patternIdIdx !== -1 ? String(row[patternIdIdx] || '').trim() : '',
+              field: entry.name,
+              value: raw,
+              error: e.message
+            });
+          }
+        });
+
+        var distractorSpecs = distractorIdx !== -1 ? parsePatternListSpec_(row[distractorIdx]) : [];
+        distractorSpecs.forEach(function(item) {
+          var raw = String(item || '').trim();
+          if (!raw || /\{\{/.test(raw) || !isPatternExpressionCandidateLegacy_(raw)) return;
+          try {
+            evaluatePatternExpression_(raw, templateVariables);
+          } catch (e) {
+            issues.push({
+              sheetName: source.sheet.getName(),
+              rowNumber: rowNumber,
+              questionType: source.questionType || '',
+              patternId: patternIdIdx !== -1 ? String(row[patternIdIdx] || '').trim() : '',
+              field: 'distractorSpec',
+              value: raw,
+              error: e.message,
+              questionTemplate: questionTemplateIdx !== -1 ? String(row[questionTemplateIdx] || '').trim() : ''
+            });
+          }
+        });
+      });
+    });
+
+    return {
+      grade: String(grade || ''),
+      theme: String(theme || ''),
+      scannedRowCount: scannedRowCount,
+      matchedPatternRowCount: matchedPatternRowCount,
+      issueCount: issues.length,
+      issues: issues
+    };
+  } catch (e) {
+    return { error: '診斷 pattern 題列失敗: ' + e.message };
+  }
+}
+
+function logPolynomialPatternDiagnosis_() {
+  var report = diagnosePatternQuestionRows_('中一', '多項式');
+  Logger.log(JSON.stringify(report, null, 2));
+  return report;
+}
+
+function diagnoseAllSecondaryPolynomialPatternRows_() {
+  var grades = ['中一', '中二', '中三', '中四', '中五', '中六'];
+  var reports = [];
+  var totals = {
+    scannedRowCount: 0,
+    matchedPatternRowCount: 0,
+    issueCount: 0
+  };
+
+  grades.forEach(function(grade) {
+    var report = diagnosePatternQuestionRows_(grade, '多項式');
+    reports.push(report);
+    if (report && !report.error) {
+      totals.scannedRowCount += Number(report.scannedRowCount || 0);
+      totals.matchedPatternRowCount += Number(report.matchedPatternRowCount || 0);
+      totals.issueCount += Number(report.issueCount || 0);
+    }
+  });
+
+  return {
+    theme: '多項式',
+    grades: grades,
+    totals: totals,
+    reports: reports
+  };
+}
+
+function logAllPolynomialPatternDiagnosis_() {
+  var report = diagnoseAllSecondaryPolynomialPatternRows_();
+  Logger.log(JSON.stringify(report, null, 2));
+  return report;
+}
+
+function parsePatternListSpec_(value) {
+  var parsed = parseJsonCell_(value, null);
+  if (Array.isArray(parsed)) {
+    return parsed.map(function(item) { return String(item || '').trim(); }).filter(function(item) { return item !== ''; });
+  }
+  return parseCellList_(value);
+}
+
+function parseNumericAnswerText_(answerText) {
+  var text = String(answerText || '').trim();
+  if (!text) return null;
+
+  var direct = Number(text);
+  if (isFinite(direct)) {
+    return {
+      numeric: direct,
+      numericText: text,
+      prefix: '',
+      suffix: ''
+    };
+  }
+
+  var match = text.match(/^([^\d+\-]*)([+\-]?\d+(?:\.\d+)?)([^\d]*)$/);
+  if (!match) return null;
+
+  var numericText = match[2];
+  var numeric = Number(numericText);
+  if (!isFinite(numeric)) return null;
+
+  return {
+    numeric: numeric,
+    numericText: numericText,
+    prefix: match[1] || '',
+    suffix: match[3] || ''
+  };
+}
+
+function buildAutoDistractors_(answerText, count) {
+  var total = Math.max(0, Number(count) || 0);
+  var parsed = parseNumericAnswerText_(answerText);
+  if (!parsed || !total) return [];
+
+  var numeric = parsed.numeric;
+
+  var decimals = 0;
+  if (parsed.numericText.indexOf('.') !== -1) decimals = parsed.numericText.split('.')[1].length;
+  var step = decimals > 0 ? Math.pow(10, -decimals) : (Math.abs(numeric) >= 20 ? 2 : 1);
+  var offsets = [1, -1, 2, -2, 3, -3, 4, -4];
+  var options = [];
+  for (var i = 0; i < offsets.length && options.length < total; i++) {
+    var candidate = numeric + (offsets[i] * step);
+    var candidateText = decimals > 0 ? String(Number(candidate.toFixed(decimals))) : String(Math.round(candidate));
+    var formatted = parsed.prefix + candidateText + parsed.suffix;
+    if (formatted !== String(answerText) && options.indexOf(formatted) === -1) {
+      options.push(formatted);
+    }
+  }
+  return options;
+}
+
+function appendAutoDistractors_(options, answerText, totalOptionCount) {
+  var existing = Array.isArray(options) ? options.slice() : [];
+  var targetDistractorCount = Math.max(0, Number(totalOptionCount || 0) - 1);
+  var needed = Math.max(0, targetDistractorCount - existing.length);
+  if (!needed) return existing;
+
+  var seedCount = Math.max(needed + existing.length + 2, 8);
+  var candidates = buildAutoDistractors_(answerText, seedCount);
+  for (var i = 0; i < candidates.length && existing.length < targetDistractorCount; i++) {
+    var candidate = candidates[i];
+    if (!candidate || existing.indexOf(candidate) !== -1 || candidate === answerText) continue;
+    existing.push(candidate);
+  }
+  return existing;
+}
+
+function applyQuestionMetadata_(payload, metadata) {
+  var result = payload || {};
+  Object.keys(metadata || {}).forEach(function(key) {
+    if (metadata[key] === '' || metadata[key] === null || typeof metadata[key] === 'undefined') return;
+    result[key] = metadata[key];
+  });
+  return result;
+}
+
+function logPatternGenerationFailure_(row, config, error) {
+  try {
+    var patternId = config.patternIdIdx !== -1 ? String(row[config.patternIdIdx] || '').trim() : '';
+    var questionTemplate = config.questionTemplateIdx !== -1 ? String(row[config.questionTemplateIdx] || '').trim() : '';
+    Logger.log('[pattern-skip] ' + JSON.stringify({
+      patternId: patternId,
+      questionType: config.forcedQuestionType || '',
+      questionTemplate: questionTemplate,
+      error: error && error.message ? error.message : String(error || '')
+    }));
+  } catch (logError) {}
+}
+
+function safelyBuildPatternQuestionPayload_(row, config) {
+  try {
+    return buildPatternQuestionPayload_(row, config);
+  } catch (e) {
+    logPatternGenerationFailure_(row, config, e);
+    return null;
+  }
+}
+
+function buildPatternQuestionPayload_(row, config) {
+  var questionType = config.forcedQuestionType || normalizeQuestionType_(config.typeIdx !== -1 ? row[config.typeIdx] : '');
+  if (questionType === 'matching') return null;
+
+  var variables = buildPatternVariables_(config.variablesIdx !== -1 ? row[config.variablesIdx] : '');
+  if (!variables) return null;
+
+  var questionTemplate = config.questionTemplateIdx !== -1 ? row[config.questionTemplateIdx] : row[config.qIdx];
+  var explanationTemplate = config.explanationTemplateIdx !== -1 ? row[config.explanationTemplateIdx] : (config.expIdx !== -1 ? row[config.expIdx] : '');
+  var answerFormula = config.answerFormulaIdx !== -1 ? String(row[config.answerFormulaIdx] || '').trim() : '';
+  if (!answerFormula) return null;
+
+  var rawResult = evaluatePatternExpression_(answerFormula, variables);
+  var templateVariables = {};
+  Object.keys(variables).forEach(function(key) { templateVariables[key] = variables[key]; });
+  templateVariables.result = rawResult;
+
+  var answerTemplate = config.answerTemplateIdx !== -1
+    ? row[config.answerTemplateIdx]
+    : (config.ansIdx !== -1 ? row[config.ansIdx] : '');
+  var answer = String(answerTemplate || '').trim()
+    ? resolvePatternTextValue_(answerTemplate, templateVariables, false)
+    : formatGeneratedValue_(rawResult);
+  var acceptedTemplateValue = '';
+  if (config.acceptedTemplateIdx !== -1) {
+    acceptedTemplateValue = row[config.acceptedTemplateIdx];
+  } else if (config.acceptedIdx !== -1) {
+    acceptedTemplateValue = row[config.acceptedIdx];
+  }
+  var acceptedAnswers = buildAcceptedAnswers_(
+    answer,
+    resolvePatternTextValue_(acceptedTemplateValue, templateVariables, false)
+  );
+
+  var patternId = config.patternIdIdx !== -1 && String(row[config.patternIdIdx] || '').trim()
+    ? String(row[config.patternIdIdx] || '').trim()
+    : ('pattern_' + buildStableHashKey_(String(questionTemplate || '') + '|' + answerFormula + '|' + questionType));
+  var instanceSignature = JSON.stringify(templateVariables);
+  var instanceKey = patternId + '_' + buildStableHashKey_(instanceSignature);
+
+  var payload = {
+    question: renderPatternTemplate_(questionTemplate, templateVariables),
+    questionType: questionType,
+    answer: answer,
+    acceptedAnswers: acceptedAnswers,
+    explanation: String(explanationTemplate || '').trim() ? renderPatternTemplate_(explanationTemplate, templateVariables) : (config.defaultExplanation || ''),
+    imageUrl: (config.imgIdx !== -1 && String(row[config.imgIdx] || '').trim() !== '') ? String(row[config.imgIdx]).trim() : '',
+    generatorMode: 'pattern',
+    patternId: patternId,
+    instanceKey: instanceKey
+  };
+
+  if (typeof config.pointsValue !== 'undefined') {
+    payload.points = config.pointsValue;
+  }
+
+  if (questionType === 'fillBlank') {
+    payload.options = [];
+    return applyQuestionMetadata_(payload, config.metadata);
+  }
+
+  var distractorSpecs = config.distractorIdx !== -1 ? parsePatternListSpec_(row[config.distractorIdx]) : [];
+  var options = [];
+  distractorSpecs.forEach(function(item) {
+    var resolved = resolvePatternTextValue_(item, templateVariables, true);
+    if (!resolved || options.indexOf(resolved) !== -1 || resolved === answer) return;
+    options.push(resolved);
+  });
+
+  options = appendAutoDistractors_(options, answer, 4);
+
+  options.push(answer);
+  payload.options = options.filter(function(item, index, arr) {
+    return item !== '' && arr.indexOf(item) === index;
+  });
+  if (payload.options.length < 2) return null;
+  shuffleArray_(payload.options);
+  return applyQuestionMetadata_(payload, config.metadata);
+}
+
 function parseMatchingPairsFromAnswer_(answerValue) {
   return String(answerValue || '')
     .split(/\r?\n|\s*[\|｜;；]\s*/)
@@ -358,6 +964,27 @@ function extractQuestionOptions_(row, optIndices) {
   return options;
 }
 
+function normalizeMatchingItemText_(value) {
+  var text = String(value || '').trim();
+  if (!text) return '';
+  var dollarMatches = text.match(/\$/g);
+  var isWrappedLatex = text.charAt(0) === '$' && text.charAt(text.length - 1) === '$' && dollarMatches && dollarMatches.length === 2;
+  if (isWrappedLatex) text = text.slice(1, -1).trim();
+  // Fix double (or more) backslash before % → single backslash
+  text = text.replace(/\\{2,}%/g, '\\%');
+  // Escape bare % (not already preceded by backslash)
+  text = text.replace(/(^|[^\\])%/g, function(match, prefix) { return prefix + '\\%'; });
+  // Strip trailing = from pure arithmetic expressions
+  if (/=\s*$/.test(text)) {
+    var candidate = text.replace(/\s*=\s*$/, '').trim();
+    var hasArith = ['\\times', '\\div', '+', '-', '/', '*', '%', '\\%', '(', ')'].some(function(t) { return candidate.indexOf(t) !== -1; });
+    var hasChinese = /[\u3400-\u9fff]/.test(candidate);
+    var hasEquals = candidate.indexOf('=') !== -1;
+    if (hasArith && !hasChinese && !hasEquals) text = candidate;
+  }
+  return isWrappedLatex ? ('$' + text + '$') : text;
+}
+
 function buildMatchingPairs_(leftValue, rightValue, answerValue) {
   var leftItems = parseCellList_(leftValue);
   var rightItems = parseCellList_(rightValue);
@@ -365,7 +992,7 @@ function buildMatchingPairs_(leftValue, rightValue, answerValue) {
   var pairs = [];
 
   for (var i = 0; i < count; i++) {
-    pairs.push({ left: leftItems[i], right: rightItems[i] });
+    pairs.push({ left: normalizeMatchingItemText_(leftItems[i]), right: normalizeMatchingItemText_(rightItems[i]) });
   }
 
   return pairs.length ? pairs : parseMatchingPairsFromAnswer_(answerValue);
@@ -396,18 +1023,18 @@ function buildQuestionPayload_(row, config) {
     );
     payload.options = [];
     if (!payload.matchingPairs.length) return null;
-    return payload;
+    return applyQuestionMetadata_(payload, config.metadata);
   }
 
   if (questionType === 'fillBlank') {
     payload.options = [];
-    return payload;
+    return applyQuestionMetadata_(payload, config.metadata);
   }
 
   payload.options = extractQuestionOptions_(row, config.optIndices);
   if (payload.options.length === 0) payload.options = ['選項讀取失敗'];
   shuffleArray_(payload.options);
-  return payload;
+  return applyQuestionMetadata_(payload, config.metadata);
 }
 
 function selectQuestionsByComposition_(questions, limit, desiredSpecialCounts) {
@@ -649,6 +1276,8 @@ function getQuestions(difficulty, theme, grade) {
     const targetDiff = difficultyMap[difficulty] || difficulty;
     const sources = openQuestionTypeSheetsById_(getQuestionsSheetIdForGrade_(grade), '題庫 Sheet ID');
     let questions = [];
+    let patternRows = [];
+    let seenInstanceKeys = {};
 
     sources.forEach(function(source) {
       const data = source.sheet.getDataRange().getValues();
@@ -665,6 +1294,15 @@ function getQuestions(difficulty, theme, grade) {
       const typeIdx  = findIdx(['questiontype', '題型', '題目類型', 'qtype', 'questionkind']);
       const acceptedIdx = findIdx(['acceptedanswers', 'acceptableanswers', 'altanswers', '可接受答案', '其他答案']);
       const imgIdx   = findIdx(['image', 'imageurl', '圖片', '圖片url', '插圖']);
+      const generatorModeIdx = findIdx(['generatormode', 'questionmode', 'templateMode', 'mode', '生成模式', '出題模式']);
+      const patternIdIdx = findIdx(['patternid', 'templateid', 'generatorid', '題型編號', '模板編號']);
+      const questionTemplateIdx = findIdx(['questiontemplate', 'prompttemplate', '題目模板', '問題模板']);
+      const variablesIdx = findIdx(['variablesspec', 'variables', 'variableconfig', '變數規則', '變數設定', '變數']);
+      const answerFormulaIdx = findIdx(['answerformula', 'formula', '答案公式', '計算公式']);
+      const answerTemplateIdx = findIdx(['answertemplate', 'answerformat', '答案模板', '答案格式']);
+      const acceptedTemplateIdx = findIdx(['acceptedanswerstemplate', 'acceptedtemplate', '可接受答案模板', '其他答案模板']);
+      const explanationTemplateIdx = findIdx(['explanationtemplate', '詳解模板', '解析模板']);
+      const distractorIdx = findIdx(['distractorspec', 'distractorformula', 'optionformulas', '選項規則', '干擾項規則']);
       const matchLeftIdx = findIdx(['matchingleft', 'leftitems', 'leftoptions', 'pairleft', '配對左', '配對左欄', '左欄', 'left']);
       const matchRightIdx = findIdx(['matchingright', 'rightitems', 'rightoptions', 'pairright', '配對右', '配對右欄', '右欄', 'right']);
       const optAIdx  = findIdx(['optiona', '選項a', 'a', 'option1', '選項1', 'choicea', 'choice1', '選擇a', '選擇1', 'opt1', 'opta', '1', '選項', '選擇', 'option', 'options', 'choices']);
@@ -706,7 +1344,7 @@ function getQuestions(difficulty, theme, grade) {
         const isNotEmpty = String(row[qIdx]).trim() !== "";
         if (!diffMatch || !themeMatch || !gradeMatch || !isNotEmpty) return;
 
-        const payload = buildQuestionPayload_(row, {
+        const sharedConfig = {
           qIdx: qIdx,
           ansIdx: ansIdx,
           expIdx: expIdx,
@@ -717,11 +1355,55 @@ function getQuestions(difficulty, theme, grade) {
           matchRightIdx: matchRightIdx,
           optIndices: optIndices,
           forcedQuestionType: source.questionType,
-          defaultExplanation: '請留意計算步驟喔！'
-        });
+          defaultExplanation: '請留意計算步驟喔！',
+          metadata: {
+            theme: rowTheme,
+            topic: rowTheme,
+            difficulty: rowDiff,
+            grade: rowGrade
+          }
+        };
+
+        if (normalizeGeneratorMode_(generatorModeIdx !== -1 ? row[generatorModeIdx] : '') === 'pattern') {
+          patternRows.push({
+            row: row,
+            config: Object.assign({}, sharedConfig, {
+              generatorModeIdx: generatorModeIdx,
+              patternIdIdx: patternIdIdx,
+              questionTemplateIdx: questionTemplateIdx,
+              variablesIdx: variablesIdx,
+              answerFormulaIdx: answerFormulaIdx,
+              answerTemplateIdx: answerTemplateIdx,
+              acceptedTemplateIdx: acceptedTemplateIdx,
+              explanationTemplateIdx: explanationTemplateIdx,
+              distractorIdx: distractorIdx
+            })
+          });
+          return;
+        }
+
+        const payload = buildQuestionPayload_(row, sharedConfig);
         if (payload) questions.push(payload);
       });
     });
+
+    patternRows.forEach(function(entry) {
+      var generated = safelyBuildPatternQuestionPayload_(entry.row, entry.config);
+      if (!generated || seenInstanceKeys[generated.instanceKey]) return;
+      seenInstanceKeys[generated.instanceKey] = true;
+      questions.push(generated);
+    });
+
+    var patternTargetPoolSize = Math.max(12, patternRows.length * 3);
+    var attempts = 0;
+    while (questions.length < patternTargetPoolSize && patternRows.length && attempts < 200) {
+      attempts++;
+      var picked = patternRows[Math.floor(Math.random() * patternRows.length)];
+      var generated = safelyBuildPatternQuestionPayload_(picked.row, picked.config);
+      if (!generated || seenInstanceKeys[generated.instanceKey]) continue;
+      seenInstanceKeys[generated.instanceKey] = true;
+      questions.push(generated);
+    }
 
     if (questions.length === 0) {
       return { error: '找不到符合條件的題目 (難度: ' + difficulty + ', 主題: ' + theme + ')' };

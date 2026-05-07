@@ -127,3 +127,37 @@ $x-4=6$	5
 - `answer` is still required in all worksheets because the backend expects that column.
 - In `matching`, put the left items and right items in the same row, using line breaks inside each cell.
 - `acceptedAnswers` can contain multiple correct answers, separated by line breaks.
+
+## Tailwind CSS Prebuild
+
+The frontend can now use a prebuilt Tailwind CSS artifact instead of the runtime `https://cdn.tailwindcss.com` compiler.
+
+### Local build
+
+Run these commands from `c:\Users\ltyj\Documents\app\math-game`:
+
+```bash
+npm install
+npm run build:css
+```
+
+This generates `style.css` from `tailwind.input.css` and scans these files for utility classes:
+
+- `數學小遊戲.html`
+- `js_*.html`
+
+### Apps Script configuration
+
+To enable the prebuilt CSS in production, upload `style.css` to a public URL such as jsDelivr and set this Script Property:
+
+- `PREBUILT_STYLE_URL=https://cdn.jsdelivr.net/gh/<owner>/<repo>@<tag-or-commit>/style.css`
+
+When `PREBUILT_STYLE_URL` is set, the HTML template loads it with `<link rel="stylesheet">`.
+When it is empty, the app falls back to the Tailwind CDN runtime script so the page keeps working during migration.
+
+### Recommended publish flow
+
+1. Run `npm run build:css`.
+2. Commit `style.css` together with any HTML changes that add or remove Tailwind classes.
+3. Push to the repo and publish via jsDelivr using a fixed tag or commit hash.
+4. Update the Apps Script `PREBUILT_STYLE_URL` property to the new versioned CSS URL.

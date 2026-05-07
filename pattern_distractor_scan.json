@@ -1,0 +1,5757 @@
+{
+  "issue_count": 235,
+  "issues": [
+    {
+      "sheet": "multipleChoice",
+      "row": 14,
+      "questionTemplate": "${{c0}}-x={{d}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "5",
+            "3",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 15,
+      "questionTemplate": "${{c0}}-{{a}}x={{d}}$",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "24",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "7",
+            "3",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 19,
+      "questionTemplate": "$\\frac{x}{ {{a}} }+{{b}}={{c}}$",
+      "short_runs": 10,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "5",
+            "3",
+            "4"
+          ]
+        },
+        {
+          "answer": "0",
+          "options": [
+            "4",
+            "1",
+            "0"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "5",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 29,
+      "questionTemplate": "${{c0}}-x={{d}}$",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "11",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "9",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 30,
+      "questionTemplate": "${{b}}+{{a}}x={{c}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "-4",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 54,
+      "questionTemplate": "$\\frac{ {{num}} }{ {{den}} }x+{{b}}={{c}}$",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "6",
+            "2"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 61,
+      "questionTemplate": "$\\frac{x+{{b}}}{ {{m}} }-\\frac{x-{{d0}}}{ {{n}} }={{c}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "6",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 62,
+      "questionTemplate": "$\\frac{ {{a}}x-{{b}}}{ {{m}} }=\\frac{x+{{d0}}}{ {{n}} }$",
+      "short_runs": 9,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "2",
+            "3"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "1",
+            "2"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "4",
+            "3",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 67,
+      "questionTemplate": "$\\frac{x+{{b}}}{ {{m}} }-\\frac{x-{{d0}}}{ {{n}} }={{c}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "2",
+            "4",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 113,
+      "questionTemplate": "多項式 ${{a}}x^2 + {{b}}x - {{c}}$ 中，$x$項的係數是多少？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "0",
+            "2"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "0",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 116,
+      "questionTemplate": "多項式 ${{a}}x^2 + {{b}}x - {{c}}$ 中，$x$項的係數是多少？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "5",
+            "0",
+            "4"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "0",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 117,
+      "questionTemplate": "多項式 ${{a}}x^{{n}}-{{b}}x+{{c}}$ 的常數項是多少？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "-2",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "-1",
+            "2"
+          ]
+        },
+        {
+          "answer": "-3",
+          "options": [
+            "3",
+            "-2",
+            "-3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 119,
+      "questionTemplate": "多項式 ${{a}}x^{{n}}-{{b}}x+{{c}}$ 的常數項是多少？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "-2",
+          "options": [
+            "2",
+            "-1",
+            "-2"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "-2",
+            "4",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 120,
+      "questionTemplate": "多項式 ${{a}}x^{{n}}-{{b}}x+{{c}}$ 的常數項是多少？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "-4",
+            "2"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "-1",
+            "3"
+          ]
+        },
+        {
+          "answer": "-2",
+          "options": [
+            "2",
+            "-1",
+            "-2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 121,
+      "questionTemplate": "多項式 ${{a}}x^{{n}}-{{b}}x+{{c}}$ 的常數項是多少？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "-2",
+            "3",
+            "2"
+          ]
+        },
+        {
+          "answer": "-2",
+          "options": [
+            "2",
+            "-1",
+            "-2"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "-2",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 122,
+      "questionTemplate": "多項式 ${{a}}x^{{n}}-{{b}}x+{{c}}$ 的常數項是多少？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "-2",
+            "2"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "-3",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 123,
+      "questionTemplate": "多項式 ${{a}}x^{{n}}-{{b}}x+{{c}}$ 的常數項是多少？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "-5",
+          "options": [
+            "4",
+            "-4",
+            "-5"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "-1",
+            "2"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "-1",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 124,
+      "questionTemplate": "多項式 ${{a}}x^{{n}}-{{b}}x+{{c}}$ 的常數項是多少？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "-1",
+            "3"
+          ]
+        },
+        {
+          "answer": "-5",
+          "options": [
+            "2",
+            "-4",
+            "-5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 125,
+      "questionTemplate": "多項式 ${{a}}x^{{n}}-{{b}}x+{{c}}$ 的常數項是多少？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "-4",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "-3",
+            "3"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "-3",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 186,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "15",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 187,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 8,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 188,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "15",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 189,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 190,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "15",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 191,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 192,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 193,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 194,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 195,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "15",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 196,
+      "questionTemplate": "數據 {{b}}, {{a}}, {{c}} 的中位數是？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 197,
+      "questionTemplate": "數據 {{b}}, {{a}}, {{c}} 的中位數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 198,
+      "questionTemplate": "數據 {{b}}, {{a}}, {{c}} 的中位數是？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 200,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "7",
+            "9",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 201,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 12,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "7",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 202,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 203,
+      "questionTemplate": "數據 {{b}}, {{a}}, {{c}} 的中位數是？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 204,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 8,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "7",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 205,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "7",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "7",
+            "9",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 211,
+      "questionTemplate": "數據 {{a}}, {{b}}, {{a}}, {{c}} 的眾數是？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "7",
+            "13",
+            "6"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "7",
+            "13",
+            "6"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "7",
+            "13",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 214,
+      "questionTemplate": "數據 {{a}}, {{b}}, {{a}}, {{c}} 的眾數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "7",
+            "13",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 216,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 9,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 217,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 10,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 218,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 10,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 219,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 220,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 10,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "7",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "7",
+            "9",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 221,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 14,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 644,
+      "questionTemplate": "若 $Ax + {{leftConstant}} = {{coeff}}x + B$ 是恆等式，求 $A$。",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "0",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 675,
+      "questionTemplate": "若 $A(x+1) + B(x-1) = {{xCoeff}}x + {{constant}}$ 是恆等式，求 $B$。",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "-1",
+          "options": [
+            "-2",
+            "0",
+            "-1"
+          ]
+        },
+        {
+          "answer": "-1",
+          "options": [
+            "1",
+            "0",
+            "-1"
+          ]
+        },
+        {
+          "answer": "-1",
+          "options": [
+            "-2",
+            "0",
+            "-1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 690,
+      "questionTemplate": "若 $A(x+1) + B(x-2) = {{sumCoeff}}x + {{constant}}$ 是恆等式，求 $A+B$。",
+      "short_runs": 5,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "0",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "5",
+            "0",
+            "4"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "5",
+            "0",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 705,
+      "questionTemplate": "若 $x^3 + {{x2Coeff}}x^2 + x = x(x+A)^2$ 是恆等式，求 $A$。",
+      "short_runs": 16,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "-1",
+          "options": [
+            "1",
+            "0",
+            "-1"
+          ]
+        },
+        {
+          "answer": "-1",
+          "options": [
+            "1",
+            "0",
+            "-1"
+          ]
+        },
+        {
+          "answer": "-1",
+          "options": [
+            "1",
+            "0",
+            "-1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 707,
+      "questionTemplate": "若 $\\frac{ {{numeratorCoeff}}x + {{constant}} }{ (x-{{leftShift}})(x+{{rightShift}}) } = \\frac{A}{x-{{leftShift}}} + \\frac{B}{x+{{rightShift}}}$ 是恆等式，求 $B$。",
+      "short_runs": 13,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "-2",
+          "options": [
+            "-1",
+            "-3",
+            "-2"
+          ]
+        },
+        {
+          "answer": "-2",
+          "options": [
+            "-1",
+            "-3",
+            "-2"
+          ]
+        },
+        {
+          "answer": "-3",
+          "options": [
+            "-2",
+            "-5",
+            "-3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 711,
+      "questionTemplate": "若 $\\frac{ {{numeratorCoeff}}x + {{constant}} }{ (x-{{leftShift}})(x+{{rightShift}}) } = \\frac{A}{x-{{leftShift}}} + \\frac{B}{x+{{rightShift}}}$ 是恆等式，求 $A$。",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "-1",
+          "options": [
+            "1",
+            "0",
+            "-1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "2",
+            "0",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "2",
+            "0",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 726,
+      "questionTemplate": "若 $(x^2+1)(Ax+B) = {{c3}}x^3 + x^2 + {{c1}}x + 1$ 是恆等式，求 $A$。",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1035,
+      "questionTemplate": "多項式 ${{a}}x^3 + {{b}}x^2 + {{c}}x - {{d}}$ 中，$x^2$ 的係數是多少？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "5",
+            "2",
+            "4"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "5",
+            "2"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1441,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1465,
+      "questionTemplate": "$\\frac{x}{ {{a}} }+{{b}}={{c}}$",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "5",
+            "6",
+            "4"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "5",
+            "3",
+            "4"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "5",
+            "6",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1469,
+      "questionTemplate": "${{c0}}-{{a}}x={{d}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "-4",
+            "3",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1474,
+      "questionTemplate": "${{a}}x={{c}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "-2",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1476,
+      "questionTemplate": "${{b}}+{{a}}x={{c}}$",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "-5",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "-8",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1478,
+      "questionTemplate": "${{c}}=x+{{b}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "2",
+            "0",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1481,
+      "questionTemplate": "${{c0}}-{{a}}x={{d}}$",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "25",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "-5",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1490,
+      "questionTemplate": "$\\frac{x}{ {{a}} }+{{b}}={{c}}$",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "4",
+            "2"
+          ]
+        },
+        {
+          "answer": "0",
+          "options": [
+            "4",
+            "1",
+            "0"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "1",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1491,
+      "questionTemplate": "${{a}}y-{{b}}={{c}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "4",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1493,
+      "questionTemplate": "${{a}}x={{c}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "-2",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1506,
+      "questionTemplate": "$\\frac{ {{a}}x-{{b}}}{ {{c}} }={{d}}$",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "5",
+            "3"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "1",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1507,
+      "questionTemplate": "${{c0}}-{{a}}x={{d}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "-3",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1514,
+      "questionTemplate": "$\\frac{ {{a}}x+{{b}}}{ {{c}} }=x+{{d}}$",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "2",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "12",
+          "options": [
+            "2",
+            "13",
+            "12"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "5",
+            "3",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1516,
+      "questionTemplate": "$\\frac{ {{num}} }{ {{den}} }x+{{b}}={{c}}$",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "6",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "6",
+            "3"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1517,
+      "questionTemplate": "${{c0}}-\\frac{ {{a}}x}{ {{b}} }={{d}}$",
+      "short_runs": 8,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "6",
+            "3",
+            "2"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "5",
+            "2",
+            "4"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "5",
+            "3",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1520,
+      "questionTemplate": "$\\frac{x-{{b}}}{ {{m}} }=\\frac{x+{{d0}}}{ {{n}} }$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "2",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1522,
+      "questionTemplate": "${{a}}x-{{b}}={{c}}x+{{d}}$",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "1",
+            "3",
+            "2"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "1",
+            "3",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1523,
+      "questionTemplate": "$\\frac{ {{num}} }{ {{den}} }(x-{{b}})={{c}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1527,
+      "questionTemplate": "$\\frac{x}{ {{a}} }+\\frac{ {{b}} }{ {{c0}} }=\\frac{ {{d0}} }{ {{e}} }$",
+      "short_runs": 8,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "1",
+            "2"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "1",
+            "2"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "2",
+            "4",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1529,
+      "questionTemplate": "$\\frac{ {{a}}x-{{b}}}{ {{c}} }={{d}}$",
+      "short_runs": 9,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "2",
+            "3"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "1",
+            "2"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "2",
+            "4",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1541,
+      "questionTemplate": "$x-\\frac{x-{{b}}}{ {{c}} }={{d}}$",
+      "short_runs": 5,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "2",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "2",
+            "3"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "1",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1546,
+      "questionTemplate": "${{c0}}-\\frac{x}{ {{a}} }={{b}}x-{{d}}$",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "2",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "2",
+            "4",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1548,
+      "questionTemplate": "$\\frac{ {{a}}x-{{b}}}{ {{m}} }=\\frac{x+{{d0}}}{ {{n}} }$",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "1",
+            "2"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "1",
+            "3",
+            "2"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "2",
+            "4",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1552,
+      "questionTemplate": "$\\frac{ {{a}}x-{{b}}}{ {{m}} }-\\frac{x-{{d0}}}{ {{n}} }={{c0}}$",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "2",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "1",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "1",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1583,
+      "questionTemplate": "$\\frac{x+{{b}}}{ {{m}} }-\\frac{x-{{d0}}}{ {{n}} }={{c}}$",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "6",
+            "3",
+            "2"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "4",
+            "3",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1603,
+      "questionTemplate": "多項式 ${{a}}x^{{n}}-{{b}}x+{{c}}$ 的常數項是多少？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "-5",
+          "options": [
+            "2",
+            "-4",
+            "-5"
+          ]
+        },
+        {
+          "answer": "-5",
+          "options": [
+            "2",
+            "-4",
+            "-5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1921,
+      "questionTemplate": "${{c}}={{a}}x-x$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1922,
+      "questionTemplate": "$-{{a}}x+{{b}}x={{c}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "-1",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1950,
+      "questionTemplate": "${{a}}x-x={{c}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "2",
+            "-1",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1958,
+      "questionTemplate": "$-{{a}}x+{{b}}x={{c}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "-1",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 1967,
+      "questionTemplate": "$-{{a}}x+{{b}}x={{c}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "-1",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2028,
+      "questionTemplate": "$\\frac{ {{a}}z-{{b}}}{ {{c}} }=z+{{d}}$",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "2",
+            "4",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2082,
+      "questionTemplate": "$\\frac{ {{a}}w-{{b}}}{ {{m}} }-\\frac{w-{{d0}}}{ {{n}} }={{c0}}$",
+      "short_runs": 5,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "4",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "1",
+            "3"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "2",
+            "3",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2291,
+      "questionTemplate": "把 ${{value}}$ 下捨入至一位小數。",
+      "short_runs": 15,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "0.1",
+          "options": [
+            "0",
+            "0.2",
+            "0.1"
+          ]
+        },
+        {
+          "answer": "0.1",
+          "options": [
+            "0",
+            "0.2",
+            "0.1"
+          ]
+        },
+        {
+          "answer": "3.1",
+          "options": [
+            "3",
+            "3.2",
+            "3.1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2293,
+      "questionTemplate": "估算 ${{a}} + {{b}}$ 的值（把每個數捨入至最接近的十位）。",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "150",
+          "options": [
+            "152",
+            "154",
+            "150"
+          ]
+        },
+        {
+          "answer": "180",
+          "options": [
+            "178",
+            "182",
+            "180"
+          ]
+        },
+        {
+          "answer": "120",
+          "options": [
+            "122",
+            "124",
+            "120"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2296,
+      "questionTemplate": "估算 ${{a}} + {{b}}$ 的值（把每個數捨入至最接近的整數）。",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "11",
+          "options": [
+            "12",
+            "11.49",
+            "11"
+          ]
+        },
+        {
+          "answer": "11",
+          "options": [
+            "12",
+            "11.49",
+            "11"
+          ]
+        },
+        {
+          "answer": "11",
+          "options": [
+            "12",
+            "11.49",
+            "11"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2301,
+      "questionTemplate": "估算 $({{a}} + {{b}}) \\div {{c}}$（把每個數捨入至一位有效數字）。",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "20",
+          "options": [
+            "22",
+            "17.595308",
+            "20"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2302,
+      "questionTemplate": "一支筆的價格是 $\\${{price}}$，小明買了 {{count}} 支，若要把總價「上捨入至最接近的十元」，估算需付多少？",
+      "short_runs": 30,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "\\$90",
+          "options": [
+            "\\$80",
+            "\\$82",
+            "\\$90"
+          ]
+        },
+        {
+          "answer": "\\$180",
+          "options": [
+            "\\$170",
+            "\\$171",
+            "\\$180"
+          ]
+        },
+        {
+          "answer": "\\$90",
+          "options": [
+            "\\$80",
+            "\\$82",
+            "\\$90"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2330,
+      "questionTemplate": "估算 ${{a}} + {{b}}$ 的值（把每個數捨入至最接近的整數）。",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "11",
+          "options": [
+            "12",
+            "11.49",
+            "11"
+          ]
+        },
+        {
+          "answer": "11",
+          "options": [
+            "12",
+            "11.49",
+            "11"
+          ]
+        },
+        {
+          "answer": "11",
+          "options": [
+            "12",
+            "11.49",
+            "11"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2340,
+      "questionTemplate": "一瓶果汁 ${{value}}$ 升，小明買了 7 瓶。若要把總容量「下捨入至一位小數」，估算總量。",
+      "short_runs": 14,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3.1",
+          "options": [
+            "3",
+            "3.2",
+            "3.1"
+          ]
+        },
+        {
+          "answer": "3.1",
+          "options": [
+            "3",
+            "3.2",
+            "3.1"
+          ]
+        },
+        {
+          "answer": "3.1",
+          "options": [
+            "3",
+            "3.2",
+            "3.1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2345,
+      "questionTemplate": "估算 ${{a}} + {{b}}$ 的值（把每個數捨入至最接近的整數）。",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "11",
+          "options": [
+            "12",
+            "11.49",
+            "11"
+          ]
+        },
+        {
+          "answer": "11",
+          "options": [
+            "12",
+            "11.49",
+            "11"
+          ]
+        },
+        {
+          "answer": "11",
+          "options": [
+            "12",
+            "11.49",
+            "11"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2357,
+      "questionTemplate": "把 ${{value}}$ 下捨入至一位小數。",
+      "short_runs": 13,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "0.1",
+          "options": [
+            "0",
+            "0.2",
+            "0.1"
+          ]
+        },
+        {
+          "answer": "12.3",
+          "options": [
+            "12",
+            "12.4",
+            "12.3"
+          ]
+        },
+        {
+          "answer": "0.1",
+          "options": [
+            "0",
+            "0.2",
+            "0.1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2362,
+      "questionTemplate": "把 ${{value}}$ 捨入至一位有效數字。",
+      "short_runs": 14,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "12.3",
+          "options": [
+            "12",
+            "12.4",
+            "12.3"
+          ]
+        },
+        {
+          "answer": "3.1",
+          "options": [
+            "3",
+            "3.2",
+            "3.1"
+          ]
+        },
+        {
+          "answer": "12.3",
+          "options": [
+            "12",
+            "12.4",
+            "12.3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2381,
+      "questionTemplate": "估算 $({{a}} + {{b}}) \\div {{c}}$（把每個數捨入至一位有效數字）。",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "20",
+          "options": [
+            "22",
+            "17.595308",
+            "20"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2386,
+      "questionTemplate": "估算 $({{a}} + {{b}}) \\div {{c}}$（把每個數捨入至一位有效數字）。",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "20",
+          "options": [
+            "22",
+            "17.595308",
+            "20"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2391,
+      "questionTemplate": "估算 ${{a}} + {{b}}$ 的值（把每個數捨入至最接近的十位）。",
+      "short_runs": 9,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "120",
+          "options": [
+            "122",
+            "124",
+            "120"
+          ]
+        },
+        {
+          "answer": "200",
+          "options": [
+            "198",
+            "202",
+            "200"
+          ]
+        },
+        {
+          "answer": "200",
+          "options": [
+            "198",
+            "202",
+            "200"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2401,
+      "questionTemplate": "把 ${{value}}$ 捨入至一位小數。",
+      "short_runs": 15,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "0.1",
+          "options": [
+            "0",
+            "0.2",
+            "0.1"
+          ]
+        },
+        {
+          "answer": "3.1",
+          "options": [
+            "3",
+            "3.2",
+            "3.1"
+          ]
+        },
+        {
+          "answer": "0.1",
+          "options": [
+            "0",
+            "0.2",
+            "0.1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2402,
+      "questionTemplate": "估算 $({{a}} + {{b}}) \\div {{c}}$（把每個數捨入至一位有效數字）。",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "20",
+          "options": [
+            "22",
+            "17.595308",
+            "20"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2412,
+      "questionTemplate": "估算 $({{a}} + {{b}}) \\div {{c}}$（把每個數捨入至一位有效數字）。",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "20",
+          "options": [
+            "22",
+            "17.595308",
+            "20"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2434,
+      "questionTemplate": "估算 $({{a}} + {{b}}) \\div {{c}}$（把每個數捨入至一位有效數字）。",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "20",
+          "options": [
+            "22",
+            "17.595308",
+            "20"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2710,
+      "questionTemplate": "若 $Ax(x - {{shift}}) + {{extra}}x = {{quadCoeff}}x^2 + {{scale}}x(x + B)$ 是恆等式，求 $A$。",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "2",
+          "options": [
+            "1",
+            "3",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2739,
+      "questionTemplate": "若 $(x+y)({{k}}x + ny) - mxy = {{k}}x^2 + nxy + {{c}}y^2$ 是恆等式，求 $m$。",
+      "short_runs": 16,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "1",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "1",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "1",
+            "3",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2754,
+      "questionTemplate": "若 $Ax^2+Bx+C = {{scale}}(x-{{leftShift}})(x+{{rightShift}}) + {{offset}}$ 是恆等式，求 $B$。",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "0",
+          "options": [
+            "1",
+            "-13",
+            "0"
+          ]
+        },
+        {
+          "answer": "-4",
+          "options": [
+            "2",
+            "-3",
+            "-4"
+          ]
+        },
+        {
+          "answer": "0",
+          "options": [
+            "1",
+            "-5",
+            "0"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2901,
+      "questionTemplate": "化簡 $\\frac{ {{rms}}s }{ {{m}}s-t } + \\frac{ {{r}}t }{ t-{{m}}s }$",
+      "short_runs": 15,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "2",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "2",
+            "3"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "3",
+            "1",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 2915,
+      "questionTemplate": "化簡 $\\frac{ {{rms}}s }{ {{m}}s-t } + \\frac{ {{r}}t }{ t-{{m}}s }$",
+      "short_runs": 22,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "5",
+            "3",
+            "4"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "4",
+            "2",
+            "3"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "2",
+            "0",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 3075,
+      "questionTemplate": "若一量度工具的最大絕對誤差是 ${{value}}$，則該工具的精確度（最小刻度）是？",
+      "short_runs": 14,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3.1",
+          "options": [
+            "3",
+            "3.2",
+            "3.1"
+          ]
+        },
+        {
+          "answer": "0.1",
+          "options": [
+            "0",
+            "0.2",
+            "0.1"
+          ]
+        },
+        {
+          "answer": "12.3",
+          "options": [
+            "12",
+            "12.4",
+            "12.3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 3795,
+      "questionTemplate": "將 ${{value}}$ 表示為科學記數法",
+      "short_runs": 9,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3.1",
+          "options": [
+            "3",
+            "3.2",
+            "3.1"
+          ]
+        },
+        {
+          "answer": "12.3",
+          "options": [
+            "12",
+            "12.4",
+            "12.3"
+          ]
+        },
+        {
+          "answer": "0.1",
+          "options": [
+            "0",
+            "0.2",
+            "0.1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 3893,
+      "questionTemplate": "已知事件 A 發生的概率為 ${{value}}$，求事件 A 不發生的概率。",
+      "short_runs": 12,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "12.3",
+          "options": [
+            "12",
+            "12.4",
+            "12.3"
+          ]
+        },
+        {
+          "answer": "12.3",
+          "options": [
+            "12",
+            "12.4",
+            "12.3"
+          ]
+        },
+        {
+          "answer": "12.3",
+          "options": [
+            "12",
+            "12.4",
+            "12.3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4180,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4181,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 13,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4183,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4184,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 12,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4187,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 13,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4188,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4190,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 7,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "16",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4192,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 13,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4194,
+      "questionTemplate": "數據 {{b}}, {{a}}, {{c}} 的中位數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4195,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4196,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 7,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4198,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 5,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4199,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4200,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 5,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "16",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4201,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 8,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4203,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 8,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4204,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "16",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4208,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 8,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4209,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "7",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4210,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 5,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4212,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 13,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4213,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4214,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4215,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 10,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4217,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 10,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4218,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4219,
+      "questionTemplate": "數據 {{b}}, {{a}}, {{c}} 的中位數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4220,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4221,
+      "questionTemplate": "數據 {{a}}, {{b}}, {{a}}, {{c}} 的眾數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "7",
+            "13",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4223,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 7,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4225,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 7,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "16",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4226,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4228,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 13,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4230,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4231,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4232,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "16",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4233,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4236,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 15,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4239,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 9,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4240,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 5,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "16",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4241,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 9,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4242,
+      "questionTemplate": "數據 {{a}}, {{b}}, {{a}}, {{c}} 的眾數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "7",
+            "13",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4243,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "15",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4245,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 7,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4247,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4248,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 12,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4249,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "15",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "15",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "15",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4250,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 7,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4255,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "16",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4257,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "16",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4259,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 7,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4261,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4262,
+      "questionTemplate": "數據 {{b}}, {{a}}, {{c}} 的中位數是？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4263,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 5,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4264,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 7,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4265,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4266,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4267,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "8",
+          "options": [
+            "7",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4268,
+      "questionTemplate": "數據 {{b}}, {{a}}, {{c}} 的中位數是？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4269,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 8,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4270,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4271,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4273,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "16",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4274,
+      "questionTemplate": "數據 {{b}}, {{a}}, {{c}} 的中位數是？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4275,
+      "questionTemplate": "數據 {{a}}, {{b}}, {{a}}, {{c}} 的眾數是？",
+      "short_runs": 2,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "7",
+            "13",
+            "6"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "7",
+            "13",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4276,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4277,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4278,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 5,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "16",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4279,
+      "questionTemplate": "數據 {{b}}, {{a}}, {{c}} 的中位數是？",
+      "short_runs": 3,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4280,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "15",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4281,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 7,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "4",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4284,
+      "questionTemplate": "數據 {{b}}, {{a}}, {{c}} 的中位數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4286,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "28",
+            "8",
+            "7"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4287,
+      "questionTemplate": "數據 {{a}}, {{b}}, {{a}}, {{c}} 的眾數是？",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "7",
+            "13",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4288,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 7,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "7",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "7",
+            "9",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4290,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 7,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4291,
+      "questionTemplate": "數據 {{b}}, {{a}}, {{c}} 的中位數是？",
+      "short_runs": 5,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        },
+        {
+          "answer": "1",
+          "options": [
+            "0",
+            "2",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4292,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}} 的平均數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "7",
+          "options": [
+            "21",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "15",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "3",
+          "options": [
+            "9",
+            "4",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4293,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4294,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 4,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "32",
+            "9",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4295,
+      "questionTemplate": "數據 {{a}}, {{d}}, {{b}}, {{c}} 的中位數是？",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "6",
+          "options": [
+            "5",
+            "7",
+            "6"
+          ]
+        },
+        {
+          "answer": "7",
+          "options": [
+            "6",
+            "8",
+            "7"
+          ]
+        },
+        {
+          "answer": "8",
+          "options": [
+            "7",
+            "9",
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4298,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 6,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "6",
+          "options": [
+            "24",
+            "7",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4299,
+      "questionTemplate": "數列 {{a}}, {{b}}, {{c}}, {{d}} 的平均數是？",
+      "short_runs": 10,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "16",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "5",
+          "options": [
+            "20",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "answer": "13",
+          "options": [
+            "52",
+            "14",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4314,
+      "questionTemplate": "某遊戲中，玩家有 ${{value}}$ 的概率贏取 $\\$10$，$0.5$的概率贏取$\\$5$，$0.3$ 的概率輸掉 $\\$4$（即贏取$-\\$4$）。求該遊戲贏取金額的期望值。",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "0.1",
+          "options": [
+            "0",
+            "0.2",
+            "0.1"
+          ]
+        },
+        {
+          "answer": "3.1",
+          "options": [
+            "3",
+            "3.2",
+            "3.1"
+          ]
+        },
+        {
+          "answer": "3.1",
+          "options": [
+            "3",
+            "3.2",
+            "3.1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4342,
+      "questionTemplate": "已知事件 A 發生的概率為 ${{value}}$，求事件 A 不發生的概率。",
+      "short_runs": 11,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "0.1",
+          "options": [
+            "0",
+            "0.2",
+            "0.1"
+          ]
+        },
+        {
+          "answer": "12.3",
+          "options": [
+            "12",
+            "12.4",
+            "12.3"
+          ]
+        },
+        {
+          "answer": "3.1",
+          "options": [
+            "3",
+            "3.2",
+            "3.1"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4507,
+      "questionTemplate": "若方程 $x^2 + kx + {{c}} = 0$ 有一個重根，且 $k>0$，求 $k$。",
+      "short_runs": 8,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "2",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "1",
+            "3",
+            "2"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "2",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4509,
+      "questionTemplate": "若方程 $x^2 + kx + {{c}} = 0$ 有一個重根，且 $k>0$，求 $k$。",
+      "short_runs": 12,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "4",
+          "options": [
+            "2",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "answer": "2",
+          "options": [
+            "1",
+            "3",
+            "2"
+          ]
+        },
+        {
+          "answer": "4",
+          "options": [
+            "2",
+            "5",
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet": "multipleChoice",
+      "row": 4624,
+      "questionTemplate": "設 $\\alpha$ 和 $\\beta$ 是方程 ${{a}}x^2 + {{b}}x + {{c}} = 0$ 的兩根，求 $\\frac{\\alpha}{\\beta}+\\frac{\\beta}{\\alpha}$。",
+      "short_runs": 1,
+      "sample_count": 30,
+      "examples": [
+        {
+          "answer": "23",
+          "options": [
+            "27",
+            "25",
+            "23"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Tailwind utility output is prebuilt into style.css.
+  Existing custom CSS currently remains inline in 數學小遊戲.html.
+*/

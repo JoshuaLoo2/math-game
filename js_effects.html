@@ -1,4 +1,6 @@
 <script>
+var transientEffectPools_ = {};
+
 function prefersReducedMotion_() {
     try {
         return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -13,6 +15,80 @@ function requestSciFiHaptic_(outcome) {
     try {
         navigator.vibrate(outcome === 'fail' ? [42, 20, 54, 18, 24] : [16, 12, 28]);
     } catch (e) {}
+}
+
+function cleanupEffectNode_(node, fallbackMs) {
+    if (!node) return;
+    var cleaned = false;
+    function cleanup() {
+        if (cleaned) return;
+        cleaned = true;
+        if (node.__effectPoolKey) {
+            releaseTransientEffectNode_(node);
+            return;
+        }
+        if (node.parentNode) node.parentNode.removeChild(node);
+    }
+    node.__effectCleanupHandler = cleanup;
+    node.addEventListener('animationend', cleanup, { once: true });
+    if (fallbackMs) node.__effectCleanupTimer = setTimeout(cleanup, fallbackMs);
+}
+
+function getEffectDensityTier_() {
+    if (!document || !document.body) return 'full';
+    return document.body.getAttribute('data-scene-performance') || 'full';
+}
+
+function canRunTransientEffects_() {
+    return !(document && document.hidden);
+}
+
+function getTransientEffectPool_(poolKey) {
+    if (!transientEffectPools_[poolKey]) transientEffectPools_[poolKey] = [];
+    return transientEffectPools_[poolKey];
+}
+
+function resetTransientEffectNode_(node, className) {
+    if (!node) return;
+    if (node.__effectCleanupHandler) {
+        node.removeEventListener('animationend', node.__effectCleanupHandler);
+        node.__effectCleanupHandler = null;
+    }
+    if (node.__effectCleanupTimer) {
+        clearTimeout(node.__effectCleanupTimer);
+        node.__effectCleanupTimer = 0;
+    }
+    node.hidden = false;
+    node.className = className || '';
+    node.removeAttribute('style');
+}
+
+function acquireTransientEffectNode_(poolKey, tagName, className) {
+    var pool = getTransientEffectPool_(poolKey);
+    var node = pool.length ? pool.pop() : document.createElement(tagName || 'div');
+    resetTransientEffectNode_(node, className);
+    node.__effectPoolKey = poolKey;
+    return node;
+}
+
+function releaseTransientEffectNode_(node) {
+    if (!node) return;
+    resetTransientEffectNode_(node, '');
+    if (node.parentNode) node.parentNode.removeChild(node);
+    if (node.__effectPoolKey) getTransientEffectPool_(node.__effectPoolKey).push(node);
+}
+
+function acquireSparkleBurst_(dotCount) {
+    var container = acquireTransientEffectNode_('sparkleBurst', 'div', 'sparkle-burst');
+    while (container.childNodes.length < dotCount) {
+        var dot = document.createElement('div');
+        dot.className = 'sparkle-dot';
+        container.appendChild(dot);
+    }
+    Array.prototype.forEach.call(container.childNodes, function(dot, index) {
+        dot.hidden = index >= dotCount;
+    });
+    return container;
 }
 
 function setQuestionCardFeedbackVars_(card, outcome) {
@@ -44,41 +120,38 @@ function setQuestionCardFeedbackVars_(card, outcome) {
 function spawnQuestionCardFeedbackFlash_(card, outcome) {
     if (!card) return;
     Array.prototype.forEach.call(card.querySelectorAll('.question-card-feedback-flash'), function(node) {
-        node.remove();
+        if (node.__effectPoolKey) releaseTransientEffectNode_(node);
+        else node.remove();
     });
     card.classList.add('question-card-feedback-host');
-    var flash = document.createElement('div');
-    flash.className = 'question-card-feedback-flash ' + (outcome === 'fail' ? 'is-wrong' : 'is-correct');
+    var flash = acquireTransientEffectNode_(
+        outcome === 'fail' ? 'questionCardFlashWrong' : 'questionCardFlashCorrect',
+        'div',
+        'question-card-feedback-flash ' + (outcome === 'fail' ? 'is-wrong' : 'is-correct')
+    );
     card.appendChild(flash);
-    setTimeout(function() {
-        if (flash.parentNode) flash.parentNode.removeChild(flash);
-    }, outcome === 'fail' ? 560 : 720);
+    cleanupEffectNode_(flash, outcome === 'fail' ? 560 : 720);
 }
 
 function spawnQuestionCardFeedbackDecor_(card, outcome) {
     if (!card) return;
     Array.prototype.forEach.call(card.querySelectorAll('.question-card-feedback-ornament'), function(node) {
-        node.remove();
+        if (node.__effectPoolKey) releaseTransientEffectNode_(node);
+        else node.remove();
     });
     card.classList.add('question-card-feedback-host');
     if (outcome === 'fail') {
-        var scanline = document.createElement('div');
-        scanline.className = 'question-card-feedback-ornament is-scanline';
+        var scanline = acquireTransientEffectNode_('questionCardScanline', 'div', 'question-card-feedback-ornament is-scanline');
         card.appendChild(scanline);
-        setTimeout(function() {
-            if (scanline.parentNode) scanline.parentNode.removeChild(scanline);
-        }, 520);
+        cleanupEffectNode_(scanline, 520);
         return;
     }
     for (var i = 0; i < 2; i++) {
         (function(delayMs) {
-            var ring = document.createElement('div');
-            ring.className = 'question-card-feedback-ornament is-energy-ring';
+            var ring = acquireTransientEffectNode_('questionCardEnergyRing', 'div', 'question-card-feedback-ornament is-energy-ring');
             ring.style.animationDelay = delayMs + 'ms';
             card.appendChild(ring);
-            setTimeout(function() {
-                if (ring.parentNode) ring.parentNode.removeChild(ring);
-            }, 860 + delayMs);
+            cleanupEffectNode_(ring, 860 + delayMs);
         })(i * 70);
     }
 }
@@ -91,9 +164,13 @@ function triggerSciFiAnswerFeedback_(cardId, stateClass) {
     spawnQuestionCardFeedbackFlash_(card, outcome);
     spawnQuestionCardFeedbackDecor_(card, outcome);
     requestSciFiHaptic_(outcome);
+    if (typeof triggerSceneTransition_ === 'function') triggerSceneTransition_(outcome === 'fail' ? 'fail' : 'success');
     card.classList.remove('question-card-success', 'question-card-fail');
-    void card.offsetWidth;
-    card.classList.add(stateClass);
+    if (typeof restartAnimationClass_ === 'function') restartAnimationClass_(card, stateClass);
+    else {
+        void card.offsetWidth;
+        card.classList.add(stateClass);
+    }
     setTimeout(function() {
         if (!card) return;
         card.classList.remove(stateClass);
@@ -103,9 +180,13 @@ function triggerSciFiAnswerFeedback_(cardId, stateClass) {
 function launchConfetti(customColors) {
     var colors = customColors || (typeof getActiveThemeParticlePalette_ === 'function' ? getActiveThemeParticlePalette_() : null) || getEquippedEffectColors();
     if (!colors) return;
-    for (var i = 0; i < 50; i++) {
-        var piece = document.createElement('div');
-        piece.className = 'confetti-piece';
+    if (!canRunTransientEffects_()) return;
+    var density = getEffectDensityTier_();
+    if (density === 'calm') return;
+    var pieceCount = density === 'lite' ? 28 : 50;
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < pieceCount; i++) {
+        var piece = acquireTransientEffectNode_('confettiPiece', 'div', 'confetti-piece');
         piece.style.left = Math.random() * 100 + 'vw';
         piece.style.background = colors[Math.floor(Math.random() * colors.length)];
         piece.style.setProperty('--cfd', (2 + Math.random() * 2) + 's');
@@ -114,24 +195,28 @@ function launchConfetti(customColors) {
         piece.style.animationDelay = (Math.random() * 0.6) + 's';
         piece.style.width = (6 + Math.random() * 6) + 'px';
         piece.style.height = (8 + Math.random() * 10) + 'px';
-        document.body.appendChild(piece);
-        (function(el) { setTimeout(function(){ el.remove(); }, 4500); })(piece);
+        frag.appendChild(piece);
+        cleanupEffectNode_(piece, 4500);
     }
+    document.body.appendChild(frag);
 }
 
 function launchMiniConfettiBurst(anchorId, customColors) {
     var anchor = document.getElementById(anchorId);
     var colors = customColors || (typeof getActiveThemeParticlePalette_ === 'function' ? getActiveThemeParticlePalette_() : null) || getEquippedEffectColors() || ['#10b981', '#34d399', '#fbbf24', '#60a5fa'];
     if (!anchor || !colors || !colors.length) return;
+    if (!canRunTransientEffects_()) return;
+    var density = getEffectDensityTier_();
+    if (density === 'calm') return;
     var rect = anchor.getBoundingClientRect();
     var centerX = rect.left + rect.width / 2;
     var centerY = rect.top + rect.height / 2;
-    var pieceCount = 18;
+    var pieceCount = density === 'lite' ? 10 : 18;
+    var frag = document.createDocumentFragment();
     for (var i = 0; i < pieceCount; i++) {
-        var piece = document.createElement('div');
+        var piece = acquireTransientEffectNode_('miniConfettiPiece', 'div', 'confetti-piece confetti-piece--mini');
         var angle = (Math.PI * 2 * i / pieceCount) + ((Math.random() - 0.5) * 0.35);
         var distance = 40 + Math.random() * 46;
-        piece.className = 'confetti-piece confetti-piece--mini';
         piece.style.background = colors[Math.floor(Math.random() * colors.length)];
         piece.style.setProperty('--ctx', centerX + 'px');
         piece.style.setProperty('--cty', centerY + 'px');
@@ -142,36 +227,42 @@ function launchMiniConfettiBurst(anchorId, customColors) {
         piece.style.setProperty('--cw', (5 + Math.random() * 5) + 'px');
         piece.style.setProperty('--ch', (8 + Math.random() * 6) + 'px');
         piece.style.animationDelay = (Math.random() * 0.12) + 's';
-        document.body.appendChild(piece);
-        (function(el) { setTimeout(function(){ el.remove(); }, 1800); })(piece);
+        frag.appendChild(piece);
+        cleanupEffectNode_(piece, 1800);
     }
+    document.body.appendChild(frag);
 }
 
 function launchSparkles(x, y) {
-    var container = document.createElement('div');
-    container.className = 'sparkle-burst';
+    var density = getEffectDensityTier_();
+    if (density === 'calm') return;
+    if (!canRunTransientEffects_()) return;
+    var sparkleCount = density === 'lite' ? 5 : 8;
+    var container = acquireSparkleBurst_(sparkleCount);
     container.style.left = x + 'px';
     container.style.top = y + 'px';
     var sparkColors = (typeof getActiveThemeSparkleColors_ === 'function' ? getActiveThemeSparkleColors_() : null) || ['#fbbf24','#f59e0b','#34d399','#60a5fa','#f472b6'];
-    for (var i = 0; i < 8; i++) {
-        var dot = document.createElement('div');
-        dot.className = 'sparkle-dot';
-        var angle = (Math.PI * 2 / 8) * i;
+    for (var i = 0; i < sparkleCount; i++) {
+        var dot = container.childNodes[i];
+        var angle = (Math.PI * 2 / sparkleCount) * i;
         var dist = 25 + Math.random() * 25;
         dot.style.setProperty('--sdx', Math.cos(angle) * dist + 'px');
         dot.style.setProperty('--sdy', Math.sin(angle) * dist + 'px');
         dot.style.background = sparkColors[Math.floor(Math.random() * sparkColors.length)];
-        container.appendChild(dot);
+        dot.hidden = false;
     }
     document.body.appendChild(container);
-    setTimeout(function(){ container.remove(); }, 800);
+    cleanupEffectNode_(container, 800);
 }
 
 function popScoreElement(id) {
     var el = document.getElementById(id);
     if (!el) return;
-    el.classList.remove('score-pop');
-    void el.offsetWidth;
-    el.classList.add('score-pop');
+    if (typeof restartAnimationClass_ === 'function') restartAnimationClass_(el, 'score-pop');
+    else {
+        el.classList.remove('score-pop');
+        void el.offsetWidth;
+        el.classList.add('score-pop');
+    }
 }
 </script>

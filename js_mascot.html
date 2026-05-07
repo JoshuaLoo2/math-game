@@ -151,7 +151,9 @@ function launchMascotEvolutionSparkles_() {
     if (!charEl || typeof document === 'undefined' || !document.body) return;
     var rect = charEl.getBoundingClientRect();
     if (!rect || (!rect.width && !rect.height)) return;
-    var container = document.createElement('div');
+    var container = typeof acquireTransientEffectNode_ === 'function'
+        ? acquireTransientEffectNode_('mascotEvolutionBurst', 'div', 'mascot-evolution-burst')
+        : document.createElement('div');
     var palette = ['#fbbf24', '#fde68a', '#ffffff', '#93c5fd', '#f9a8d4'];
     var glyphs = ['✦', '✧', '★', '✹'];
     var centerX = rect.left + rect.width / 2;
@@ -159,11 +161,16 @@ function launchMascotEvolutionSparkles_() {
     container.className = 'mascot-evolution-burst';
     container.style.left = centerX + 'px';
     container.style.top = centerY + 'px';
+    while (container.childNodes.length < 12) {
+        container.appendChild(document.createElement('span'));
+    }
     for (var i = 0; i < 12; i++) {
-        var particle = document.createElement('span');
+        var particle = container.childNodes[i];
         var angle = ((Math.PI * 2) / 12) * i + ((Math.random() - 0.5) * 0.28);
         var distance = 26 + Math.random() * 34;
         particle.className = 'mascot-evolution-particle';
+        particle.hidden = false;
+        particle.removeAttribute('style');
         particle.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
         particle.style.setProperty('--mep-color', palette[Math.floor(Math.random() * palette.length)]);
         particle.style.setProperty('--mep-size', (0.72 + Math.random() * 0.6) + 'rem');
@@ -172,10 +179,10 @@ function launchMascotEvolutionSparkles_() {
         particle.style.setProperty('--mep-rotate', (((Math.random() > 0.5 ? 1 : -1) * (90 + Math.random() * 180))) + 'deg');
         particle.style.setProperty('--mep-duration', (0.62 + Math.random() * 0.24) + 's');
         particle.style.animationDelay = (Math.random() * 0.08) + 's';
-        container.appendChild(particle);
     }
     document.body.appendChild(container);
-    setTimeout(function() {
+    if (typeof cleanupEffectNode_ === 'function') cleanupEffectNode_(container, 1100);
+    else setTimeout(function() {
         if (container && container.parentNode) container.parentNode.removeChild(container);
     }, 1100);
 }
