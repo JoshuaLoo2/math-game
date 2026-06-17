@@ -265,6 +265,7 @@ function setMascotState(state, customMsg) {
         case 'idle': charEl.classList.add('mascot-idle'); break;
         case 'celebrate': charEl.classList.add('mascot-celebrate'); break;
         case 'wrong': charEl.classList.add('mascot-wrong'); break;
+        case 'dizzy': charEl.classList.add('mascot-dizzy'); break;
         case 'thinking': charEl.classList.add('mascot-thinking'); break;
         case 'reading': charEl.classList.add('mascot-idle'); break;
         case 'enterNotes': charEl.classList.add('mascot-celebrate'); break;
@@ -279,14 +280,14 @@ function setMascotState(state, customMsg) {
         triggerMascotBurst_();
     }
 
-    var msg = customMsg || getRandomMsg(state);
+    var msg = customMsg || getRandomMsg(state === 'dizzy' ? 'wrong' : state);
     bubbleEl.innerText = msg;
     bubbleEl.classList.add('show');
 
     if (mascotTimer) clearTimeout(mascotTimer);
     mascotTimer = setTimeout(function() {
         bubbleEl.classList.remove('show');
-        if (state === 'celebrate' || state === 'wrong') {
+        if (state === 'celebrate' || state === 'wrong' || state === 'dizzy') {
             setTimeout(function() { setMascotState('idle'); }, 400);
         }
     }, state === 'idle' ? 4000 : 3000);

@@ -34,6 +34,29 @@ function cleanupEffectNode_(node, fallbackMs) {
     if (fallbackMs) node.__effectCleanupTimer = setTimeout(cleanup, fallbackMs);
 }
 
+function clearEffectTimer_(host, timerKey) {
+    if (!host || !timerKey || !host[timerKey]) return;
+    clearTimeout(host[timerKey]);
+    host[timerKey] = 0;
+}
+
+function applyTimedEffectClass_(element, className, durationMs) {
+    if (!element || !className) return;
+    var timerKey = '__effectTimer_' + className;
+    clearEffectTimer_(element, timerKey);
+    if (typeof restartAnimationClass_ === 'function') restartAnimationClass_(element, className);
+    else {
+        element.classList.remove(className);
+        void element.offsetWidth;
+        element.classList.add(className);
+    }
+    element[timerKey] = setTimeout(function() {
+        if (!element) return;
+        element.classList.remove(className);
+        clearEffectTimer_(element, timerKey);
+    }, Math.max(220, Number(durationMs) || 720));
+}
+
 function getEffectDensityTier_() {
     if (!document || !document.body) return 'full';
     return document.body.getAttribute('data-scene-performance') || 'full';
@@ -89,6 +112,27 @@ function acquireSparkleBurst_(dotCount) {
         dot.hidden = index >= dotCount;
     });
     return container;
+}
+
+function acquireAnswerStarburst_(rayCount) {
+    var container = acquireTransientEffectNode_('answerStarburst', 'div', 'answer-starburst');
+    while (container.childNodes.length < rayCount) {
+        var ray = document.createElement('span');
+        ray.className = 'answer-starburst__ray';
+        container.appendChild(ray);
+    }
+    Array.prototype.forEach.call(container.childNodes, function(ray, index) {
+        ray.hidden = index >= rayCount;
+    });
+    return container;
+}
+
+function acquireLightningOverlay_() {
+    var overlay = acquireTransientEffectNode_('answerLightningOverlay', 'div', 'answer-lightning-overlay');
+    while (overlay.childNodes.length < 2) {
+        overlay.appendChild(document.createElement('span'));
+    }
+    return overlay;
 }
 
 function setQuestionCardFeedbackVars_(card, outcome) {
@@ -183,7 +227,7 @@ function launchConfetti(customColors) {
     if (!canRunTransientEffects_()) return;
     var density = getEffectDensityTier_();
     if (density === 'calm') return;
-    var pieceCount = density === 'lite' ? 28 : 50;
+    var pieceCount = density === 'lite' ? 42 : 84;
     var frag = document.createDocumentFragment();
     for (var i = 0; i < pieceCount; i++) {
         var piece = acquireTransientEffectNode_('confettiPiece', 'div', 'confetti-piece');
@@ -193,8 +237,8 @@ function launchConfetti(customColors) {
         piece.style.setProperty('--cfr', (360 + Math.random() * 720) + 'deg');
         piece.style.setProperty('--cfrx', (Math.random() * 360) + 'deg');
         piece.style.animationDelay = (Math.random() * 0.6) + 's';
-        piece.style.width = (6 + Math.random() * 6) + 'px';
-        piece.style.height = (8 + Math.random() * 10) + 'px';
+        piece.style.width = (8 + Math.random() * 9) + 'px';
+        piece.style.height = (11 + Math.random() * 13) + 'px';
         frag.appendChild(piece);
         cleanupEffectNode_(piece, 4500);
     }
@@ -211,7 +255,7 @@ function launchMiniConfettiBurst(anchorId, customColors) {
     var rect = anchor.getBoundingClientRect();
     var centerX = rect.left + rect.width / 2;
     var centerY = rect.top + rect.height / 2;
-    var pieceCount = density === 'lite' ? 10 : 18;
+    var pieceCount = density === 'lite' ? 16 : 28;
     var frag = document.createDocumentFragment();
     for (var i = 0; i < pieceCount; i++) {
         var piece = acquireTransientEffectNode_('miniConfettiPiece', 'div', 'confetti-piece confetti-piece--mini');
@@ -237,7 +281,7 @@ function launchSparkles(x, y) {
     var density = getEffectDensityTier_();
     if (density === 'calm') return;
     if (!canRunTransientEffects_()) return;
-    var sparkleCount = density === 'lite' ? 5 : 8;
+    var sparkleCount = density === 'lite' ? 8 : 14;
     var container = acquireSparkleBurst_(sparkleCount);
     container.style.left = x + 'px';
     container.style.top = y + 'px';
@@ -253,6 +297,196 @@ function launchSparkles(x, y) {
     }
     document.body.appendChild(container);
     cleanupEffectNode_(container, 800);
+}
+
+function launchStarburst_(x, y, options) {
+    options = options || {};
+    if (!canRunTransientEffects_()) return;
+    var density = getEffectDensityTier_();
+    if (density === 'calm') return;
+    var colors = options.colors || ['#fde68a', '#fbbf24', '#f472b6', '#93c5fd', '#ffffff'];
+    var glyphs = options.glyphs || ['✦', '✧', '★', '✺'];
+    var rayCount = density === 'lite' ? 6 : (options.rayCount || 10);
+    var container = acquireAnswerStarburst_(rayCount);
+    container.style.left = x + 'px';
+    container.style.top = y + 'px';
+    for (var i = 0; i < rayCount; i++) {
+        var ray = container.childNodes[i];
+        var angle = ((Math.PI * 2) / rayCount) * i + ((Math.random() - 0.5) * 0.3);
+        var distance = (options.distanceBase || 34) + Math.random() * (options.distanceJitter || 36);
+        ray.hidden = false;
+        ray.className = 'answer-starburst__ray';
+        ray.textContent = '';
+        ray.setAttribute('data-glyph', glyphs[Math.floor(Math.random() * glyphs.length)]);
+        ray.style.setProperty('--star-size', ((options.sizeBase || 0.9) + Math.random() * 0.7) + 'rem');
+        ray.style.setProperty('--star-color', colors[Math.floor(Math.random() * colors.length)]);
+        ray.style.setProperty('--star-x', Math.cos(angle) * distance + 'px');
+        ray.style.setProperty('--star-y', Math.sin(angle) * distance + 'px');
+        ray.style.setProperty('--star-duration', ((options.durationBase || 0.78) + Math.random() * 0.22) + 's');
+        ray.style.setProperty('--star-rotate', (((Math.random() > 0.5 ? 1 : -1) * (45 + Math.random() * 120))) + 'deg');
+        ray.style.animationDelay = (Math.random() * 0.08) + 's';
+    }
+    document.body.appendChild(container);
+    cleanupEffectNode_(container, 1100);
+}
+
+function launchLightningStrike_(options) {
+    options = options || {};
+    if (!canRunTransientEffects_()) return;
+    var overlay = acquireLightningOverlay_();
+    var originX = typeof options.originX === 'number' ? options.originX : (window.innerWidth * (0.28 + Math.random() * 0.44));
+    var tilt = (Math.random() > 0.5 ? 1 : -1) * (6 + Math.random() * 12);
+    Array.prototype.forEach.call(overlay.childNodes, function(branch, index) {
+        branch.hidden = false;
+        branch.className = 'answer-lightning-branch ' + (index === 0 ? 'answer-lightning-branch--left' : 'answer-lightning-branch--right');
+        branch.style.left = (originX + (index === 0 ? -28 : 18)) + 'px';
+        branch.style.top = (-10 - index * 2) + 'vh';
+        branch.style.height = (72 + Math.random() * 20) + 'vh';
+        branch.style.animationDelay = (index * 0.05) + 's';
+        branch.style.setProperty('--lightning-tilt', (tilt + (index === 0 ? -8 : 7)) + 'deg');
+    });
+    document.body.appendChild(overlay);
+    cleanupEffectNode_(overlay, prefersReducedMotion_() ? 180 : 760);
+}
+
+function triggerAnswerOutcomeEffects_(options) {
+    options = options || {};
+    var outcome = options.outcome === 'fail' ? 'fail' : 'success';
+    var cardId = options.cardId || '';
+    var triggerEl = options.triggerEl || null;
+    var mode = options.mode || 'challenge';
+    var comboLevel = Math.max(1, Number(options.comboLevel) || 1);
+    var modeProfile = {
+        challenge: {
+            starColors: ['#fde68a', '#fbbf24', '#93c5fd', '#f472b6', '#ffffff'],
+            starRays: comboLevel >= 3 ? 16 : 12,
+            starDistance: comboLevel >= 3 ? 58 : 46,
+            starDistanceJitter: comboLevel >= 3 ? 54 : 40,
+            starSizeBase: comboLevel >= 3 ? 1.15 : 1,
+            sparkles: true,
+            miniConfetti: true,
+            fullscreenConfetti: !prefersReducedMotion_() && (options.allowFullscreen || comboLevel >= 2),
+            lightning: true,
+            lightningDouble: comboLevel >= 2
+        },
+        daily: {
+            starColors: ['#fde68a', '#93c5fd', '#ffffff', '#fbbf24'],
+            starRays: 8,
+            starDistance: 34,
+            starDistanceJitter: 24,
+            starSizeBase: 0.92,
+            sparkles: true,
+            miniConfetti: true,
+            fullscreenConfetti: false,
+            lightning: true,
+            lightningDouble: false
+        },
+        notes: {
+            starColors: ['#bbf7d0', '#6ee7b7', '#fef08a', '#ffffff'],
+            starRays: 5,
+            starDistance: 22,
+            starDistanceJitter: 14,
+            starSizeBase: 0.72,
+            sparkles: false,
+            miniConfetti: false,
+            fullscreenConfetti: false,
+            lightning: !prefersReducedMotion_(),
+            lightningDouble: false
+        }
+    }[mode] || {
+        starColors: ['#fde68a', '#93c5fd', '#ffffff'],
+        starRays: 7,
+        starDistance: 30,
+        starDistanceJitter: 22,
+        starSizeBase: 0.85,
+        sparkles: true,
+        miniConfetti: true,
+        fullscreenConfetti: false,
+        lightning: true,
+        lightningDouble: false
+    };
+    var rect = triggerEl && typeof triggerEl.getBoundingClientRect === 'function' ? triggerEl.getBoundingClientRect() : null;
+    var centerX = rect ? (rect.left + rect.width / 2) : (window.innerWidth / 2);
+    var centerY = rect ? (rect.top + rect.height / 2) : Math.max(120, window.innerHeight * 0.28);
+    if (cardId && typeof pulseFeedbackCard_ === 'function') {
+        pulseFeedbackCard_(cardId, outcome === 'fail' ? 'question-card-fail' : 'question-card-success');
+    }
+    if (outcome === 'success') {
+        if (document && document.body && mode === 'challenge') applyTimedEffectClass_(document.body, 'answer-celebration-pulse', 620);
+        if (triggerEl) triggerEl.classList.add('flash-correct');
+        if (modeProfile.sparkles) launchSparkles(centerX, centerY);
+        launchStarburst_(centerX, centerY, {
+            colors: modeProfile.starColors,
+            rayCount: modeProfile.starRays,
+            distanceBase: modeProfile.starDistance,
+            distanceJitter: modeProfile.starDistanceJitter,
+            sizeBase: modeProfile.starSizeBase,
+            durationBase: mode === 'notes' ? 0.64 : 0.82
+        });
+        if (mode === 'challenge' && comboLevel >= 2) {
+            launchStarburst_(centerX, Math.max(72, centerY - 18), {
+                colors: ['#ffffff', '#fde68a', '#fbbf24', '#93c5fd'],
+                rayCount: comboLevel >= 4 ? 12 : 8,
+                distanceBase: comboLevel >= 4 ? 68 : 52,
+                distanceJitter: 28,
+                sizeBase: 1.1,
+                durationBase: 0.9
+            });
+        }
+        if (mode === 'challenge') {
+            launchStarburst_(window.innerWidth * 0.5, Math.max(58, centerY - 120), {
+                colors: ['#ffffff', '#fde68a', '#fbbf24', '#93c5fd', '#f472b6'],
+                rayCount: comboLevel >= 3 ? 18 : 14,
+                distanceBase: comboLevel >= 3 ? 110 : 88,
+                distanceJitter: 44,
+                sizeBase: 1.28,
+                durationBase: 1.02
+            });
+        }
+        if (modeProfile.miniConfetti && triggerEl && typeof ensureElementAnchorId_ === 'function') {
+            launchMiniConfettiBurst(ensureElementAnchorId_(triggerEl, mode + '-answer'));
+        }
+        if (modeProfile.fullscreenConfetti) {
+            launchConfetti();
+            if (mode === 'challenge') {
+                setTimeout(function() { if (canRunTransientEffects_()) launchConfetti(['#fde68a', '#fbbf24', '#60a5fa', '#f472b6', '#ffffff']); }, 120);
+            }
+        }
+        if (typeof playCelebrationSound_ === 'function') playCelebrationSound_(comboLevel, mode);
+        else if (typeof playCorrectSound === 'function') playCorrectSound(comboLevel);
+        if (typeof triggerPlayerAvatarReaction_ === 'function') triggerPlayerAvatarReaction_(true);
+        if (typeof setMascotState === 'function') setMascotState(options.successMascotState || 'challengeCorrect', options.successMascotMessage || '');
+        return;
+    }
+    if (document && document.body) {
+        var recoilDirection = centerX < (window.innerWidth / 2) ? 1 : -1;
+        document.body.style.setProperty('--page-recoil-x', (recoilDirection * 22) + 'px');
+        document.body.style.setProperty('--page-recoil-y', '8px');
+        document.body.style.setProperty('--page-recoil-tilt', (recoilDirection * -1.8) + 'deg');
+        applyTimedEffectClass_(document.body, 'answer-screen-shake', mode === 'challenge' ? 760 : 560);
+        applyTimedEffectClass_(document.body, 'answer-page-recoil', mode === 'challenge' ? 880 : 680);
+    }
+    if (cardId) {
+        var recoilCard = document.getElementById(cardId);
+        if (recoilCard) {
+            var recoilDirection = centerX < (window.innerWidth / 2) ? 1 : -1;
+            recoilCard.style.setProperty('--lightning-recoil-x', (recoilDirection * 82) + 'px');
+            recoilCard.style.setProperty('--lightning-recoil-y', '20px');
+            recoilCard.style.setProperty('--lightning-recoil-tilt', (recoilDirection * -5.6) + 'deg');
+            applyTimedEffectClass_(recoilCard, 'question-card-lightning-recoil', mode === 'challenge' ? 820 : 620);
+        }
+    }
+    if (triggerEl) triggerEl.classList.add('flash-wrong');
+    if (modeProfile.lightning) launchLightningStrike_({ originX: centerX });
+    if (modeProfile.lightningDouble) {
+        launchLightningStrike_({ originX: centerX + (Math.random() > 0.5 ? 68 : -68) });
+        setTimeout(function() { if (canRunTransientEffects_()) launchLightningStrike_({ originX: window.innerWidth * (0.22 + Math.random() * 0.56) }); }, 110);
+    }
+    if (options.isTimeout && typeof playTimeoutSound === 'function') playTimeoutSound();
+    else if (typeof playDizzyFailSound_ === 'function') playDizzyFailSound_(mode);
+    else if (typeof playWrongSound === 'function') playWrongSound();
+    if (typeof triggerPlayerAvatarReaction_ === 'function') triggerPlayerAvatarReaction_(false);
+    if (typeof setMascotState === 'function') setMascotState(options.failMascotState || 'dizzy', options.failMascotMessage || '');
 }
 
 function popScoreElement(id) {
